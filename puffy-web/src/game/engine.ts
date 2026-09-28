@@ -1,29 +1,23 @@
 import {
   COMBOS,
   COMBO_MAP,
-  CHEERS,
   ELEMENT_MAP,
-  ENCOURAGEMENT_LINES,
   FALLBACK_IDEA,
-  LONER_LINES,
   NOBLE_GAS_IDS,
-  PRAISE_PREFIXES,
-  REJECTION_LINES,
-  SPICY_LINES,
   SPICY_MAP,
   TAG_NOUNS,
-  THINKING_LINES,
-  SILLY_LINES,
+  VOICE,
   normalizeKey,
+  type IdeaArtId,
+  type TagNoun,
 } from '../data/content'
-import type { Combo, Element, Outcome } from './types'
-import type { IdeaArtId, TagNoun } from '../data/content'
-import { discoveryLine, ideaLine, repeatLine } from './lines'
+import type { Combo, Element, Level, Outcome, SpicyPair } from './types'
+import { discoveryLines, ideaLine, repeatLine, spicyBuiltLines } from './lines'
 
 export { hintLine, sameLine } from './lines'
 
-/** One spoken beat: a line of text, or the child's name (recorded clip or spoken text). */
-export type Beat = string | { name: true }
+/** One spoken beat. The narrator never says the child's name (DECISIONS.md). */
+export type Beat = string
 export type Script = Beat[]
 
 // ─── Resolution ─────────────────────────────────────────────────────────────
@@ -99,42 +93,45 @@ export function ideasFor(a: Element, b: Element): TagNoun[] {
 }
 
 // ─── Scripts ────────────────────────────────────────────────────────────────
-export function discoveryScript(combo: Combo, firstTime: boolean, useName: boolean): Script {
-  if (!firstTime) return [repeatLine(combo, bank.pick('cheer', CHEERS))]
-  const line = discoveryLine(combo, bank.pick('praise', PRAISE_PREFIXES))
-  return useName ? [{ name: true }, line] : [line]
+export function discoveryScript(combo: Combo, firstTime: boolean, level: Level): Script {
+  const v = VOICE[level]
+  if (!firstTime) return [repeatLine(combo, level, bank.pick(`cheer${level}`, v.cheers))]
+  return discoveryLines(combo, level, bank.pick(`praise${level}`, v.praise))
 }
 
 export interface SillySequence {
   thinking: string
-  /** "Forever bubble!" */
+  /** "Flying house!" (level 1), "House!" (level 0), "Maybe a flying house?" (2–3) */
   idea: string
   art: IdeaArtId
   /** Puffy giggles at its own idea: "Hee hee!" */
   silly: string
   rejection: string
+  /** Why helium said no. Empty at level 0. */
   reason: string
   encouragement: string
 }
 
-export function lonerSequence(noble: Element, other: Element): SillySequence {
+export function lonerSequence(noble: Element, other: Element, level: Level): SillySequence {
+  const v = VOICE[level]
   const ideas = ideasFor(noble, other)
   const pool = ideas.length ? ideas : [FALLBACK_IDEA]
   const noun = bank.pick(`noun:${normalizeKey([noble.id, other.id])}`, pool.map((i) => i.noun))
-  const art = pool.find((i) => i.noun === noun)!.art
+  const idea = pool.find((i) => i.noun === noun)!
   return {
-    thinking: bank.pick('thinking', THINKING_LINES),
-    idea: ideaLine(noun),
-    art,
-    silly: bank.pick('silly', SILLY_LINES),
-    rejection: bank.pick('rejection', REJECTION_LINES),
-    reason: bank.pick('loner', LONER_LINES).replace('{name}', noble.name),
-    encouragement: bank.pick('encourage', ENCOURAGEMENT_LINES),
+    thinking: bank.pick(`thinking${level}`, v.thinking),
+    idea: ideaLine(idea, level),
+    art: idea.art,
+    silly: bank.pick(`silly${level}`, v.silly),
+    rejection: bank.pick(`rejection${level}`, v.rejection),
+    reason: v.loner.length ? bank.pick(`loner${level}`, v.loner).replace('{name}', noble.name) : '',
+    encouragement: bank.pick(`encourage${level}`, v.encourage),
   }
 }
 
-export function spicyLine(): string {
-  return bank.pick('spicy', SPICY_LINES)
+export function spicyScript(spicy: SpicyPair, level: Level): Script {
+  const built = spicyBuiltLines(spicy, level)
+  return built.length ? built : [bank.pick(`spicy${level}`, VOICE[level].spicy)]
 }
 
 // ─── Adaptive helpers ───────────────────────────────────────────────────────

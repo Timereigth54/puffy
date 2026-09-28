@@ -42,6 +42,10 @@ export interface Combo {
     displayName: string
     /** What the narrator says to a toddler: a short, true nickname. */
     spoken: string
+    /** One word for the youngest level, matching the picture: "Water", "Fire", "Balloon". */
+    word: string
+    /** How the oldest level says the formula aloud: "H two O". */
+    formulaSpoken: string
     formula: string
     art: ArtId
     color: string
@@ -85,14 +89,21 @@ export type PuffyState =
 
 export type Screen = 'splash' | 'onboarding' | 'home' | 'play' | 'book' | 'gate' | 'parent'
 
-export type AgeMode = 0 | 1
+/**
+ * 0 Giggles (age 1): single words. 1 Tiny Lab (2–3): one to three words.
+ * 2 Element Friends (4–5): short sentences, symbols and names on screen.
+ * 3 Real Chemist (6–8): explanations, formulas on screen.
+ */
+export type Level = 0 | 1 | 2 | 3
 
-export type TextLevel = 'off' | 'symbols' | 'names' | 'formulas'
+export type TextLevel = 'off' | 'names' | 'formulas'
 
 export interface Settings {
-  ageMode: AgeMode
+  /** The child's age in years, as a grown-up entered it. Sets the level unless the level was chosen by hand. */
+  childAge: number | null
+  level: Level
+  levelChosenByHand: boolean
   voiceOn: boolean
-  textLevel: TextLevel
   spitSound: 'silly' | 'sweet'
   hints: 'always' | 'sometimes' | 'never'
   timeLimitMinutes: number | null
@@ -100,8 +111,8 @@ export interface Settings {
 
 export interface Progress {
   version: number
+  /** Shown to grown-ups only. The narrator never says it (see DECISIONS.md). */
   childName: string | null
-  hasNameRecording: boolean
   onboarded: boolean
   discovered: string[]
   /** ISO date per combo id, for the parent dashboard. */

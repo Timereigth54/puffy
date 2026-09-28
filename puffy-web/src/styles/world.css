@@ -621,16 +621,21 @@
   position: absolute;
   top: max(2vh, 10px);
   left: max(2vw, 12px);
-  width: 48px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   height: 48px;
-  padding: 10px;
+  padding: 0 16px 0 12px;
   border: 0;
-  border-radius: 12px;
-  background: transparent;
-  color: rgba(107, 74, 94, 0.72);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 2px 6px rgba(166, 60, 120, 0.15);
+  color: var(--ink-soft);
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
 }
-.gear .icon { width: 100%; height: 100%; }
+.gear .icon { width: 24px; height: 24px; }
 
 .play-button {
   position: absolute;
@@ -729,19 +734,19 @@
 .guide-ghost {
   position: absolute;
   inset: auto;
-  width: var(--snack);
-  height: var(--snack);
+  width: var(--float-size);
+  height: var(--float-size);
   opacity: 0;
   pointer-events: none;
   animation: guide 2.6s var(--ease-in-out) 1.2s infinite;
 }
-.guide-ghost--first { --from-x: 14vw; }
-.guide-ghost--second { --from-x: 28vw; }
+.guide-ghost--first { --from-x: var(--s0x); --from-y: var(--s0y); }
+.guide-ghost--second { --from-x: var(--s1x); --from-y: var(--s1y); }
 @keyframes guide {
-  0% { left: var(--from-x); top: 74vh; opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  0% { left: var(--from-x); top: var(--from-y); opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
   15% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.08); }
-  70% { left: 50vw; top: 34vh; opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
-  85%, 100% { left: 50vw; top: 34vh; opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+  70% { left: 50%; top: 34%; opacity: 0.8; transform: translate(-50%, -50%) scale(0.6); }
+  85%, 100% { left: 50%; top: 34%; opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
 }
 
 /* ─── Discovery: the result slaps onto the wet tiles ───────────────────── */
@@ -1130,3 +1135,94 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ─── Floating snacks (play) ───────────────────────────────────────────── */
+/* Each snack drifts slowly around its own home spot in an arc under Puffy,
+   so it floats but stays where a small hand expects it. */
+.play-stage {
+  --float-size: clamp(110px, 21vmin, 200px);
+  --s0x: 11%; --s0y: 64%;
+  --s1x: 26%; --s1y: 77%;
+  --s2x: 42%; --s2y: 82%;
+  --s3x: 58%; --s3y: 82%;
+  --s4x: 74%; --s4y: 77%;
+  --s5x: 89%; --s5y: 64%;
+}
+.float-slot {
+  position: absolute;
+  inset: auto;
+  width: var(--float-size);
+  height: var(--float-size);
+  transform: translate(-50%, -50%);
+  z-index: 6;
+}
+.float-slot--0 { left: var(--s0x); top: var(--s0y); }
+.float-slot--1 { left: var(--s1x); top: var(--s1y); }
+.float-slot--2 { left: var(--s2x); top: var(--s2y); }
+.float-slot--3 { left: var(--s3x); top: var(--s3y); }
+.float-slot--4 { left: var(--s4x); top: var(--s4y); }
+.float-slot--5 { left: var(--s5x); top: var(--s5y); }
+.snack__drift {
+  position: absolute;
+  inset: 0;
+  display: block;
+  animation: drift-x calc(6s + var(--i) * 0.8s) var(--ease-in-out) infinite alternate;
+  animation-delay: calc(var(--i) * -1.3s);
+}
+@keyframes drift-x {
+  from { transform: translateX(-16px); }
+  to { transform: translateX(16px); }
+}
+.float-slot .snack__bob {
+  animation: float-bob calc(3.2s + var(--i) * 0.35s) var(--ease-in-out) infinite alternate;
+  animation-delay: calc(var(--i) * -0.9s);
+}
+@keyframes float-bob {
+  from { transform: translateY(-12px) rotate(-5deg); }
+  to { transform: translateY(12px) rotate(5deg); }
+}
+.float-slot .snack-art {
+  filter: drop-shadow(6px 14px 10px rgba(166, 60, 120, 0.22));
+}
+.float-slot.is-hinted .snack__bob {
+  animation: float-bob 3.2s var(--ease-in-out) infinite alternate, hint-glow 1.2s var(--ease-in-out) infinite alternate;
+}
+.float-slot.is-tapped .snack__bob {
+  animation: tap-bounce 0.36s var(--ease-squish);
+}
+@keyframes tap-bounce {
+  35% { transform: translateY(-18px) scale(1.15, 0.88); }
+  70% { transform: translateY(0) scale(0.94, 1.06); }
+}
+.play.is-busy .float-slot { opacity: 0.8; }
+
+/* a tapped snack's trip into Puffy's mouth: bounce, arc, gulp */
+.flight {
+  position: absolute;
+  inset: auto;
+  width: var(--float-size);
+  height: var(--float-size);
+  margin: calc(var(--float-size) / -2) 0 0 calc(var(--float-size) / -2);
+  z-index: 25;
+  pointer-events: none;
+  animation: fly-in 560ms cubic-bezier(0.45, 0, 0.55, 1) forwards;
+}
+@keyframes fly-in {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  20% { transform: translate(0, -28px) scale(1.12, 0.9) rotate(-8deg); }
+  60% { transform: translate(calc(var(--dx) * 0.6), calc(var(--dy) * 0.6 - 90px)) scale(0.85) rotate(160deg); }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.28) rotate(340deg); opacity: 0.7; }
+}
+
+@media (orientation: portrait) {
+  .play-stage {
+    --float-size: clamp(100px, 24vw, 190px);
+    --s0x: 20%; --s0y: 61%;
+    --s1x: 50%; --s1y: 59%;
+    --s2x: 80%; --s2y: 61%;
+    --s3x: 20%; --s3y: 79%;
+    --s4x: 50%; --s4y: 81%;
+    --s5x: 80%; --s5y: 79%;
+  }
+}
+.is-lite .float-slot .snack-art { filter: none; }

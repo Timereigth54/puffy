@@ -210,9 +210,8 @@ export const sfx = Object.fromEntries(
 let voiceEnabled = true
 let manifest: Record<string, string> | null = null
 let manifestLoading: Promise<void> | null = null
-let nameClip: AudioBuffer | null = null
-let nameBlob: Blob | null = null
-let childName: string | null = null
+/** What the narrator last actually played through: for the grown-ups' voice check. */
+let lastSource: 'clip' | 'device' | 'none' = 'none'
 let speechVoice: SpeechSynthesisVoice | null = null
 let generation = 0
 let current: { stop: () => void } | null = null
@@ -221,22 +220,6 @@ const bufferCache = new Map<string, Promise<AudioBuffer | null>>()
 export function setVoiceEnabled(on: boolean) {
   voiceEnabled = on
   if (!on) stopVoice()
-}
-
-export function setChildName(name: string | null) {
-  childName = name
-}
-
-export async function setNameClip(blob: Blob | null) {
-  nameBlob = blob
-  nameClip = null
-  const c = blob ? ac() : null
-  if (!blob || !c) return
-  try {
-    nameClip = await decode(c, await blob.arrayBuffer())
-  } catch {
-    nameClip = null
-  }
 }
 
 function loadManifest(): Promise<void> {
@@ -348,24 +331,28 @@ function playElement(src: string, revoke = false): Promise<void> {
 }
 
 async function playBeat(beat: Beat): Promise<void> {
-  if (typeof beat !== 'string') {
-    if (nameClip) return playBuffer(nameClip)
-    if (nameBlob && !ac()) return playElement(URL.createObjectURL(nameBlob), true)
-    return speak(childName ? `${childName}!` : 'Wow!')
-  }
   await loadManifest()
   const file = manifest?.[lineKey(beat)]
   if (file) {
+    lastSource = 'clip'
     if (!ac()) return playElement(`${import.meta.env.BASE_URL}voice/${file}`)
     const buf = await clipBuffer(file)
     if (buf) return playBuffer(buf)
   }
+  // No recorded clip for this line: the device's own voice, which sounds robotic.
+  lastSource = 'device'
   return speak(beat)
+}
+
+/** For the grown-ups screen: how many clips are available, and what played last. */
+export async function voiceCheck(): Promise<{ clips: number; webAudio: boolean; lastSource: string }> {
+  await loadManifest()
+  return { clips: Object.keys(manifest ?? {}).length, webAudio: !!ac(), lastSource }
 }
 
 /** Rough reading time for a line when voice is off, so beats still breathe. */
 export function silentDuration(script: Script): number {
-  const chars = script.reduce<number>((n, b) => n + (typeof b === 'string' ? b.length : 6), 0)
+  const chars = script.reduce<number>((n, b) => n + b.length, 0)
   return Math.max(700, chars * 45)
 }
 

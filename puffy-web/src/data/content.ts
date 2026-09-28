@@ -1,4 +1,4 @@
-import type { Combo, Element, SpicyPair } from '../game/types'
+import type { Combo, Element, Level, SpicyPair } from '../game/types'
 
 // ─── Starter pack (Mode 0, ages 2–3) ────────────────────────────────────────
 // Six snacks chosen so that every one of the 21 possible pairs has an honest
@@ -123,7 +123,7 @@ export const COMBOS: Combo[] = [
     id: 'water',
     inputs: ['H', 'O'],
     kind: 'compound',
-    result: { displayName: 'Water', spoken: 'Water', formula: 'H₂O', art: 'water', color: '#4FB8F0' },
+    result: { displayName: 'Water', spoken: 'Water', word: 'Water', formulaSpoken: 'H two O', formula: 'H₂O', art: 'water', color: '#4FB8F0' },
     facts: {
       toddler: 'Drink it! Splash it!',
       kid: 'Water is a compound: two hydrogens and one oxygen.',
@@ -136,7 +136,7 @@ export const COMBOS: Combo[] = [
     id: 'hydrogen-gas',
     inputs: ['H', 'H'],
     kind: 'element',
-    result: { displayName: 'Hydrogen gas', spoken: 'Hydrogen', formula: 'H₂', art: 'rocket', color: '#7FD4FF' },
+    result: { displayName: 'Hydrogen gas', spoken: 'Hydrogen', word: 'Hydrogen', formulaSpoken: 'H two', formula: 'H₂', art: 'rocket', color: '#7FD4FF' },
     facts: {
       toddler: 'Rockets go zoom!',
       kid: 'Two hydrogens holding hands make hydrogen gas. Rockets burn it.',
@@ -149,7 +149,7 @@ export const COMBOS: Combo[] = [
     id: 'oxygen-gas',
     inputs: ['O', 'O'],
     kind: 'element',
-    result: { displayName: 'Oxygen gas', spoken: 'Oxygen', formula: 'O₂', art: 'breath', color: '#4FC3F7' },
+    result: { displayName: 'Oxygen gas', spoken: 'Oxygen', word: 'Oxygen', formulaSpoken: 'O two', formula: 'O₂', art: 'breath', color: '#4FC3F7' },
     facts: {
       toddler: 'Big breath in!',
       kid: 'Two oxygens holding hands make the air you breathe.',
@@ -162,7 +162,7 @@ export const COMBOS: Combo[] = [
     id: 'carbon-dioxide',
     inputs: ['C', 'O'],
     kind: 'compound',
-    result: { displayName: 'Carbon dioxide', spoken: 'Fizzy gas', formula: 'CO₂', art: 'fizz', color: '#9FB6C8' },
+    result: { displayName: 'Carbon dioxide', spoken: 'Fizzy gas', word: 'Bubbles', formulaSpoken: 'C O two', formula: 'CO₂', art: 'fizz', color: '#9FB6C8' },
     facts: {
       toddler: 'Fizzy bubbles!',
       kid: 'Carbon dioxide is a compound. You breathe it out.',
@@ -175,7 +175,7 @@ export const COMBOS: Combo[] = [
     id: 'salt',
     inputs: ['Na', 'Cl'],
     kind: 'compound',
-    result: { displayName: 'Salt', spoken: 'Salt', formula: 'NaCl', art: 'salt', color: '#F4EDE4' },
+    result: { displayName: 'Salt', spoken: 'Salt', word: 'Salt', formulaSpoken: 'sodium chloride', formula: 'NaCl', art: 'salt', color: '#F4EDE4' },
     facts: {
       toddler: 'Crunchy! Salty!',
       kid: 'Salt is a compound of sodium and chlorine.',
@@ -188,7 +188,7 @@ export const COMBOS: Combo[] = [
     id: 'methane',
     inputs: ['C', 'H'],
     kind: 'compound',
-    result: { displayName: 'Methane', spoken: 'Stove gas', formula: 'CH₄', art: 'flame', color: '#FFB24D' },
+    result: { displayName: 'Methane', spoken: 'Stove gas', word: 'Fire', formulaSpoken: 'C H four', formula: 'CH₄', art: 'flame', color: '#FFB24D' },
     facts: {
       toddler: 'Little blue fire!',
       kid: 'Methane is a compound of carbon and hydrogen. Stoves burn it.',
@@ -201,7 +201,7 @@ export const COMBOS: Combo[] = [
     id: 'diamond',
     inputs: ['C', 'C'],
     kind: 'element',
-    result: { displayName: 'Diamond', spoken: 'Diamond', formula: 'C', art: 'diamond', color: '#BFE9FF' },
+    result: { displayName: 'Diamond', spoken: 'Diamond', word: 'Diamond', formulaSpoken: 'pure carbon', formula: 'C', art: 'diamond', color: '#BFE9FF' },
     facts: {
       toddler: 'Super shiny!',
       kid: 'A diamond is still carbon, with every carbon holding hands very tightly.',
@@ -214,7 +214,7 @@ export const COMBOS: Combo[] = [
     id: 'hydrochloric-acid',
     inputs: ['H', 'Cl'],
     kind: 'compound',
-    result: { displayName: 'Tummy acid', spoken: 'Tummy juice', formula: 'HCl', art: 'tummy', color: '#C6E377' },
+    result: { displayName: 'Tummy acid', spoken: 'Tummy juice', word: 'Tummy', formulaSpoken: 'H C L', formula: 'HCl', art: 'tummy', color: '#C6E377' },
     facts: {
       toddler: 'It mashes food!',
       kid: 'Hydrochloric acid is a compound. A little of it helps your tummy digest.',
@@ -227,7 +227,7 @@ export const COMBOS: Combo[] = [
     id: 'helium-gas',
     inputs: ['He', 'He'],
     kind: 'element',
-    result: { displayName: 'Helium gas', spoken: 'Helium', formula: 'He', art: 'balloon', color: '#E6C8FF' },
+    result: { displayName: 'Helium gas', spoken: 'Helium', word: 'Balloon', formulaSpoken: 'H E', formula: 'He', art: 'balloon', color: '#E6C8FF' },
     facts: {
       toddler: 'Balloons float up!',
       kid: 'Helium never holds hands, not even with helium. It just floats.',
@@ -261,14 +261,17 @@ export const SPICY_MAP: Record<string, SpicyPair> = Object.fromEntries(
 
 export const NOBLE_GAS_IDS = ['He', 'Ne', 'Ar', 'Kr', 'Xe', 'Rn']
 
-// ─── Silly-idea engine banks ────────────────────────────────────────────────
-// Toddler words only: one to three words a line. Pairs one tag from each
-// element to a silly thing Puffy imagines.
+// ─── Silly-idea engine ──────────────────────────────────────────────────────
+// Pairs one tag from each element to a silly thing Puffy imagines. Each idea
+// is drawn (IdeaArt.tsx) so the joke works with no sound and no text.
 export interface TagNoun {
   tags: [string, string]
-  /** What Puffy says, without an article: "Flying house". */
+  /** Level 1: "Flying house". */
   noun: string
-  /** The drawing in the thought bubble, so the joke works with the sound off. */
+  /** Level 0: one word, matching the drawing. */
+  word: string
+  /** Levels 2–3: with its article, "a flying house". */
+  phrase: string
   art: IdeaArtId
 }
 
@@ -287,40 +290,136 @@ export type IdeaArtId =
 
 // Every "nope" pair is helium plus one other snack, so two ideas per pair.
 export const TAG_NOUNS: TagNoun[] = [
-  { tags: ['float', 'light'], noun: 'Floaty feather', art: 'feather' },
-  { tags: ['party', 'water'], noun: 'Flying puddle', art: 'puddle' },
-  { tags: ['balloon', 'bubbles'], noun: 'Forever bubble', art: 'bubble' },
-  { tags: ['party', 'fire'], noun: 'Flying candles', art: 'candles' },
-  { tags: ['float', 'building'], noun: 'Flying house', art: 'house' },
-  { tags: ['balloon', 'dark'], noun: 'Scribble balloon', art: 'scribble' },
-  { tags: ['float', 'salty'], noun: 'Flying fries', art: 'fries' },
-  { tags: ['party', 'shiny'], noun: 'Disco star', art: 'disco' },
-  { tags: ['float', 'pool'], noun: 'Sky pool', art: 'pool' },
-  { tags: ['balloon', 'green'], noun: 'Pickle balloon', art: 'pickle' },
+  { tags: ['float', 'light'], noun: 'Floaty feather', word: 'Feather', phrase: 'a floaty feather', art: 'feather' },
+  { tags: ['party', 'water'], noun: 'Flying puddle', word: 'Puddle', phrase: 'a flying puddle', art: 'puddle' },
+  { tags: ['balloon', 'bubbles'], noun: 'Forever bubble', word: 'Bubble', phrase: 'a bubble that never pops', art: 'bubble' },
+  { tags: ['party', 'fire'], noun: 'Flying candles', word: 'Candles', phrase: 'some flying birthday candles', art: 'candles' },
+  { tags: ['float', 'building'], noun: 'Flying house', word: 'House', phrase: 'a flying house', art: 'house' },
+  { tags: ['balloon', 'dark'], noun: 'Scribble balloon', word: 'Scribble', phrase: 'a scribbly balloon', art: 'scribble' },
+  { tags: ['float', 'salty'], noun: 'Flying fries', word: 'Fries', phrase: 'some flying french fries', art: 'fries' },
+  { tags: ['party', 'shiny'], noun: 'Disco star', word: 'Star', phrase: 'a disco star', art: 'disco' },
+  { tags: ['float', 'pool'], noun: 'Sky pool', word: 'Pool', phrase: 'a swimming pool in the sky', art: 'pool' },
+  { tags: ['balloon', 'green'], noun: 'Pickle balloon', word: 'Pickle', phrase: 'a pickle balloon', art: 'pickle' },
 ]
 
-export const FALLBACK_IDEA: TagNoun = { tags: ['', ''], noun: 'Silly thing', art: 'squiggle' }
+export const FALLBACK_IDEA: TagNoun = { tags: ['', ''], noun: 'Silly thing', word: 'Silly', phrase: 'something silly', art: 'squiggle' }
 
-/** Puffy giggles at its own idea. */
-export const SILLY_LINES = ['Hee hee!', 'Silly!', 'Wheee!', 'So funny!', 'Boing!']
+// ─── The narrator, level by level ───────────────────────────────────────────
+// Level 0 (age 1) single words. Level 1 (2–3) one to three words. Level 2
+// (4–5) short sentences. Level 3 (6–8) explanations. Sentence builders that
+// combine these with a discovery live in game/lines.ts.
+export interface VoiceBank {
+  intro: string
+  feedPuffy: string
+  firstGrab: string
+  bookFound: string
+  bookEmpty: string
+  sleep: string
+  unknown: string
+  grab: string[]
+  idle: string[]
+  thinking: string[]
+  silly: string[]
+  rejection: string[]
+  encourage: string[]
+  /** Said before a first discovery. Level 2+ joins it to the name: "You made water!" */
+  praise: string[]
+  cheers: string[]
+  /** Why helium said no. {name} is the noble gas. Empty at level 0: too many words. */
+  loner: string[]
+  /** Levels 0–1: fixed lines for a harsh real substance. Levels 2–3 build theirs in lines.ts. */
+  spicy: string[]
+}
 
-export const THINKING_LINES = ['Hmmm…', 'Ooh…', 'Hmm hmm…', 'Let’s see…']
+export const VOICE: Record<Level, VoiceBank> = {
+  0: {
+    intro: 'Hi! Puffy!',
+    feedPuffy: 'Yum!',
+    firstGrab: 'Ooh!',
+    bookFound: 'Look!',
+    bookEmpty: 'Snacks!',
+    sleep: 'Night night!',
+    unknown: 'Hmm?',
+    grab: ['Ooh!', 'Yum!'],
+    idle: ['Yum yum?', 'Hungry!'],
+    thinking: ['Hmm?', 'Ooh…'],
+    silly: ['Hee hee!', 'Ha ha!'],
+    rejection: ['Uh-oh!', 'Oops!'],
+    encourage: ['Again!', 'More!'],
+    praise: ['Yay!', 'Wow!'],
+    cheers: ['Yay!', 'Again!'],
+    loner: [],
+    spicy: ['Hot!', 'Hot hot!'],
+  },
+  1: {
+    intro: 'Hi! Puffy is hungry!',
+    feedPuffy: 'Feed Puffy!',
+    firstGrab: 'Ooh! Snack!',
+    bookFound: 'Look! Your stickers!',
+    bookEmpty: 'Go find snacks!',
+    sleep: 'Puffy is sleepy. Night night!',
+    unknown: 'Hmm? Don’t know!',
+    grab: ['Ooh!', 'Yum!', 'Snack!'],
+    idle: ['Hungry!', 'More snacks?', 'Yum yum?', 'Feed Puffy!'],
+    thinking: ['Hmmm…', 'Ooh…', 'Hmm hmm…', 'Let’s see…'],
+    silly: ['Hee hee!', 'Silly!', 'Wheee!', 'So funny!', 'Boing!'],
+    rejection: ['Nope!', 'Uh-oh!', 'No no!'],
+    encourage: ['Oh no! Try again!', 'Oh no! Again!', 'Try another!', 'One more!'],
+    praise: ['Wow!', 'Yay!', 'Ta-da!'],
+    cheers: ['Yay!', 'Again!', 'Yum!', 'Hooray!'],
+    loner: ['{name} won’t hold hands!', '{name} likes to be alone!'],
+    spicy: ['Too hot!', 'Hot hot hot!', 'Yikes! Too spicy!', 'Too hot! Grown-ups only!'],
+  },
+  2: {
+    intro: 'Hi! This is Puffy. Puffy is a hungry cloud!',
+    feedPuffy: 'Let’s feed Puffy two snacks!',
+    firstGrab: 'Ooh, a snack!',
+    bookFound: 'Look at all the things you made!',
+    bookEmpty: 'Let’s go make something!',
+    sleep: 'Puffy is sleepy now. Let’s play again later!',
+    unknown: 'Hmm, Puffy doesn’t know that one yet!',
+    grab: ['Ooh, good one!', 'Yummy snack!', 'Ooh, a snack!'],
+    idle: ['Puffy is still hungry!', 'Which snacks should we try?', 'Feed Puffy two snacks!'],
+    thinking: ['Hmm, let me think…', 'Ooh, what could it be?'],
+    silly: ['Hee hee, that’s silly!', 'Ha ha, so silly!'],
+    rejection: ['But nope!', 'But that doesn’t work!'],
+    encourage: ['Let’s try another one!', 'Try two different snacks!'],
+    praise: ['You made', 'Look, you made', 'Wow, you made'],
+    cheers: ['Great job!', 'You did it again!'],
+    loner: ['{name} won’t hold hands with anyone!', '{name} likes to float all by itself!'],
+    spicy: [],
+  },
+  3: {
+    intro: 'Hi! This is Puffy, a chemistry cloud. Feed Puffy two elements and see what they make!',
+    feedPuffy: 'Pick two elements for Puffy!',
+    firstGrab: 'Good pick!',
+    bookFound: 'Here is everything you have discovered.',
+    bookEmpty: 'No discoveries yet. Let’s start experimenting!',
+    sleep: 'Puffy is tired. Time for a break!',
+    unknown: 'Hmm, Puffy doesn’t know that reaction yet.',
+    grab: ['Good pick!', 'Interesting element!', 'Nice choice!'],
+    idle: ['Which two elements should we combine?', 'Try mixing two elements!', 'Puffy is ready for an experiment!'],
+    thinking: ['Let me think…', 'Hmm, what will happen?'],
+    silly: ['Ha ha, what a silly idea!', 'Hee hee, imagine that!'],
+    rejection: ['But no, that won’t work.', 'Nope, nothing happens.'],
+    encourage: ['Try a different pair!', 'Let’s test another combination!'],
+    praise: ['You discovered', 'You made'],
+    cheers: ['Correct!', 'Nice chemistry!'],
+    loner: ['{name} is a noble gas. It almost never joins other elements.', '{name} has a full outer shell, so it stays on its own.'],
+    spicy: [],
+  },
+}
 
-export const REJECTION_LINES = ['Nope!', 'Uh-oh!', 'No no!']
+export const LEVELS: { level: Level; name: string; ages: string; note: string }[] = [
+  { level: 0, name: 'Giggles', ages: 'age 1', note: 'Single happy words, no text on screen.' },
+  { level: 1, name: 'Tiny Lab', ages: 'ages 2–3', note: 'One to three words, no text on screen.' },
+  { level: 2, name: 'Element Friends', ages: 'ages 4–5', note: 'Short sentences, simple facts, element symbols and names on screen.' },
+  { level: 3, name: 'Real Chemist', ages: 'ages 6–8', note: 'Full explanations, formulas and chemistry facts.' },
+]
 
-export const ENCOURAGEMENT_LINES = ['Oh no! Try again!', 'Oh no! Again!', 'Try another!', 'One more!']
-
-/** True reason, toddler-sized: helium does not bond with anything. */
-export const LONER_LINES = ['{name} won’t hold hands!', '{name} likes to be alone!']
-
-/** Real substances that are not for Puffy. Never "not real". */
-export const SPICY_LINES = ['Too hot!', 'Hot hot hot!', 'Yikes! Too spicy!', 'Too hot! Grown-ups only!']
-
-export const PRAISE_PREFIXES = ['Wow!', 'Yay!', 'Ta-da!']
-export const CHEERS = ['Yay!', 'Again!', 'Yum!', 'Hooray!']
-
-export const GRAB_LINES = ['Ooh!', 'Yum!', 'Snack!']
-
-export const IDLE_LINES = ['Hungry!', 'More snacks?', 'Yum yum?', 'Feed Puffy!']
-
-export const UNKNOWN_LINE = 'Hmm? Don’t know!'
+export function levelForAge(age: number): Level {
+  if (age < 2) return 0
+  if (age < 4) return 1
+  if (age < 6) return 2
+  return 3
+}

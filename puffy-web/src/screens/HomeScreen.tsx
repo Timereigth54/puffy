@@ -36,8 +36,9 @@ export default function HomeScreen({ evening, sparkle, newStickers, onPlay, onBo
       }
     >
       <div className="home-stage">
-        <button type="button" className="gear" onClick={onParent} aria-label="Grown-ups">
+        <button type="button" className="gear" onClick={onParent}>
           <GearIcon />
+          <span>Grown-ups</span>
         </button>
         <button type="button" className={`corner-tile corner-tile--right ${newStickers ? 'has-news' : ''}`} onClick={onBook} aria-label="Discovery book">
           <BookIcon />

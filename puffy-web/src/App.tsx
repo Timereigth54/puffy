@@ -8,17 +8,9 @@ import ParentGate from './screens/ParentGate'
 import ParentZone from './screens/ParentZone'
 import PlayScreen from './screens/PlayScreen'
 import SleepScreen from './screens/SleepScreen'
-import { COMBOS } from './data/content'
-import { setChildName, setNameClip, setVoiceEnabled, unlockAudio } from './game/audio'
-import {
-  freshProgress,
-  loadNameRecording,
-  loadProgress,
-  loadSettings,
-  saveNameRecording,
-  saveProgress,
-  saveSettings,
-} from './game/store'
+import { COMBOS, levelForAge } from './data/content'
+import { setVoiceEnabled, unlockAudio } from './game/audio'
+import { deleteLegacyNameRecording, freshProgress, loadProgress, loadSettings, saveProgress, saveSettings } from './game/store'
 import type { Combo, Progress, Settings } from './game/types'
 
 type Screen = 'splash' | 'onboarding' | 'home' | 'play' | 'book' | 'sleep'
@@ -64,12 +56,12 @@ export default function App() {
     })
   }, [])
 
-  // Boot: count the session, restore the recorded name, then leave the splash.
+  // Boot: leave the splash for home, the guided first combo, or first-time setup.
   useEffect(() => {
-    void loadNameRecording().then((b) => setNameClip(b))
+    deleteLegacyNameRecording()
     const t = window.setTimeout(() => {
       const p = loadProgress()
-      setScreen(p.onboarded ? 'home' : p.childName || p.hasNameRecording ? 'play' : 'onboarding')
+      setScreen(p.onboarded ? 'home' : loadSettings().childAge !== null ? 'play' : 'onboarding')
     }, 1500)
     // iOS needs a gesture before any sound; the first touch anywhere unlocks it.
     const unlock = () => unlockAudio()
@@ -80,7 +72,6 @@ export default function App() {
     }
   }, [])
 
-  useEffect(() => setChildName(progress.childName), [progress.childName])
   useEffect(() => setVoiceEnabled(settings.voiceOn), [settings.voiceOn])
 
   // Session clock: only while a child screen is visible and no grown-up panel is open.
@@ -110,12 +101,11 @@ export default function App() {
     saveSettings(s)
   }
 
-  const saveName = async (name: string | null, recording: Blob | null | undefined) => {
-    if (recording !== undefined) {
-      await saveNameRecording(recording)
-      await setNameClip(recording)
-    }
-    update((p) => ({ ...p, childName: name, hasNameRecording: recording === undefined ? p.hasNameRecording : !!recording }))
+  const saveName = (name: string | null) => update((p) => ({ ...p, childName: name }))
+
+  const saveChild = (name: string | null, age: number) => {
+    saveName(name)
+    changeSettings({ ...settings, childAge: age, level: levelForAge(age), levelChosenByHand: false })
   }
 
   const discover = (combo: Combo) =>
@@ -130,9 +120,7 @@ export default function App() {
           },
     )
 
-  const reset = async () => {
-    await saveNameRecording(null)
-    await setNameClip(null)
+  const reset = () => {
     const fresh = { ...freshProgress(), sessions: progress.sessions }
     saveProgress(fresh)
     setProgress(fresh)
@@ -146,7 +134,7 @@ export default function App() {
       setSessionSeconds(0)
       setScreen('home')
     }
-    if (!progress.onboarded && !progress.childName && !progress.hasNameRecording) setScreen('onboarding')
+    if (!progress.onboarded && settings.childAge === null) setScreen('onboarding')
   }
 
   const allFound = progress.discovered.length >= COMBOS.length
@@ -163,7 +151,7 @@ export default function App() {
         </Bathroom>
       )}
       {shown === 'onboarding' && (
-        <Onboarding childName={progress.childName} onName={saveName} onDone={() => setScreen('play')} />
+        <Onboarding childName={progress.childName} onChild={saveChild} onDone={() => setScreen('play')} />
       )}
       {shown === 'home' && (
         <HomeScreen
@@ -198,7 +186,7 @@ export default function App() {
           onPlay={() => setScreen('play')}
         />
       )}
-      {shown === 'sleep' && <SleepScreen onParent={() => setOverlay('gate')} />}
+      {shown === 'sleep' && <SleepScreen onParent={() => setOverlay('gate')} level={settings.level} />}
 
       {overlay === 'gate' && <ParentGate onPass={() => setOverlay('parent')} onCancel={() => setOverlay(null)} />}
       {overlay === 'parent' && (
@@ -206,8 +194,8 @@ export default function App() {
           settings={settings}
           progress={progress}
           onSettings={changeSettings}
-          onName={(n, r) => void saveName(n, r)}
-          onReset={() => void reset()}
+          onName={saveName}
+          onReset={reset}
           onClose={closeParent}
         />
       )}

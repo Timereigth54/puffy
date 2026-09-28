@@ -11,3 +11,5 @@ tools/render.log
 .audit-scan/
 .impeccable/hook.cache.json
 puffy-web/.impeccable/hook.cache.json
+tools/kokoro/
+tools/kokoro-venv/

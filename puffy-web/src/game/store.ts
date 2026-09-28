@@ -1,25 +1,31 @@
-// Everything stays on the device. Settings and progress live in localStorage;
-// the parent's recording of the child's name lives in IndexedDB.
-import type { Progress, Settings } from './types'
+// Everything stays on the device, in localStorage.
+import { levelForAge } from '../data/content'
+import type { Level, Progress, Settings, TextLevel } from './types'
 
 const PROGRESS_KEY = 'puffy.progress'
 const SETTINGS_KEY = 'puffy.settings'
-export const PROGRESS_VERSION = 1
+export const PROGRESS_VERSION = 2
 
 export const DEFAULT_SETTINGS: Settings = {
-  ageMode: 0,
+  childAge: null,
+  level: 1,
+  levelChosenByHand: false,
   voiceOn: true,
-  textLevel: 'off',
   spitSound: 'silly',
   hints: 'always',
   timeLimitMinutes: null,
+}
+
+/** Words on screen follow the level: none for the youngest, formulas for the oldest. */
+export function textForLevel(level: Level): TextLevel {
+  if (level <= 1) return 'off'
+  return level === 2 ? 'names' : 'formulas'
 }
 
 export function freshProgress(): Progress {
   return {
     version: PROGRESS_VERSION,
     childName: null,
-    hasNameRecording: false,
     onboarded: false,
     discovered: [],
     discoveredAt: {},
@@ -49,8 +55,9 @@ function write(key: string, value: unknown) {
 
 /** Merges stored data over defaults so older saves gain new fields instead of breaking. */
 export function loadProgress(): Progress {
-  const stored = read<Progress>(PROGRESS_KEY)
-  return { ...freshProgress(), ...(stored ?? {}), version: PROGRESS_VERSION }
+  const stored = read<Progress & { hasNameRecording?: boolean }>(PROGRESS_KEY) ?? {}
+  delete stored.hasNameRecording
+  return { ...freshProgress(), ...stored, version: PROGRESS_VERSION }
 }
 
 export function saveProgress(p: Progress) {
@@ -58,51 +65,31 @@ export function saveProgress(p: Progress) {
 }
 
 export function loadSettings(): Settings {
-  return { ...DEFAULT_SETTINGS, ...(read<Settings>(SETTINGS_KEY) ?? {}) }
+  const stored = (read<Settings & { ageMode?: number; textLevel?: string }>(SETTINGS_KEY) ?? {}) as Partial<Settings> & {
+    ageMode?: number
+    textLevel?: string
+  }
+  // Version 1 had ageMode 0 (Tiny Lab) or 1 (Element Friends) and a separate textLevel.
+  if (stored.level === undefined && stored.ageMode !== undefined) stored.level = stored.ageMode === 1 ? 2 : 1
+  delete stored.ageMode
+  delete stored.textLevel
+  const s = { ...DEFAULT_SETTINGS, ...stored }
+  if (s.childAge !== null && !s.levelChosenByHand) s.level = levelForAge(s.childAge)
+  return s
 }
 
 export function saveSettings(s: Settings) {
   write(SETTINGS_KEY, s)
 }
 
-// ─── Name recording (IndexedDB) ─────────────────────────────────────────────
-const DB = 'puffy'
-const STORE = 'recordings'
-
-function openDb(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB, 1)
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE)
-    req.onsuccess = () => resolve(req.result)
-    req.onerror = () => reject(req.error)
-  })
-}
-
-export async function saveNameRecording(blob: Blob | null): Promise<boolean> {
+/**
+ * Earlier builds could store a recording of the child's name in IndexedDB.
+ * The feature is gone (DECISIONS.md), so any stored recording is deleted.
+ */
+export function deleteLegacyNameRecording() {
   try {
-    const db = await openDb()
-    await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(STORE, 'readwrite')
-      if (blob) tx.objectStore(STORE).put(blob, 'name')
-      else tx.objectStore(STORE).delete('name')
-      tx.oncomplete = () => resolve()
-      tx.onerror = () => reject(tx.error)
-    })
-    return true
+    indexedDB.deleteDatabase('puffy')
   } catch {
-    return false
-  }
-}
-
-export async function loadNameRecording(): Promise<Blob | null> {
-  try {
-    const db = await openDb()
-    return await new Promise<Blob | null>((resolve) => {
-      const req = db.transaction(STORE).objectStore(STORE).get('name')
-      req.onsuccess = () => resolve((req.result as Blob) ?? null)
-      req.onerror = () => resolve(null)
-    })
-  } catch {
-    return null
+    /* nothing stored, or IndexedDB unavailable */
   }
 }

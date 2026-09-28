@@ -1,15 +1,15 @@
-import { useState } from 'react'
-import NameRecorder from '../components/NameRecorder'
+import { useEffect, useState } from 'react'
 import ResultArt from '../components/ResultArt'
-import { CloseIcon } from '../components/Icons'
-import { COMBOS, ELEMENT_MAP } from '../data/content'
-import type { Progress, Settings } from '../game/types'
+import { CloseIcon, SpeakerIcon } from '../components/Icons'
+import { COMBOS, ELEMENT_MAP, LEVELS, VOICE, levelForAge } from '../data/content'
+import { say, voiceCheck } from '../game/audio'
+import type { Level, Progress, Settings } from '../game/types'
 
 interface Props {
   settings: Settings
   progress: Progress
   onSettings: (s: Settings) => void
-  onName: (name: string | null, recording: Blob | null | undefined) => void
+  onName: (name: string | null) => void
   onReset: () => void
   onClose: () => void
 }
@@ -48,14 +48,31 @@ function formatMinutes(sec: number) {
 }
 
 export default function ParentZone({ settings, progress, onSettings, onName, onReset, onClose }: Props) {
-  const [editingName, setEditingName] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
   const [openedAt] = useState(() => Date.now())
+  const [name, setName] = useState(progress.childName ?? '')
+  const [voice, setVoice] = useState<string | null>(null)
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => onSettings({ ...settings, [k]: v })
 
   const weekAgo = openedAt - 7 * 24 * 3600 * 1000
   const thisWeek = Object.values(progress.discoveredAt).filter((d) => Date.parse(d) > weekAgo).length
   const topSnack = Object.entries(progress.feedCounts).sort((a, b) => b[1] - a[1])[0]
+  const levelInfo = LEVELS[settings.level]
+
+  useEffect(() => {
+    void voiceCheck().then((v) =>
+      setVoice(
+        v.clips > 0
+          ? `Recorded voice ready (${v.clips} lines).${v.webAudio ? '' : ' Playing through the basic audio player.'}`
+          : 'Recorded voice did not load, so this tablet uses its own robotic voice. Check the internet connection once, then reopen Puffy.',
+      ),
+    )
+  }, [])
+
+  const setAge = (age: number) =>
+    onSettings({ ...settings, childAge: age, level: levelForAge(age), levelChosenByHand: false })
+
+  const setLevel = (level: Level) => onSettings({ ...settings, level, levelChosenByHand: settings.childAge === null ? false : level !== levelForAge(settings.childAge) })
 
   return (
     <div className="cabinet" role="dialog" aria-modal="true" aria-labelledby="parent-title">
@@ -99,56 +116,53 @@ export default function ParentZone({ settings, progress, onSettings, onName, onR
 
         <section className="parent__section" aria-labelledby="p-child">
           <h2 id="p-child" className="parent__h2">
-            Name
+            Child
           </h2>
-          {editingName ? (
-            <NameRecorder
-              initialName={progress.childName}
-              onSave={(n, r) => {
-                onName(n, r)
-                setEditingName(false)
-              }}
-              onSkip={() => setEditingName(false)}
-            />
-          ) : (
-            <div className="row">
-              <span>
-                {progress.childName ?? 'No name set'}
-                {progress.hasNameRecording ? ' · recorded in your voice' : ''}
-              </span>
-              <button type="button" className="btn btn--quiet" onClick={() => setEditingName(true)}>
-                Change
-              </button>
+          <div className="setting">
+            <div className="setting__head">
+              <span className="setting__label">Age</span>
+              <span className="setting__note">Sets the level below.</span>
             </div>
-          )}
+            <div className="age-picker age-picker--compact" role="radiogroup" aria-label="Age">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((a) => (
+                <button key={a} type="button" role="radio" aria-checked={settings.childAge === a} className={`age ${settings.childAge === a ? 'is-on' : ''}`} onClick={() => setAge(a)}>
+                  {a === 8 ? '8+' : a}
+                </button>
+              ))}
+            </div>
+          </div>
+          <label className="field">
+            <span className="field__label">First name (shown here only; Puffy never says it)</span>
+            <input
+              className="field__input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={() => onName(name.trim() || null)}
+              placeholder="e.g. Ada"
+              autoComplete="off"
+              maxLength={24}
+            />
+          </label>
         </section>
 
         <section className="parent__section" aria-labelledby="p-play">
           <h2 id="p-play" className="parent__h2">
-            Play
+            Level
           </h2>
           <Segmented
-            label="Lab"
-            value={settings.ageMode}
-            options={[
-              { value: 0, label: 'Tiny Lab · 2–3' },
-              { value: 1, label: 'Element Friends · 3–4' },
-            ]}
-            onChange={(v) => onSettings({ ...settings, ageMode: v, textLevel: v === 0 ? 'off' : settings.textLevel === 'off' ? 'names' : settings.textLevel })}
-            note={settings.ageMode === 1 ? 'Adds symbols, words and a fact after each discovery.' : 'Voice only. No words on screen.'}
-          />
-          <Segmented
-            label="Words on screen"
-            value={settings.textLevel}
-            options={[
-              { value: 'off', label: 'None' },
-              { value: 'symbols', label: 'Symbols' },
-              { value: 'names', label: 'Names' },
-              { value: 'formulas', label: 'Formulas' },
-            ]}
-            onChange={(v) => set('textLevel', v)}
+            label="How Puffy talks"
+            value={settings.level}
+            options={LEVELS.map((l) => ({ value: l.level, label: `${l.name} · ${l.ages}` }))}
+            onChange={setLevel}
+            note={levelInfo.note}
           />
           <Segmented label="Narrator voice" value={settings.voiceOn ? 1 : 0} options={[{ value: 1, label: 'On' }, { value: 0, label: 'Off' }]} onChange={(v) => set('voiceOn', v === 1)} />
+          <div className="row voice-check">
+            <span className="hint">{voice ?? 'Checking the voice…'}</span>
+            <button type="button" className="btn btn--quiet" onClick={() => void say([VOICE[settings.level].intro])}>
+              <SpeakerIcon /> Test the voice
+            </button>
+          </div>
           <Segmented
             label="Spit sound"
             value={settings.spitSound}
@@ -189,7 +203,7 @@ export default function ParentZone({ settings, progress, onSettings, onName, onR
           </h2>
           {confirmReset ? (
             <div className="row">
-              <span>Erase all discoveries and the name recording?</span>
+              <span>Erase all discoveries?</span>
               <span className="row__actions">
                 <button type="button" className="btn btn--quiet" onClick={() => setConfirmReset(false)}>
                   Keep everything

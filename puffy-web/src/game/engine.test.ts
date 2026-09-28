@@ -50,10 +50,11 @@ describe('accuracy rule', () => {
     for (const c of COMBOS) for (const f of Object.values(c.facts)) expect(words(f)).not.toContain('new element')
   })
   it('never tells the child a real substance is "not real"', () => {
-    for (let n = 0; n < 50; n++) {
-      const seq = lonerSequence(ELEMENT_MAP.He, ELEMENT_MAP.O)
-      expect(Object.values(seq).join(' ').toLowerCase()).not.toContain('not real')
-    }
+    for (const level of [0, 1, 2, 3] as const)
+      for (let n = 0; n < 30; n++) {
+        const seq = lonerSequence(ELEMENT_MAP.He, ELEMENT_MAP.O, level)
+        expect(Object.values(seq).join(' ').toLowerCase()).not.toContain('not real')
+      }
   })
 })
 
@@ -71,11 +72,10 @@ describe('outcomes', () => {
   it('He+He is a discovery (helium gas)', () => {
     expect(resolve(['He', 'He'], [])).toMatchObject({ kind: 'discovery' })
   })
-  it('uses the name only when asked', () => {
+  it('explains more at higher levels: level 3 says the formula, level 0 does not', () => {
     const water = COMBOS[0]
-    expect(discoveryScript(water, true, true)[0]).toEqual({ name: true })
-    expect(discoveryScript(water, true, false)).toHaveLength(1)
-    expect(discoveryScript(water, false, true).some((b) => typeof b !== 'string')).toBe(false)
+    expect(discoveryScript(water, true, 3).join(' ')).toContain('H two O')
+    expect(discoveryScript(water, true, 0).join(' ')).not.toContain('H two O')
   })
 })
 

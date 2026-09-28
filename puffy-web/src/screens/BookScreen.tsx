@@ -5,6 +5,8 @@ import { DuckIcon, PlayIcon } from '../components/Icons'
 import { COMBOS } from '../data/content'
 import { say, sfx } from '../game/audio'
 import { rememberLine } from '../game/lines'
+import { textForLevel } from '../game/store'
+import { VOICE } from '../data/content'
 import type { Combo, Progress, Settings } from '../game/types'
 
 // The Discovery Book is a tile panel on the bathroom wall. Each discovery is
@@ -22,11 +24,12 @@ interface Props {
 export default function BookScreen({ progress, settings, evening, onSeen, onHome, onPlay }: Props) {
   const [wiggle, setWiggle] = useState<string | null>(null)
   const found = progress.discovered.length
-  const words = settings.textLevel !== 'off'
+  const words = textForLevel(settings.level) !== 'off'
+  const level = settings.level
 
   useEffect(() => {
-    void say([found ? 'Look! Your stickers!' : 'Go find snacks!'])
-  }, [found])
+    void say([found ? VOICE[level].bookFound : VOICE[level].bookEmpty])
+  }, [found, level])
 
   const tap = (c: Combo) => {
     if (!progress.discovered.includes(c.id)) {
@@ -37,7 +40,7 @@ export default function BookScreen({ progress, settings, evening, onSeen, onHome
     setWiggle(c.id)
     window.setTimeout(() => setWiggle(null), 900)
     onSeen(c.id)
-    void say([rememberLine(c)])
+    void say([rememberLine(c, level)])
   }
 
   return (

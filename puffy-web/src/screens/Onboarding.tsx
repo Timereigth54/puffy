@@ -1,22 +1,27 @@
 import { useState } from 'react'
 import Bathroom from '../components/Bathroom'
-import NameRecorder from '../components/NameRecorder'
 import Puffy from '../components/Puffy'
+import { LEVELS, VOICE, levelForAge } from '../data/content'
 import { say, sfx, unlockAudio } from '../game/audio'
-import type { PuffyState } from '../game/types'
+import type { Level, PuffyState } from '../game/types'
 
 // First launch: Puffy is asleep. Touching Puffy wakes it (and unlocks audio
-// inside that gesture, which iOS requires). Then a grown-up records the name.
+// inside that gesture, which iOS requires). Then a grown-up picks the child's
+// age, which sets the level.
 
 interface Props {
   childName: string | null
-  onName: (name: string | null, recording: Blob | null | undefined) => Promise<void>
+  onChild: (name: string | null, age: number) => void
   onDone: () => void
 }
 
-export default function Onboarding({ childName, onName, onDone }: Props) {
-  const [step, setStep] = useState<'asleep' | 'awake' | 'name'>('asleep')
+const AGES = [1, 2, 3, 4, 5, 6, 7, 8]
+
+export default function Onboarding({ childName, onChild, onDone }: Props) {
+  const [step, setStep] = useState<'asleep' | 'awake' | 'age'>('asleep')
   const [puffy, setPuffy] = useState<PuffyState>('sleepy')
+  const [age, setAge] = useState<number | null>(null)
+  const [name, setName] = useState(childName ?? '')
 
   const wake = async () => {
     if (step !== 'asleep') return
@@ -24,19 +29,22 @@ export default function Onboarding({ childName, onName, onDone }: Props) {
     sfx.boing()
     setStep('awake')
     setPuffy('delighted')
-    await say(['Hi! Puffy is hungry!'])
+    await say([VOICE[1].intro])
     setPuffy('hungry')
-    setStep('name')
+    setStep('age')
   }
 
-  const finishName = async (name: string | null, rec: Blob | null | undefined) => {
-    await onName(name, rec)
+  const start = async () => {
+    if (age === null) return
+    const level: Level = levelForAge(age)
+    onChild(name.trim() || null, age)
     setStep('awake')
     setPuffy('delighted')
-    if (name || rec) await say([{ name: true }, 'Feed Puffy!'])
-    else await say(['Feed Puffy!'])
+    await say([VOICE[level].feedPuffy])
     onDone()
   }
+
+  const levelInfo = age === null ? null : LEVELS[levelForAge(age)]
 
   return (
     <Bathroom className="onboarding">
@@ -46,13 +54,33 @@ export default function Onboarding({ childName, onName, onDone }: Props) {
           {step === 'asleep' && <span className="touch-ring" aria-hidden="true" />}
         </div>
       </div>
-      {step === 'name' && (
-        <div className="cabinet" role="dialog" aria-modal="true" aria-labelledby="name-title">
+      {step === 'age' && (
+        <div className="cabinet" role="dialog" aria-modal="true" aria-labelledby="age-title">
           <div className="cabinet__panel">
-            <h1 id="name-title" className="cabinet__title">
-              Grown-ups: what should Puffy call your child?
+            <h1 id="age-title" className="cabinet__title">
+              Grown-ups: how old is your child?
             </h1>
-            <NameRecorder initialName={childName} onSave={finishName} saveLabel="Let’s play" onSkip={() => void finishName(null, undefined)} />
+            <div className="age-picker" role="radiogroup" aria-labelledby="age-title">
+              {AGES.map((a) => (
+                <button key={a} type="button" role="radio" aria-checked={age === a} className={`age ${age === a ? 'is-on' : ''}`} onClick={() => setAge(a)}>
+                  {a === 8 ? '8+' : a}
+                </button>
+              ))}
+            </div>
+            <p className="hint">
+              {levelInfo
+                ? `${levelInfo.name} (${levelInfo.ages}). ${levelInfo.note} You can change this later under Grown-ups.`
+                : 'Puffy uses more words and harder ideas as children get older.'}
+            </p>
+            <label className="field">
+              <span className="field__label">First name (optional, shown on the grown-ups page only)</span>
+              <input className="field__input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Ada" autoComplete="off" maxLength={24} />
+            </label>
+            <div className="actions">
+              <button type="button" className="btn btn--primary" onClick={() => void start()} disabled={age === null}>
+                Let’s play
+              </button>
+            </div>
           </div>
         </div>
       )}

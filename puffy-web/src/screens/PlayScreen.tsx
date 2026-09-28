@@ -5,7 +5,7 @@ import IdeaArt from '../components/IdeaArt'
 import ResultArt from '../components/ResultArt'
 import SnackArt from '../components/SnackArt'
 import { BookIcon, DuckIcon } from '../components/Icons'
-import { ELEMENTS, ELEMENT_MAP, IDLE_LINES, GRAB_LINES, UNKNOWN_LINE, normalizeKey } from '../data/content'
+import { ELEMENTS, ELEMENT_MAP, VOICE, normalizeKey } from '../data/content'
 import {
   bank,
   discoveryScript,
@@ -16,10 +16,11 @@ import {
   lonerSequence,
   resolve,
   sameLine,
-  spicyLine,
+  spicyScript,
   type SillySequence,
 } from '../game/engine'
 import { say, sfx, stopVoice, wait } from '../game/audio'
+import { textForLevel } from '../game/store'
 import type { Combo, Element, Progress, PuffyState, Settings } from '../game/types'
 
 interface Props {
@@ -35,6 +36,8 @@ interface Props {
 }
 
 type Drag = { el: Element; x: number; y: number; startX: number; startY: number; moved: boolean; pointerId: number }
+/** A tapped snack on its way into Puffy's mouth, in stage pixels. */
+type Flight = { key: number; el: Element; sx: number; sy: number; dx: number; dy: number }
 type Show =
   | { kind: 'discovery'; combo: Combo; firstTime: boolean; flying: boolean }
   | { kind: 'thought'; seq: SillySequence; pair: Element[]; popped: boolean }
@@ -43,7 +46,8 @@ type Show =
   | null
 
 const FULL_TRAY = ELEMENTS.map((e) => e.id)
-const DRAG_THRESHOLD = 10
+const DRAG_THRESHOLD = 12
+const FLIGHT_MS = 560
 
 export default function PlayScreen({ settings, progress, evening, guided, onFeed, onDiscover, onHome, onBook, onGuidedDone }: Props) {
   const [puffy, setPuffy] = useState<PuffyState>('idle')
@@ -53,11 +57,12 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
   const [busy, setBusy] = useState(false)
   const [drag, setDrag] = useState<Drag | null>(null)
   const [lean, setLean] = useState<{ x: number; y: number } | null>(null)
-  const [held, setHeld] = useState<Element | null>(null)
+  const [flights, setFlights] = useState<Flight[]>([])
+  const [tapped, setTapped] = useState<string | null>(null)
   const [show, setShow] = useState<Show>(null)
   const [highlight, setHighlight] = useState<string[]>(guided ? ['H', 'O'] : [])
   const [tray, setTray] = useState<string[]>(FULL_TRAY)
-  const [splashAt, setSplashAt] = useState<{ x: number; key: number } | null>(null)
+  const [splashAt, setSplashAt] = useState<number | null>(null)
   /** Last resolved outcome, kept on the stage as data-outcome for tests and debugging. */
   const [lastOutcome, setLastOutcome] = useState<string>('none')
 
@@ -66,6 +71,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
   const alive = useRef(true)
   const busyRef = useRef(false)
   const fedRef = useRef<Element[]>([])
+  const inFlight = useRef(0)
   const progressRef = useRef(progress)
   const settingsRef = useRef(settings)
   const attempts = useRef<Record<string, number>>({})
@@ -79,8 +85,10 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     progressRef.current = progress
     settingsRef.current = settings
   }, [progress, settings])
-  const showSymbols = settings.textLevel !== 'off'
-  const showWords = settings.textLevel !== 'off'
+
+  const level = settings.level
+  const text = textForLevel(level)
+  const showWords = text !== 'off'
 
   useEffect(() => {
     alive.current = true
@@ -109,7 +117,8 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
       const idle = Date.now() - lastTouch.current
       if (idle > 15000 && !idleSpoken.current) {
         idleSpoken.current = true
-        void say([bank.pick('idle', IDLE_LINES)])
+        const lv = settingsRef.current.level
+        void say([bank.pick(`idle${lv}`, VOICE[lv].idle)])
       }
       if (Date.now() - lastDiscovery.current > 180000) {
         const win = easyWin(progressRef.current.discovered, tray)
@@ -140,7 +149,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
       if (!alive.current) return
       setSpat([])
       sfx.splash()
-      setSplashAt({ x: 50, key: Date.now() })
+      setSplashAt(Date.now())
     }, 650)
   }
 
@@ -161,16 +170,12 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
       sfx.chime()
     }
     onDiscover(combo)
+    // eslint-disable-next-line react-hooks/purity -- runs from a tap or timer, never during render
     lastDiscovery.current = Date.now()
     missesInRow.current = 0
     setTray(FULL_TRAY)
     setHighlight([])
-    const p = progressRef.current
-    const hasName = !!(p.childName || p.hasNameRecording)
-    const useName = firstTime && hasName && (guided || Math.random() < 0.34)
-    const script = discoveryScript(combo, firstTime, useName)
-    if (settingsRef.current.ageMode >= 1 && firstTime) script.push(combo.facts.toddler)
-    await Promise.all([say(script), wait(2200)])
+    await Promise.all([say(discoveryScript(combo, firstTime, settingsRef.current.level)), wait(2200)])
     if (!alive.current) return
     if (firstTime) {
       setShow({ kind: 'discovery', combo, firstTime, flying: true })
@@ -182,7 +187,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
   }
 
   const runLoner = async (noble: Element, other: Element, pair: Element[]) => {
-    const seq = lonerSequence(noble, other)
+    const seq = lonerSequence(noble, other, settingsRef.current.level)
     setPuffy('curious')
     setShow({ kind: 'thought', seq, pair, popped: false })
     sfx.think()
@@ -192,7 +197,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     setShow({ kind: 'thought', seq, pair, popped: true })
     setPuffy('shrug')
     spitBack(pair)
-    await say([seq.rejection, seq.reason])
+    await say([seq.rejection, seq.reason].filter(Boolean))
     if (!alive.current) return
     setShow(null)
     // Sad lasts 0.8 s at most, then Puffy bounces back.
@@ -207,12 +212,12 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     finish()
   }
 
-  const runSpicy = async (name: string, formula: string, pair: Element[]) => {
+  const runSpicy = async (spicy: { name: string; formula: string; inputs: [string, string]; why: string }, pair: Element[]) => {
     setPuffy('spicy')
     sfx.spicy()
-    setShow({ kind: 'spicy', name, formula })
+    setShow({ kind: 'spicy', name: spicy.name, formula: spicy.formula })
     spitBack(pair)
-    await Promise.all([say([spicyLine()]), wait(1600)])
+    await Promise.all([say(spicyScript(spicy, settingsRef.current.level)), wait(1600)])
     if (!alive.current) return
     setShow(null)
     setPuffy('encouraging')
@@ -225,7 +230,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
   const runSame = async (element: Element, pair: Element[]) => {
     setPuffy('shrug')
     setShow({ kind: 'same', element })
-    await say([sameLine(element)])
+    await say([sameLine(element, settingsRef.current.level)])
     if (!alive.current) return
     spitBack(pair)
     setPuffy('encouraging')
@@ -241,12 +246,14 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     missesInRow.current += 1
     if (missesInRow.current >= 5) setTray((t) => (t.length > 4 ? focusedTray(FULL_TRAY, progressRef.current.discovered, 4) : t))
     const mode = settingsRef.current.hints
+    // eslint-disable-next-line react-hooks/purity -- runs from a tap or timer, never during render
     const wantHint = mode !== 'never' && (n === 3 || missesInRow.current === 4) && (mode === 'always' || Math.random() < 0.5)
     if (!wantHint) return
     const hint = hintFor(pair.map((e) => e.id), progressRef.current.discovered, tray)
     if (!hint) return
     setHighlight(hint.inputs)
-    await say([hintLine(hint)])
+    const line = hintLine(hint, settingsRef.current.level)
+    if (line) await say([line])
   }
 
   const chewAndDecide = async (pair: Element[]) => {
@@ -255,6 +262,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     for (let beat = 0; beat < 3; beat++) {
       setChewBeat(beat)
       sfx.chew(beat)
+      // eslint-disable-next-line react-hooks/purity -- runs from a tap or timer, never during render
       await wait(380 + Math.random() * 90)
       if (!alive.current) return
     }
@@ -272,12 +280,12 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
       case 'loner':
         return runLoner(outcome.noble, outcome.other, pair)
       case 'spicy':
-        return runSpicy(outcome.spicy.name, outcome.spicy.formula, pair)
+        return runSpicy(outcome.spicy, pair)
       case 'same':
         return runSame(outcome.element, pair)
       case 'unknown':
         setPuffy('curious')
-        await say([UNKNOWN_LINE])
+        await say([VOICE[settingsRef.current.level].unknown])
         spitBack(pair)
         finish()
     }
@@ -286,7 +294,6 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
   const feed = (el: Element) => {
     if (busyRef.current || fedRef.current.length >= 2) return
     touch()
-    setHeld(null)
     setHighlight((h) => (guided ? h : []))
     const next = [...fedRef.current, el]
     fedRef.current = next
@@ -302,10 +309,15 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     }
   }
 
-  // ─── Input: drag and tap-tap ──────────────────────────────────────────────
+  // ─── Input: tap sends a snack flying into Puffy; drag still works ─────────
   const stagePoint = (clientX: number, clientY: number) => {
     const r = stageRef.current!.getBoundingClientRect()
     return { x: clientX - r.left, y: clientY - r.top }
+  }
+
+  const mouthPoint = () => {
+    const r = puffyRef.current!.getBoundingClientRect()
+    return { x: r.left + r.width / 2, y: r.top + r.height * 0.62 }
   }
 
   const overMouth = (clientX: number, clientY: number) => {
@@ -323,6 +335,31 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     setLean({ x: clientX - (r.left + r.width / 2), y: clientY - (r.top + r.height / 2) })
   }
 
+  /** One tap: the snack bounces, then flies in an arc into Puffy's open mouth. */
+  const launch = (el: Element, from: DOMRect) => {
+    if (busyRef.current || fedRef.current.length + inFlight.current >= 2) {
+      sfx.tap()
+      return
+    }
+    inFlight.current += 1
+    const start = stagePoint(from.left + from.width / 2, from.top + from.height / 2)
+    const m = mouthPoint()
+    const end = stagePoint(m.x, m.y)
+    // eslint-disable-next-line react-hooks/purity -- runs from a tap or timer, never during render
+    const flight: Flight = { key: Date.now() + Math.random(), el, sx: start.x, sy: start.y, dx: end.x - start.x, dy: end.y - start.y }
+    setTapped(el.id)
+    window.setTimeout(() => setTapped((t) => (t === el.id ? null : t)), 360)
+    sfx.boing()
+    setPuffy('hungry')
+    setFlights((f) => [...f, flight])
+    window.setTimeout(() => {
+      inFlight.current -= 1
+      if (!alive.current) return
+      setFlights((f) => f.filter((x) => x.key !== flight.key))
+      feed(el)
+    }, FLIGHT_MS)
+  }
+
   const onSnackDown = (el: Element) => (e: React.PointerEvent) => {
     if (busyRef.current) {
       sfx.tap()
@@ -334,12 +371,12 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     setDrag({ el, x: p.x, y: p.y, startX: e.clientX, startY: e.clientY, moved: false, pointerId: e.pointerId })
     touch()
     sfx.grab()
-    if (fedRef.current.length < 2) setPuffy('hungry')
+    const v = VOICE[settingsRef.current.level]
     if (firstGrab.current) {
       firstGrab.current = false
-      void say(['Ooh! Snack!'])
-    } else if (Math.random() < 0.35) {
-      void say([bank.pick('grab', GRAB_LINES)])
+      void say([v.firstGrab])
+    } else if (Math.random() < 0.3) {
+      void say([bank.pick(`grab${settingsRef.current.level}`, v.grab)])
     }
   }
 
@@ -348,7 +385,10 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     const moved = drag.moved || Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > DRAG_THRESHOLD
     const p = stagePoint(e.clientX, e.clientY)
     setDrag({ ...drag, x: p.x, y: p.y, moved })
-    if (moved) leanToward(e.clientX, e.clientY)
+    if (moved) {
+      if (fedRef.current.length < 2) setPuffy('hungry')
+      leanToward(e.clientX, e.clientY)
+    }
   }
 
   const onSnackUp = (e: React.PointerEvent) => {
@@ -356,75 +396,29 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     const d = drag
     setDrag(null)
     setLean(null)
-    if (d.moved) {
-      if (overMouth(e.clientX, e.clientY)) {
-        feed(d.el)
-      } else {
-        // Dropped outside the mouth: the snack plops back into the water. Never a penalty.
-        sfx.plop()
-        if (!busyRef.current) setPuffy(held ? 'hungry' : 'idle')
-      }
+    if (!d.moved) {
+      launch(d.el, (e.currentTarget as HTMLElement).getBoundingClientRect())
       return
     }
-    // A tap: hold the snack up by Puffy (tap-tap style). Tapping the held snack again feeds it.
-    if (held?.id === d.el.id) {
+    if (overMouth(e.clientX, e.clientY)) {
       feed(d.el)
-      return
+    } else {
+      // Dropped away from Puffy: the snack floats back to its spot. Never a penalty.
+      sfx.plop()
+      if (!busyRef.current) setPuffy('idle')
     }
-    setHeld(d.el)
-    setPuffy('hungry')
   }
 
   const onPuffyTap = () => {
-    if (held && !busyRef.current) feed(held)
-    else if (!busyRef.current) {
-      sfx.giggle()
-      setPuffy('delighted')
-      window.setTimeout(() => alive.current && !busyRef.current && setPuffy('idle'), 700)
-    }
+    if (busyRef.current) return
+    sfx.giggle()
+    setPuffy('delighted')
+    window.setTimeout(() => alive.current && !busyRef.current && setPuffy('idle'), 700)
   }
 
-  const trayEls = tray.map((id) => ELEMENT_MAP[id])
-
   return (
-    <Bathroom
-      evening={evening}
-      bubbles
-      className={`play ${busy ? 'is-busy' : ''}`}
-      tub={
-        <div className="snack-row" style={{ '--count': trayEls.length } as React.CSSProperties}>
-          {trayEls.map((el, i) => {
-            const isDragging = drag?.el.id === el.id && drag.moved
-            const isHeld = held?.id === el.id
-            return (
-              <button
-                key={el.id}
-                type="button"
-                className={`snack ${isDragging ? 'is-dragging' : ''} ${isHeld ? 'is-held' : ''} ${highlight.includes(el.id) ? 'is-hinted' : ''}`}
-                style={{ '--i': i, '--snack-color': el.color } as React.CSSProperties}
-                aria-label={el.name}
-                onPointerDown={onSnackDown(el)}
-                onPointerMove={onSnackMove}
-                onPointerUp={onSnackUp}
-                onPointerCancel={onSnackUp}
-              >
-                <span className="snack__ripple" aria-hidden="true" />
-                <span className="snack__bob">
-                  <SnackArt element={el} showSymbol={showSymbols} />
-                </span>
-              </button>
-            )
-          })}
-          {splashAt && <span key={splashAt.key} className="tub-splash" aria-hidden="true" />}
-        </div>
-      }
-    >
-      <div
-        className="play-stage"
-        ref={stageRef}
-        data-outcome={lastOutcome}
-        onPointerMove={drag ? onSnackMove : undefined}
-      >
+    <Bathroom evening={evening} bubbles className={`play ${busy ? 'is-busy' : ''}`} tub={splashAt ? <span key={splashAt} className="tub-splash" aria-hidden="true" /> : null}>
+      <div className="play-stage" ref={stageRef} data-outcome={lastOutcome} onPointerMove={drag ? onSnackMove : undefined}>
         <button type="button" className="corner-tile corner-tile--left" onClick={onHome} aria-label="Home">
           <DuckIcon />
         </button>
@@ -441,11 +435,42 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
           ))}
         </div>
 
-        {held && !busy && (
-          <div className="held" aria-hidden="true">
-            <SnackArt element={held} showSymbol={showSymbols} mood="happy" />
+        {/* Snacks float, each around its own home spot in an arc under Puffy */}
+        {tray.map((id) => {
+          const el = ELEMENT_MAP[id]
+          const slot = ELEMENTS.indexOf(el)
+          const isDragging = drag?.el.id === el.id && drag.moved
+          return (
+            <button
+              key={el.id}
+              type="button"
+              className={`snack float-slot float-slot--${slot} ${isDragging ? 'is-dragging' : ''} ${tapped === el.id ? 'is-tapped' : ''} ${highlight.includes(el.id) ? 'is-hinted' : ''}`}
+              style={{ '--i': slot } as React.CSSProperties}
+              aria-label={el.name}
+              onPointerDown={onSnackDown(el)}
+              onPointerMove={onSnackMove}
+              onPointerUp={onSnackUp}
+              onPointerCancel={onSnackUp}
+            >
+              <span className="snack__drift">
+                <span className="snack__bob">
+                  <SnackArt element={el} showSymbol={showWords} />
+                </span>
+              </span>
+            </button>
+          )
+        })}
+
+        {flights.map((f) => (
+          <div
+            key={f.key}
+            className="flight"
+            style={{ left: f.sx, top: f.sy, '--dx': `${f.dx}px`, '--dy': `${f.dy}px`, animationDuration: `${FLIGHT_MS}ms` } as React.CSSProperties}
+            aria-hidden="true"
+          >
+            <SnackArt element={f.el} showSymbol={showWords} mood="happy" />
           </div>
-        )}
+        ))}
 
         {show?.kind === 'discovery' && (
           <div className={`discovery ${show.flying ? 'is-flying' : ''} ${show.firstTime ? 'is-first' : ''}`}>
@@ -454,7 +479,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
             {showWords && (
               <div className="discovery__label">
                 <span className="discovery__name">{show.combo.result.displayName}</span>
-                {settings.textLevel === 'formulas' && <span className="discovery__formula">{show.combo.result.formula}</span>}
+                {text === 'formulas' && <span className="discovery__formula">{show.combo.result.formula}</span>}
               </div>
             )}
             {show.firstTime && (
@@ -489,12 +514,12 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
 
         {show?.kind === 'spicy' && showWords && (
           <div className="caption caption--spicy">
-            {show.name} <span className="caption__formula">{show.formula}</span>
+            {show.name} {text === 'formulas' && <span className="caption__formula">{show.formula}</span>}
           </div>
         )}
         {show?.kind === 'same' && showWords && <div className="caption">Still {show.element.name.toLowerCase()}!</div>}
 
-        {guided && !busy && !drag && !held && (
+        {guided && !busy && !drag && flights.length === 0 && (
           <div className={`guide-ghost guide-ghost--${fed.length === 0 ? 'first' : 'second'}`} aria-hidden="true">
             <SnackArt element={ELEMENT_MAP[fed.length === 0 ? 'H' : 'O']} mood="happy" />
           </div>
@@ -502,7 +527,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
 
         {drag?.moved && (
           <div className="drag-ghost" style={{ left: drag.x, top: drag.y }} aria-hidden="true">
-            <SnackArt element={drag.el} showSymbol={showSymbols} mood="happy" />
+            <SnackArt element={drag.el} showSymbol={showWords} mood="happy" />
           </div>
         )}
       </div>
