@@ -1,0 +1,1489 @@
+# PUFFY — Complete Build Blueprint
+
+*A single source of truth for building the game from zero to App Store.*
+
+---
+
+## 0. How to use this document
+
+This is the complete build bible. It contains:
+
+- The vision and design pillars
+- The character bible for Puffy
+- The full gameplay and interaction spec
+- The chemistry model and accuracy rules
+- The content database schema and starter content
+- The voice architecture and full script
+- The progression, adaptive difficulty, and parent systems
+- The technical architecture and data schemas
+- The build roadmap, testing plan, and App Store compliance
+- Business model, risks, and next steps
+
+Sections 1–14 are for everyone (designers, parents, stakeholders). Sections 15–20 are for the developer. Sections 21–30 are for you, the founder.
+
+A developer with no prior context should be able to read this document top to bottom and start building.
+
+---
+
+## 1. Vision
+
+**Puffy** is a toddler-first chemistry playground. A soft pink cloud pet named Puffy floats on screen. The child drags element "snacks" into Puffy's mouth. Puffy chews, bubbles, sparkles, and spits out the result — real things like water, salt, and rust.
+
+When a combo is real, Puffy celebrates and the child earns a sticker.
+When a combo isn't real, Puffy doesn't say "no." Puffy *imagines* silly possible uses first, then shrugs with a gentle sad face: **"Oh no, try again!"**
+
+As the child grows, Puffy grows. From 6 elements to the full periodic table. From 2 slots to 4. From no text to balanced equations. One game, one pet, one continuous relationship — deepening over years.
+
+**One-line pitch:**
+> Feed Puffy the cloud. It chews, it spits, it discovers. Real chemistry for tiny hands.
+
+---
+
+## 2. Core design pillars
+
+Every decision must serve these five pillars.
+
+**1. Failure is never a dead end.**
+A wrong combo still gets a funny imagination moment before the gentle no. The child is never punished for curiosity.
+
+**2. Nurturing over winning.**
+The child feeds a pet. There's no score, no timer, no losing. The relationship is the reward.
+
+**3. Voice-first, text-optional.**
+A 2-year-old can play with zero reading. Text appears only when the child is ready for it, and the parent controls when.
+
+**4. Scientifically honest, age-appropriate.**
+Elements make *compounds*, not new elements. We say "you discovered water" for toddlers, "you made a compound" for older kids, and "2H₂ + O₂ → 2H₂O" for juniors. Same game, honest at every level.
+
+**5. One game that grows.**
+Not a baby game and a big-kid game. One lab, one cloud, one continuous progression from age 2 to age 8.
+
+---
+
+## 3. The character: Puffy
+
+Puffy is the emotional center of the game. Everything the child feels, Puffy feels first.
+
+### Identity
+
+- **Name:** Puffy
+- **Species:** Cloud. Sentient, friendly, curious, a little goofy.
+- **Default color:** Soft pink (#FFB6D5). Child can change it later.
+- **Size:** Roughly 40% of screen height in portrait, centered upper-third.
+- **Texture:** Soft, semi-transparent, bouncy. Visible internal bubbles and sparkles.
+- **Face:** Two large friendly eyes, a small mouth. Simple enough for a 2-year-old to read emotion instantly.
+
+### Personality
+
+Puffy is a toddler's best friend. Puffy is:
+- Always hungry
+- Easily amazed
+- A little clumsy
+- Never scary
+- Never disappointed *in the child* — only playfully "aw shucks"
+
+### States and expressions
+
+Puffy has 12 core states. Each is a short animation loop plus a sound.
+
+| State | Trigger | Visual | Sound |
+|---|---|---|---|
+| Idle | Waiting for input | Slow bob, blink, occasional bubble | Soft hum |
+| Hungry | Child picks up an element | Leans toward finger, opens mouth | "Ahh!" |
+| Gulp | Element dropped in | Mouth closes, cheeks puff | "Gulp!" |
+| Chewing | Two elements in, mixing | Cheeks wobble, bubbles rise, sparkles swirl | "Nom nom nom…" |
+| Thinking | Chew cycle paused | Eyes look up, one eyebrow raises | "Hmmm…" |
+| Delighted | Real combo found | Big smile, spin, sparkle burst | Giggle + chime |
+| Spitting | Result revealed | Puff up, then "ptooey" | "Ptooey!" or "Poof!" |
+| Proud | First-time discovery | Chest puff, slow nod, confetti | "Ta-daa!" |
+| Curious | Invalid combo, imagining | Tilt head, thought bubble appears | "Ooh, what if…" |
+| Shrug | Invalid combo confirmed | Shoulders up, palms out | "Aw shucks…" |
+| Sad | Final "no" | Sparkles dim, one tear, mouth turns down | Soft "oh no…" |
+| Encouraging | Recovery | Perks up, bounces | "Try again!" |
+
+**Critical rule:** the Sad state lasts no longer than 0.8 seconds before transitioning to Encouraging. The child should never sit in sadness.
+
+### The chew cycle
+
+The chew is the heart of the game's tactile joy. It runs 2–3 seconds.
+
+1. **Gulp** (0.3s) — element disappears into mouth
+2. **Chew 1** (0.4s) — cheek wobble left, one bubble rises
+3. **Chew 2** (0.4s) — cheek wobble right, sparkle pops
+4. **Chew 3** (0.5s) — faster wobble, more bubbles, slight glow
+5. **Thinking pause** (0.6s) — Puffy looks up, "Hmmm…"
+6. **Decision** — spit (real) or imagine (fake)
+
+The chew is randomized slightly in timing and pitch each time so it never feels canned.
+
+### Growth stages
+
+Puffy physically changes as the child progresses.
+
+| Stage | Unlock | Puffy's look |
+|---|---|---|
+| Baby Cloud | Start | Small, simple, 2-slot tummy |
+| Sparkle Cloud | Complete starter pack | Adds sparkle trail |
+| Bouncy Cloud | Unlock 12 elements | Bigger, bouncier, 3-slot tummy |
+| Scientist Cloud | Unlock heat/spark | Tiny goggles |
+| Professor Cloud | Unlock 40 elements | Lab coat, 4-slot tummy |
+| ChemiCloud | Full periodic table | Glowing aura, element crown |
+
+The child is not just unlocking elements. She is **raising Puffy**.
+
+---
+
+## 4. Target audience and age modes
+
+Puffy serves ages 2–8 through five modes. Parents can switch modes manually or let the game adapt.
+
+### Mode 0 — Tiny Lab (ages 2–3)
+- 6 elements: H, O, C, N, Na, Cl
+- 2 slots
+- No text anywhere
+- Voice-over only
+- Icons are characters with faces
+- 10 real combos
+- Invalid combos always get a silly imagination moment
+
+### Mode 1 — Element Friends (ages 3–4)
+- 12 elements
+- Symbols appear on snacks (H, O, Na…)
+- 30 real combos
+- Discovery Book with stickers
+- Simple facts after each discovery
+
+### Mode 2 — Real Chemist (ages 4–5)
+- 20 elements
+- 3 slots
+- Conditions unlock: heat, spark
+- Shows names + formulas: "Water — H₂O"
+- 100+ combos
+
+### Mode 3 — Molecule Builder (ages 5–7)
+- 40 elements
+- 4 slots
+- States: ice, water, steam
+- Simple reaction types: synthesis, decomposition
+- Equations shown, not required
+
+### Mode 4 — Periodic Lab (ages 7–8+)
+- Full periodic table
+- Balancing equations
+- Challenge mode: "Make CO₂ using only C and O"
+- Parent can lock this mode until later
+
+---
+
+## 5. Core gameplay loop
+
+The loop is 20–40 seconds per attempt. It must feel good the first time and the hundredth time.
+
+1. **Idle** — Puffy bobs. Element snacks float in a tray at the bottom.
+2. **Pick** — Child drags an element snack toward Puffy.
+3. **Hungry** — Puffy leans in, opens mouth.
+4. **Feed** — Child drops the snack. Puffy gulps.
+5. **Pick again** — Child drags a second snack.
+6. **Feed** — Second gulp.
+7. **Chew** — Full chew cycle plays.
+8. **Decide** — Game checks the combo against the database.
+9. **Result:**
+   - **Real, first time** → Spit + celebration + sticker + voice: "Emma! You discovered water!"
+   - **Real, already found** → Spit + short happy replay + voice: "Water! Yeaah!"
+   - **Fake** → Thought bubble with silly uses → shrug → sad face → "Oh no, try again!" → snacks float back
+
+10. **Repeat.**
+
+There is no timer, no score, no fail state, and no way to lose.
+
+---
+
+## 6. Interaction design
+
+### Primary input: drag
+
+Toddlers drag before they tap accurately. Drag is the default.
+
+- Snacks are large (min 88pt touch target, ideally 120pt)
+- Snacks magnetically snap to the finger once grabbed
+- Puffy's mouth is a generous drop zone (150pt radius)
+- If a snack is dropped outside the mouth, it gently floats back — never a penalty
+
+### Secondary input: tap-tap
+
+For children who struggle with drag:
+
+- Tap a snack → it floats to a "holding" position
+- Tap Puffy → it feeds
+- Tap a second snack → second holding position
+- Tap Puffy again → feeds
+
+Both input styles coexist. The game detects which the child uses and can suggest the other if it sees frustration.
+
+### Progressive input (as the child grows)
+
+| Mode | Input |
+|---|---|
+| 0 | Drag two snacks into mouth |
+| 1 | Drag, with visible symbols |
+| 2 | Drag three, add heat/spark buttons |
+| 3 | Trace a symbol with finger, then feed |
+| 4 | Draw the formula onto Puffy |
+
+### Feedback rules
+
+- Every touch has an immediate sound
+- Every drop has a visual response within 100ms
+- No action ever results in nothing happening
+- No action ever results in a "wrong" buzzer
+
+---
+
+## 7. The chemistry model (and the accuracy rule)
+
+This is where most kids' chemistry games get sloppy. Puffy does not.
+
+### The accuracy rule
+
+**Elements do not combine to form new elements. They form compounds.**
+
+The game must never tell a child they "made a new element" from two elements. That is scientifically false and teaches a misconception that has to be unlearned.
+
+### How to stay magical AND accurate
+
+The wording scales with the mode:
+
+| Mode | Wording |
+|---|---|
+| 0 | "You discovered water!" |
+| 1 | "You discovered water! Water is a compound." |
+| 2 | "You made water! That's H₂O." |
+| 3 | "You made water. Two hydrogens and one oxygen." |
+| 4 | "2H₂ + O₂ → 2H₂O. Balanced!" |
+
+The child hears "discovered" at every age. The *noun* changes from "a new element" (never used) to "a compound" to "a molecule" to "a balanced equation."
+
+### What counts as a valid combo
+
+Four types:
+
+1. **Molecular compounds** — H + O → H₂O
+2. **Diatomic elements** — H + H → H₂ (hydrogen gas)
+3. **Alloys** — Fe + C → Steel (great for kids, technically a mixture)
+4. **States** — H₂O + Heat → Steam (in later modes)
+
+### What does NOT count
+
+- Noble gases (He, Ne, Ar) reacting with anything — they don't, and this is a *great* teaching moment
+- Noble metals (Au, Pt) reacting easily — also a great teaching moment
+- Anything not in the database
+
+Both "noble gas" and "noble metal" get their own special invalid-combo responses (see §9).
+
+---
+
+## 8. Content database
+
+The content database is the soul of the game and its real moat. The code is replaceable. 500 scientifically correct combos, 200 silly invalid templates, and a full voice script are not.
+
+### Element record
+
+```json
+{
+  "id": "H",
+  "symbol": "H",
+  "name": "Hydrogen",
+  "atomicNumber": 1,
+  "color": "#7FD4FF",
+  "shape": "round-bouncy",
+  "face": "giggly",
+  "tags": ["light", "float", "fuel", "water", "tiny"],
+  "personality": "The lightest, floatiest snack. Always drifting upward.",
+  "unlockPack": "starter",
+  "facts": {
+    "toddler": "Hydrogen is so light it floats away!",
+    "kid": "Hydrogen is the lightest element in the universe.",
+    "junior": "Hydrogen is element 1, with one proton and one electron."
+  }
+}
+```
+
+### Combo record
+
+```json
+{
+  "id": "water",
+  "inputs": ["H", "O"],
+  "matchMode": "any-order",
+  "result": {
+    "displayName": "Water",
+    "formula": "H₂O",
+    "animation": "water_splash",
+    "color": "#4FC3F7"
+  },
+  "facts": {
+    "toddler": "Water! You drink it, splash it, swim in it!",
+    "kid": "Water is H two O. Two hydrogens and one oxygen.",
+    "junior": "Water is polar. That's why ice floats."
+  },
+  "celebration": "medium",
+  "unlocksSticker": true
+}
+```
+
+### Required fields for a combo
+
+| Field | Type | Notes |
+|---|---|---|
+| id | string | Unique, snake_case |
+| inputs | array | Element IDs |
+| matchMode | enum | `any-order` or `exact-order` |
+| result.displayName | string | What the child hears |
+| result.formula | string | Shown in modes 2+ |
+| result.animation | string | References animation asset |
+| facts | object | One per age mode |
+| celebration | enum | `small`, `medium`, `large` |
+| unlocksSticker | bool | Whether it goes in the Discovery Book |
+
+### The combo resolution algorithm
+
+```
+function resolve(inputs):
+  key = normalize(inputs)          # sort unless matchMode is exact-order
+  combo = database.find(key)
+  if combo:
+    return { type: "success", combo }
+  if isNobleGasCombo(inputs):
+    return { type: "noble-gas", inputs }
+  if isNobleMetalCombo(inputs):
+    return { type: "noble-metal", inputs }
+  return { type: "invalid", inputs }
+```
+
+`normalize` sorts the element IDs alphabetically unless the combo requires exact order. This means H + O and O + H both resolve to water.
+
+---
+
+## 9. The Invalid Combo Engine
+
+This is Puffy's signature feature and the biggest differentiator. It turns a "no" into a moment of imagination.
+
+### How it works
+
+When a combo isn't real, the engine generates a *silly imagined use* using the two elements' tags. It never says "invalid." It says "maybe…" then gently no.
+
+### The five-beat invalid sequence
+
+1. **Thinking** — Puffy looks up. "Hmmm…"
+2. **Imagining** — Thought bubble appears with a generated silly idea. "Maybe a floating gold balloon?"
+3. **Extending** — The idea grows. "It could be used for a gold parade!"
+4. **Rejecting** — Puffy shrugs. "But nope!"
+5. **Encouraging** — Sad face for 0.8s, then bounce. "Oh no, try again!"
+
+### Tag-to-noun generation
+
+Each element has tags. The engine pairs one tag from each element and looks up a noun template.
+
+**Tag noun table (excerpt):**
+
+| Tag pair | Noun template |
+|---|---|
+| light + shiny | a floating gold balloon |
+| heavy + shiny | a very expensive paperweight |
+| heavy + float | a sinking balloon |
+| strong + soft | a pillow made of iron |
+| tiny + heavy | a pocket-sized anvil |
+| fuel + water | a burning puddle |
+| breathe + shine | a glowing breath |
+| ... | ... |
+
+**Use templates:**
+
+| Template | Example |
+|---|---|
+| "It could be used for {use}!" | "It could be used for a gold parade!" |
+| "Great for {use}!" | "Great for decorating clouds!" |
+| "Imagine it at {place}!" | "Imagine it at a birthday party!" |
+
+**Full example:**
+
+Input: H + Au
+- H tags: light, float, fuel, water, tiny
+- Au tags: shiny, heavy, jewelry, coins
+- Engine pairs `light + shiny` → "a floating gold balloon"
+- Engine picks use template → "It could be used for a gold parade!"
+- Final line: *"Hmmm… maybe a floating gold balloon? It could be used for a gold parade! But nope. Oh no, try again!"*
+
+### The variant rule
+
+The engine must never produce the same line twice in a row. Every template bank has 4–6 variants, shuffled without immediate repeat.
+
+### Special cases
+
+**Noble gases (He, Ne, Ar):**
+> "Hmmm… Helium doesn't like to hold hands with anyone. It's a loner! But nope. Oh no, try again!"
+
+**Noble metals (Au, Pt):**
+> "Ooh, Gold is very fancy. It doesn't mix with just anything! But nope. Oh no, try again!"
+
+These turn "failure" into real science education.
+
+**Repeated invalid attempt (3rd time on same pair):**
+Puffy gets extra gentle and hints:
+> "Hmmm… what if you tried H with O? They love making water!"
+
+**Repeated invalid attempt (5th time):**
+The game quietly reduces the number of snacks on screen to 4, making success more likely. The child never notices.
+
+---
+
+## 10. Voice architecture
+
+Voice is the most important non-visual system in the game. Get it right and the game feels alive. Get it wrong and it feels like a talking toy.
+
+### Two roles
+
+**Puffy (non-verbal):** gulps, chews, giggles, sighs, ptooeys, sparkles. No language. No gender. Universal.
+
+**Narrator (verbal):** speaks the child's name, celebrates discoveries, encourages. This is the only voice that needs localization.
+
+### Why split?
+
+- Puffy stays magical and species-less
+- Only one voice needs re-recording per language
+- Puffy's sounds never get repetitive the way words do
+- Parents can swap the narrator without touching Puffy
+
+### The name-recording feature
+
+During onboarding, a parent records the child's name once. The game stores it and splices it into pre-recorded lines. Puffy says the child's *actual name in the parent's voice.*
+
+**Rules for using the name:**
+- Use it for praise and comfort only
+- Never use it during a "no"
+- Use it on roughly 1 in 3 discoveries, not every time
+
+### Audio LEGO
+
+Record fragments. Stitch at runtime.
+
+`[name]` + `[praise]` + `[result]`
+
+This gives hundreds of combinations from one recording session:
+
+- "Emma!" + "You did it!" + "Water!"
+- "Wow!" + "You found" + "Salt!"
+- "Emma!" + "Look at that!" + "Rust!"
+
+### Recording spec for the voice actor
+
+- **Pace:** 80% of normal conversational speed
+- **Tone:** warm, smiley, unhurried
+- **Melody:** exaggerated prosody — toddlers read pitch before words
+- **Gender:** either works. A warm male voice is underserved in toddler apps. A warm female voice is familiar. Recommend recording one, unlocking the other later.
+- **Session length:** ~2 hours covers the full MVP script
+
+### Variant banks
+
+Every repeated line has 4–6 variants.
+
+**Thinking sounds:**
+1. "Hmmm…"
+2. "Let me see…"
+3. "Ooh, what's this…"
+4. "Hmm hmm hmm…"
+5. "Wait a second…"
+
+**Encouragement:**
+1. "Try again!"
+2. "Let's try another one!"
+3. "Ooh, what else?"
+4. "One more time!"
+5. "You can do it!"
+
+**Celebration (small):**
+1. "Yeaah!"
+2. "Nice!"
+3. "You got it!"
+
+**Celebration (large):**
+1. "Emma! You discovered water!"
+2. "Wow! You made salt!"
+3. "Look at that! Rust!"
+
+### Timing rules
+
+- Never talk over the chew
+- Let the spit animation land, then speak
+- Sad face plays for 0.8s before "Oh no…"
+- "Try again!" is always the last thing the child hears
+
+---
+
+## 11. Full voice script (MVP)
+
+Every line the MVP needs. Recorded once, stitched forever.
+
+### Onboarding
+
+| Trigger | Line |
+|---|---|
+| App open, first time | "Hi! I'm Puffy. I'm so hungry!" |
+| Name recording prompt | "What should I call you?" |
+| After name recorded | "[Name]! I love it. Let's feed Puffy!" |
+| First element ever picked | "Ooh! A snack!" |
+
+### Feeding
+
+| Trigger | Line (variants) |
+|---|---|
+| Element grabbed | "Ooh!" / "Yum!" / "Snack!" |
+| Element dropped in | "Gulp!" / "Nom!" / "Mmm!" |
+| Second element dropped | "Chew chew chew…" |
+
+### Real combo — first discovery
+
+`[Name]!` + `[You discovered / You made / Look at that]` + `[Result name]!`
+
+Examples:
+- "Emma! You discovered water!"
+- "Emma! You made salt!"
+- "Wow! Look at that! Rust!"
+
+### Real combo — already discovered
+
+`[Result name]!` + `[Yeaah / Nice / You got it]!`
+
+Examples:
+- "Water! Yeaah!"
+- "Salt! Nice!"
+
+### Invalid combo — full sequence
+
+`[Hmm variant]` + `[Silly idea]` + `[But nope!]` + `[Oh no… try again!]`
+
+Examples:
+- "Hmmm… maybe a floating gold balloon? It could be used for a gold parade! But nope. Oh no, try again!"
+- "Let me see… a pillow made of iron? Great for napping knights! But nope. Oh no, try again!"
+- "Ooh, what's this… a burning puddle? Imagine it at a birthday party! But nope. Oh no, try again!"
+
+### Noble gas
+
+"Hmmm… Helium doesn't like to hold hands with anyone. It's a loner! But nope. Oh no, try again!"
+
+### Noble metal
+
+"Ooh, Gold is very fancy. It doesn't mix with just anything! But nope. Oh no, try again!"
+
+### Discovery Book
+
+| Trigger | Line |
+|---|---|
+| Open book | "Look what you found!" |
+| Tap a sticker | "[Result name]! Remember?" |
+| New sticker added | "A new sticker for your book!" |
+
+### Idle (15s no interaction)
+
+"Puffy is still hungry!" / "Got more snacks?" / "What should we try?"
+
+### Parent zone
+
+No voice. Text-only, behind a parental gate.
+
+---
+
+## 12. Progression and unlock tree
+
+Progression serves three purposes: to reward, to pace, and to keep the game growing for years.
+
+### The three progression axes
+
+**1. Elements unlocked** — from 6 to full periodic table
+**2. Puffy's growth** — from Baby Cloud to ChemiCloud
+**3. Discovery Book completion** — stickers and mastery stars
+
+### The starter pack (Mode 0)
+
+**Elements (6):** H, O, C, N, Na, Cl
+**Real combos (10):**
+1. H + O → Water
+2. H + H → Hydrogen gas
+3. O + O → Oxygen gas
+4. N + N → Nitrogen gas
+5. Na + Cl → Salt
+6. C + O → Carbon dioxide
+7. H + N → Ammonia
+8. H + Cl → Hydrochloric acid
+9. Na + O → Sodium oxide
+10. C + H → Methane
+
+**Unlock trigger:** Find all 10 → "New element friends arrived!" → Fe, Au, He, Ca float in.
+
+### Pack 2 — Metals and gases (Mode 1)
+
+**New elements (6):** Fe, Au, He, Ca, S, P
+**New combos (~20):**
+- Fe + O → Rust
+- Fe + C → Steel
+- Au + Cu → Rose gold (in pack 3)
+- Ca + O → Quicklime
+- Ca + Cl → Calcium chloride
+- Ca + C → Calcium carbide
+- S + O → Sulfur dioxide
+- S + H → Hydrogen sulfide
+- P + O → Phosphate
+- He + anything → noble gas special
+- Au + anything → noble metal special
+
+**Unlock trigger:** Discover 25 total → Mode 2 unlocks, heat and spark buttons appear.
+
+### Pack 3 — Reactive nonmetals (Mode 2)
+
+**New elements (8):** Mg, Al, Si, K, Cu, Zn, Br, I
+
+**New mechanics:**
+- 3 slots
+- Heat button
+- Spark button
+
+**New combos (~60):** including states (ice/water/steam) and reactions that need heat.
+
+### Pack 4 — Transition metals (Mode 3)
+
+**New elements (20):** the transition metal row
+
+**New mechanics:**
+- 4 slots
+- States
+- Reaction types
+
+### Pack 5 — Full table (Mode 4)
+
+**New elements:** everything else
+
+**New mechanics:**
+- Balancing equations
+- Challenge mode
+- Element families view
+
+### Puffy's growth stages
+
+| Stage | Unlock condition |
+|---|---|
+| Baby Cloud | Start |
+| Sparkle Cloud | Complete starter pack |
+| Bouncy Cloud | Unlock 12 elements |
+| Scientist Cloud | Unlock heat/spark |
+| Professor Cloud | Unlock 40 elements |
+| ChemiCloud | Full periodic table |
+
+### Mastery stars
+
+Each element can earn up to 4 stars:
+
+1. Discovered
+2. Used in 3 real reactions
+3. Found its element family
+4. Heard its real-life use
+
+Stars unlock cosmetics, Puffy colors, and Puffy's lab decorations.
+
+---
+
+## 13. Adaptive difficulty
+
+The game watches how the child plays and adjusts quietly. Never announce adjustments. Never punish.
+
+### Signals monitored
+
+| Signal | Meaning |
+|---|---|
+| Time to solve | Fast = ready for more, slow = needs less |
+| Wrong tries before success | Many = reduce choices |
+| Hint skips | Skipping hints = confident, show fewer |
+| Replay frequency | High replay = child is comforted, don't rush them |
+| Session length trend | Dropping = boredom, add a new element |
+| Abandonment point | Where they quit = where difficulty spikes |
+
+### Adjustments
+
+| Situation | Response |
+|---|---|
+| Child solves fast repeatedly | Unlock a new element early |
+| Child struggles 3+ times on a pair | Give a gentle hint |
+| Child struggles 5+ times on a pair | Reduce tray to 4 snacks |
+| Child ignores narrator | Lower narrator frequency |
+| Child replays same animation 3+ times | Offer related combo |
+| Child quits mid-chew frequently | Shorten chew cycle |
+| Child plays 20+ min without discovery | Surface an easy win |
+
+### The easy-win guarantee
+
+If a child hasn't discovered anything in 3 minutes, the game surfaces a very likely combo. The child never feels stuck, only lucky.
+
+---
+
+## 14. Parent zone
+
+Behind a parental gate. Never visible to the child.
+
+### Parental gate
+
+Apple-compliant. Options:
+- "What is 7 + 4?" (text entry)
+- "Drag the slider to the arrow" (gesture)
+- Press-and-hold for 3 seconds
+
+Use the math gate. It's fastest and works across ages.
+
+### Parent controls
+
+| Setting | Options |
+|---|---|
+| Age mode | 0 / 1 / 2 / 3 / 4 |
+| Max elements | 6 / 12 / 20 / 40 / All |
+| Slots | 2 / 3 / 4 |
+| Text level | Off / Symbols / Names / Formulas / Equations |
+| Voice | On / Off |
+| Narrator language | English, Spanish, French, etc. |
+| Narrator gender | Voice A / Voice B |
+| Spitting sound | Silly ("Ptooey!") / Sweet ("Poof!") |
+| Hints | Always / Sometimes / Never |
+| Time limit | 5 / 10 / 15 / 20 / None |
+| Session summary | On / Off |
+| Reset progress | Requires re-entering gate |
+
+### Progress dashboard
+
+- Total discoveries
+- New discoveries this week
+- Most-played element
+- Current streak
+- Time played
+- Mastery stars earned
+
+### Session limits
+
+When the time limit is reached:
+- Puffy yawns and gets sleepy
+- "Puffy is tired! Let's come back later!"
+- The app closes gracefully
+- No child-facing countdown (avoids anxiety)
+
+---
+
+## 15. Screen-by-screen spec
+
+### Screen 1 — Splash
+
+- Pink gradient background
+- Puffy fades in, blinks
+- 1.5s, then auto-advance to Home
+
+### Screen 2 — Home
+
+- Puffy centered, idle bobbing
+- Three large buttons (icons, no text):
+  - **Play** (chef hat)
+  - **Discovery Book** (book)
+  - **Parent Zone** (gear, behind gate)
+
+### Screen 3 — Play (main game)
+
+- Puffy upper third
+- Chew/sparkle particles
+- Element tray bottom, horizontally scrollable
+- In Mode 2+: Heat and Spark buttons appear on the right
+
+### Screen 4 — Discovery Book
+
+- Grid of stickers, 3 columns
+- Locked stickers show silhouette
+- Tapping a sticker replays its animation
+- New stickers pulse until tapped
+
+### Screen 5 — Result overlay
+
+- Real combo: confetti, Puffy spins, result name appears in a bubble
+- Fake combo: thought bubble with silly idea, then Puffy shrugs
+- Auto-dismisses after 3s or on tap
+
+### Screen 6 — Parent gate
+
+- Math question
+- Text field
+- Continue button
+
+### Screen 7 — Parent dashboard
+
+- Settings list
+- Progress dashboard
+- Reset buttons
+- Close button
+
+### Screen 8 — Onboarding (first launch only)
+
+1. Puffy waves. "Hi! I'm Puffy!"
+2. "What should I call you?" → parent records name
+3. "Let's feed Puffy!" → first guided combo (H + O)
+4. Auto-advance to Home
+
+---
+
+## 16. Art direction
+
+### Style
+
+Soft 3D-rendered with hand-painted textures. Not flat vector. Not pixel art. Toddler-friendly, tactile, warm.
+
+### Puffy
+
+- Soft pink (#FFB6D5)
+- Semi-transparent with visible internal bubbles
+- Rounded, bouncy silhouette
+- Face: two large eyes, small mouth
+- Gentle rim light
+
+### Element snacks
+
+Each snack is a small character:
+- Shape reflects the element's personality
+- Face is simple and cute
+- Color matches element family (gases blue, metals gold/grey, nonmetals green)
+- Symbol appears on the body in Modes 1+
+
+**Example snacks:**
+- **H** — round, light blue, always floating slightly upward
+- **O** — round, deeper blue, breathy, always surrounded by small bubbles
+- **Na** — square-ish, yellow, eager
+- **Cl** — round, green, mischievous
+- **Fe** — blocky, grey, sturdy
+- **Au** — round, gold, shiny, a little smug
+- **He** — round, pale, floating high above the tray
+- **Ca** — round, off-white, gentle
+
+### Result animations
+
+Each real combo has a unique 1–2s animation. MVP needs 10.
+
+1. **Water** — splash, fish, waves
+2. **Hydrogen gas** — balloon floats up
+3. **Oxygen gas** — deep breath, bubbles
+4. **Nitrogen gas** — cool blue mist
+5. **Salt** — salt shaker, crunch
+6. **Carbon dioxide** — bubbles, "breathe out"
+7. **Ammonia** — clean sparkle
+8. **Hydrochloric acid** — fizzy bubbles
+9. **Sodium oxide** — white powder puff
+10. **Methane** — little flame
+
+### Color palette
+
+| Use | Color |
+|---|---|
+| Background | Soft pink gradient (#FFE4F0 → #FFD1E8) |
+| Puffy body | #FFB6D5 |
+| Puffy shadow | #E68FBF |
+| Gases | #7FD4FF |
+| Metals | #C9A227 |
+| Nonmetals | #7FD48F |
+| Accent | #FFD966 |
+| Sad | #B0B0C0 |
+
+### Asset list (MVP)
+
+- Puffy: 12 state animations
+- Element snacks: 6 characters
+- Result animations: 10 loops
+- UI: 6 buttons, tray, thought bubble
+- Particles: bubbles, sparkles, confetti, tears
+- Backgrounds: 1 (soft gradient)
+
+Estimated: ~50 assets.
+
+---
+
+## 17. Audio direction
+
+### Puffy's sounds (no language)
+
+- Gulp (short, wet)
+- Chew (three variations, soft, rhythmic)
+- Giggle (bright, high)
+- Sigh (soft, breathy)
+- Spit (comedic "ptooey" or "poof" — parent-switchable)
+- Sparkle chime (bell-like)
+- Sad "aww" (soft, brief)
+- Bounce (boing)
+- Sniffle (tiny, cute)
+
+### Music
+
+- Ambient, loopable, gentle
+- Marimba, soft synths, light percussion
+- 60–70 BPM
+- Ducks under voice lines
+- Swells during celebrations
+
+### Sound design rules
+
+- Every touch has a sound
+- No sound is ever harsh, buzzy, or punishing
+- Celebration sounds are big but not startling
+- Sad sounds are brief and soft
+
+### Levels
+
+- Music: -18dB
+- Puffy sounds: -12dB
+- Narrator: -8dB (loudest)
+- Effects: -14dB
+
+---
+
+## 18. Technical architecture
+
+### Platform
+
+- **Target:** iPadOS first, iOS second
+- **Minimum:** iOS 16
+- **Orientation:** Landscape primary, portrait supported
+- **Offline:** Fully offline. No network calls. No analytics.
+
+### Stack
+
+| Layer | Technology |
+|---|---|
+| App | Swift 5.9+ |
+| UI | SwiftUI |
+| Game rendering | SpriteKit |
+| Data | SQLite (via GRDB) or bundled JSON |
+| Audio | AVAudioEngine + AVAudioPlayer |
+| Animation | SpriteKit actions + custom shaders |
+| Persistence | UserDefaults + SQLite for content |
+| Localization | String catalogs |
+
+### Why this stack
+
+- SwiftUI for menus and settings (fast to build)
+- SpriteKit for Puffy and particles (60fps on old iPads)
+- SQLite for 500+ combos (fast queries, no memory bloat)
+- No Unity — overkill, larger binary, harder to maintain
+- No React Native — poor game performance on old iPads
+
+### Module structure
+
+```
+Puffy/
+├── App/
+│   ├── PuffyApp.swift
+│   └── RootView.swift
+├── Game/
+│   ├── GameScene.swift
+│   ├── PuffyNode.swift
+│   ├── ElementNode.swift
+│   ├── ChewCycle.swift
+│   └── Particles.swift
+├── Content/
+│   ├── ContentDatabase.swift
+│   ├── ComboResolver.swift
+│   ├── InvalidEngine.swift
+│   └── Database/
+│       ├── elements.json
+│       ├── combos.json
+│       └── templates.json
+├── Voice/
+│   ├── VoiceDirector.swift
+│   ├── AudioLegos.swift
+│   └── VariantBank.swift
+├── Progression/
+│   ├── UnlockManager.swift
+│   ├── AdaptiveDifficulty.swift
+│   └── MasteryStars.swift
+├── Parent/
+│   ├── ParentGate.swift
+│   └── ParentDashboard.swift
+├── UI/
+│   ├── HomeView.swift
+│   ├── DiscoveryBookView.swift
+│   └── ResultOverlay.swift
+└── Resources/
+    ├── Audio/
+    ├── Sprites/
+    └── Localization/
+```
+
+### State machine
+
+The game is a state machine. Every state has an entry action, an exit action, and allowed transitions.
+
+```
+enum GameState {
+  case idle
+  case elementGrabbed(elementID: String)
+  case firstFed(elementID: String)
+  case chewing(inputs: [String])
+  case thinking
+  case imagining(sillyIdea: String)
+  case realResult(combo: Combo, isFirstTime: Bool)
+  case invalidResult(inputs: [String])
+  case celebrating(combo: Combo)
+  case sad
+  case encouraging
+}
+```
+
+### Performance targets
+
+- 60fps on iPad 8th gen or newer
+- 30fps minimum on iPad 6th gen
+- Launch under 1.5s
+- No frame drops during chew cycle
+- Total binary under 200MB
+
+### Offline and privacy
+
+- No network calls, ever
+- No analytics
+- No ads
+- No third-party SDKs
+- No data collection
+- All data stays on device
+
+---
+
+## 19. Data schemas
+
+### elements.json
+
+```json
+{
+  "version": "1.0",
+  "elements": [
+    {
+      "id": "H",
+      "symbol": "H",
+      "name": "Hydrogen",
+      "atomicNumber": 1,
+      "color": "#7FD4FF",
+      "shape": "round-bouncy",
+      "tags": ["light", "float", "fuel", "water", "tiny"],
+      "unlockPack": "starter",
+      "facts": {
+        "toddler": "Hydrogen is so light it floats away!",
+        "kid": "Hydrogen is the lightest element in the universe.",
+        "junior": "Hydrogen is element 1, one proton, one electron."
+      }
+    }
+  ]
+}
+```
+
+### combos.json
+
+```json
+{
+  "version": "1.0",
+  "combos": [
+    {
+      "id": "water",
+      "inputs": ["H", "O"],
+      "matchMode": "any-order",
+      "result": {
+        "displayName": "Water",
+        "formula": "H₂O",
+        "animation": "water_splash",
+        "color": "#4FC3F7"
+      },
+      "facts": {
+        "toddler": "Water! You drink it, splash it, swim in it!",
+        "kid": "Water is H two O. Two hydrogens and one oxygen.",
+        "junior": "Water is polar. That's why ice floats."
+      },
+      "celebration": "medium",
+      "unlocksSticker": true
+    }
+  ]
+}
+```
+
+### templates.json (invalid engine)
+
+```json
+{
+  "version": "1.0",
+  "tagNouns": [
+    { "tags": ["light", "shiny"], "noun": "a floating gold balloon" },
+    { "tags": ["heavy", "shiny"], "noun": "a very expensive paperweight" },
+    { "tags": ["heavy", "float"], "noun": "a sinking balloon" },
+    { "tags": ["strong", "soft"], "noun": "a pillow made of iron" },
+    { "tags": ["tiny", "heavy"], "noun": "a pocket-sized anvil" },
+    { "tags": ["fuel", "water"], "noun": "a burning puddle" }
+  ],
+  "useTemplates": [
+    "It could be used for {use}!",
+    "Great for {use}!",
+    "Imagine it at {place}!"
+  ],
+  "uses": [
+    "a gold parade",
+    "decorating clouds",
+    "a birthday party",
+    "napping knights",
+    "a dragon's kitchen"
+  ],
+  "thinking": [
+    "Hmmm…",
+    "Let me see…",
+    "Ooh, what's this…",
+    "Hmm hmm hmm…",
+    "Wait a second…"
+  ],
+  "rejection": [
+    "But nope!",
+    "But that's not real!",
+    "But it doesn't work!"
+  ],
+  "encouragement": [
+    "Oh no, try again!",
+    "Oh no, let's try another one!",
+    "Oh no, what else?"
+  ]
+}
+```
+
+### Schema versioning
+
+Every JSON file has a `version` field. On app launch, if the bundled version is newer than the stored version, migrate. Never break old saves.
+
+---
+
+## 20. Content pack 1 (full — MVP)
+
+### Elements (6)
+
+| ID | Name | Tags | Color |
+|---|---|---|---|
+| H | Hydrogen | light, float, fuel, water, tiny | #7FD4FF |
+| O | Oxygen | breathe, fire, bubbles, rust | #4FC3F7 |
+| C | Carbon | strong, building, life, dark | #4A4A4A |
+| N | Nitrogen | cool, calm, air, sleepy | #A0C4FF |
+| Na | Sodium | eager, salty, spark, soft | #FFD966 |
+| Cl | Chlorine | clean, green, sneaky, sharp | #7FD48F |
+
+### Combos (10)
+
+| Inputs | Result | Formula | Animation |
+|---|---|---|---|
+| H + O | Water | H₂O | water_splash |
+| H + H | Hydrogen gas | H₂ | balloon_float |
+| O + O | Oxygen gas | O₂ | deep_breath |
+| N + N | Nitrogen gas | N₂ | blue_mist |
+| Na + Cl | Salt | NaCl | salt_shaker |
+| C + O | Carbon dioxide | CO₂ | bubbles_out |
+| H + N | Ammonia | NH₃ | clean_sparkle |
+| H + Cl | Hydrochloric acid | HCl | fizzy |
+| Na + O | Sodium oxide | Na₂O | powder_puff |
+| C + H | Methane | CH₄ | little_flame |
+
+### Invalid combo templates
+
+See §19 for the full structure. Starter tag nouns cover all 6×6 − 10 = 26 invalid pairs.
+
+---
+
+## 21. MVP definition
+
+The MVP is the smallest version that proves the core loop works and is delightful.
+
+### MVP scope
+
+- 6 elements
+- 10 real combos
+- Full invalid combo engine with 5 templates per beat
+- Puffy with 12 states
+- Chew cycle
+- Discovery Book with 10 stickers
+- Full voice script recorded
+- Name recording onboarding
+- Parent gate + settings
+- Parental time limit
+- English only
+
+### What MVP is NOT
+
+- No heat/spark
+- No 3-slot
+- No periodic table view
+- No localization
+- No mastery stars
+- No challenge mode
+
+### MVP success criteria
+
+- A 3-year-old can play with zero adult help after one demo
+- A 3-year-old laughs at least once during the invalid combo sequence
+- A 3-year-old asks to play again
+- No crashes in 30 minutes of continuous play
+- Average session length > 5 minutes
+- Parent reports child learned at least one real chemistry fact
+
+---
+
+## 22. Build phases and timeline
+
+Assumes one part-time developer + you + a designer + a voice actor.
+
+### Phase 0 — Foundation (Week 1–2)
+- Set up Xcode project
+- SwiftUI shell, navigation
+- SpriteKit scene
+- Puffy placeholder (a pink circle)
+- Element tray with 6 placeholder snacks
+- Drag-and-drop
+- Data layer with JSON loading
+
+**Deliverable:** A pink blob you can drag two circles into.
+
+### Phase 1 — Core loop (Week 3–5)
+- Puffy state machine
+- Chew cycle animation
+- Combo resolver
+- Result overlay
+- Real combo celebration
+- Invalid combo sequence
+
+**Deliverable:** The full loop with placeholder art and no voice.
+
+### Phase 2 — Content (Week 6–7)
+- All 6 elements with real art
+- All 10 combos
+- All 10 result animations
+- Invalid combo engine complete
+- Discovery Book
+
+**Deliverable:** Content-complete game with placeholder voice.
+
+### Phase 3 — Voice (Week 8–9)
+- Record voice script
+- Implement audio LEGO
+- Name recording onboarding
+- Variant banks
+- Timing polish
+
+**Deliverable:** Fully voiced game.
+
+### Phase 4 — Parent and polish (Week 10–11)
+- Parental gate
+- Parent dashboard
+- Time limits
+- Adaptive difficulty
+- Performance optimization
+- Accessibility pass
+
+**Deliverable:** Feature-complete.
+
+### Phase 5 — Test and ship (Week 12–14)
+- Internal testing
+- TestFlight with 5–10 families
+- Bug fixes
+- App Store assets
+- Kids Category compliance review
+- Submit
+
+**Deliverable:** Live on the App Store.
+
+**Total: ~14 weeks part-time, ~8 weeks full-time.**
+
+---
+
+## 23. Testing plan
+
+### Internal testing (ongoing)
+
+- Unit tests for combo resolver
+- Unit tests for invalid engine (no repeat, all tags covered)
+- Unit tests for progression unlocks
+- UI tests for onboarding
+- Performance tests on oldest supported device
+
+### Family testing (Week 12)
+
+Recruit 5–10 families with children aged 2–5. For each:
+
+- Observe first 10 minutes without help
+- Note where they hesitate
+- Note where they laugh
+- Note where they quit
+- Ask the parent: would you pay $3 for this?
+
+### Success metrics for family testing
+
+- 80% of children complete the first combo within 60 seconds
+- 80% laugh at least once during an invalid combo
+- 60% ask to play again
+- 0 children cry
+- 0 children get stuck
+
+### Failure criteria
+
+If a child cries, gets stuck, or ignores the game, that's a design bug. Fix it before shipping.
+
+---
+
+## 24. App Store and Kids Category compliance
+
+Apple's Kids Category rules are strict. Design for them from day one.
+
+### Required
+
+- Parental gate before any external link
+- No third-party analytics
+- No ads
+- No in-app purchases visible to children (parent gate required)
+- No data collection from children
+- COPPA compliance
+- GDPR-K compliance
+- Privacy policy URL
+- Age rating: 4+ (or 5+ depending on content)
+
+### Recommended
+
+- No account creation
+- No push notifications
+- No social features
+- No cloud sync (or opt-in only, behind parental gate)
+
+### Parental gate implementation
+
+- Math question (7 + 4)
+- Must appear before: settings, external links, purchases, data screens
+- Must not be bypassable by a child under 7
+
+### App Store metadata
+
+- Title: Puffy — Feed the Cloud
+- Subtitle: Chemistry for tiny hands
+- Category: Education (Kids)
+- Keywords: toddler, chemistry, science, elements, kids, learning, pet
+- Age rating: 4+
+
+---
+
+## 25. Localization
+
+Voice is the only thing that truly needs localization. Everything else is universal.
+
+### Priority languages
+
+1. English
+2. Spanish
+3. French
+4. German
+5. Portuguese (Brazil)
+6. Japanese
+
+### What changes per language
+
+- Narrator voice lines (re-record)
+- Element facts (translate)
+- Parent dashboard (translate)
+- App Store metadata (translate)
+
+### What doesn't change
+
+- Puffy's sounds
+- Element symbols
+- Chemical formulas
+- Animations
+- Colors
+
+### Name recording
+
+The name recording is language-independent. It works in every market because the parent's voice is the voice.
+
+---
+
+## 26. Business model
+
+Options:
+
+| Model | Pros | Cons |
+|---|---|---|
+| Paid upfront ($3.99) | No ads, clean, parents trust it | Lower downloads |
+| Free with one-time unlock ($4.99) | Try before buy | Unlock friction |
+| Free with content packs ($2.99 each) | Long tail revenue | Can feel greedy |
+| Subscription ($1.99/mo) | Recurring | Parents hate subscriptions for kids |
+
+**Recommendation:** Free with one-time unlock. Starter pack free, full game $4.99. No ads. No subscriptions. No data collection.
+
+This is the model parents trust, and it aligns with the game's values.
+
+---
+
+## 27. Risks and mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| Children find sad face distressing | Medium | High | Cap at 0.8s, always end on "try again", parent setting to soften |
+| Voice feels robotic | High | High | Variant banks, name recording, audio LEGO, slow delivery |
+| Chemistry inaccuracy | Medium | High | Accuracy rule enforced in content review, no "new element" wording |
+| App Store rejection | Medium | High | Design for Kids Category from day one |
+| Chew cycle too long | Medium | Medium | Make it skippable by tapping, shorten for young users |
+| Content database too small | High | Medium | Start with 10, ship with 10, add monthly |
+| Puffy feels generic | Medium | High | Distinct character bible, unique invalid engine |
+| Child gets bored | Medium | High | Adaptive difficulty, unlock packs, mastery stars |
+| Parent doesn't see value | Medium | High | Parent dashboard showing real discoveries |
+| Performance on old iPads | Medium | Medium | SpriteKit + particle pooling + 30fps fallback |
+
+---
+
+## 28. Open questions
+
+Answer these before Phase 2.
+
+1. Does the child laugh at the invalid combo in testing? If not, the signature feature needs rework.
+2. Does the parent voice name recording work across accents and languages?
+3. Is "ptooey" funny or gross to parents? (Test both, make it a setting.)
+4. Should Puffy ever be sad, or only ever curious? (Test with real children.)
+5. How many elements can a 3-year-old handle before overwhelm?
+6. Does the Discovery Book actually motivate, or is it ignored?
+7. Should the game have any sound at all when muted? (Silent visual feedback matters.)
+
+---
+
+## 29. What makes this game defensible
+
+Anyone can build a drag-and-drop chemistry game. What they can't easily copy:
+
+1. **The invalid combo engine** — 200+ tag-noun pairs, 5 template banks, hand-tuned for comedy
+2. **The accuracy rule** — never says "new element," always says "compound"
+3. **The name recording** — the child hears their own name in their parent's voice
+4. **The audio LEGO system** — hundreds of natural-sounding lines from one recording session
+5. **The progression ladder** — one game that grows from age 2 to age 8
+6. **Puffy's character bible** — 12 states, a growth arc, an emotional relationship
+7. **The content database** — 500+ scientifically-correct combos, hand-curated
+
+The code is replaceable. The content, the voice, and the character are not.
+
+---
+
+## 30. Immediate next steps
+
+In order:
+
+1. **Approve this blueprint.** Any changes?
+2. **Lock the MVP scope.** 6 elements, 10 combos, full loop.
+3. **Build the content database.** elements.json, combos.json, templates.json.
+4. **Write the full voice script.** Every line, with variants.
+5. **Design Puffy.** 12 states, character sheet, art direction.
+6. **Book the voice actor.** 2-hour session.
+7. **Start Phase 0.** Xcode project, shell, placeholder art.
+8. **Test with one child.** Before building anything else, watch a 3-year-old play the placeholder version. If the loop works with circles, it'll work with art.
+
+The single most important thing: **test with a real child as early as possible.** The game lives or dies on whether a 3-year-old laughs at the chew cycle and the silly ideas. Everything else is engineering.
+
+---
+
+*End of blueprint.*
