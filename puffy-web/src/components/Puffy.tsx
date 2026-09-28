@@ -85,37 +85,41 @@ export default function Puffy({ state, chewBeat = 0, fed = [], lean, sparkle, on
   )
 }
 
-// Billows of a cumulus cloud: [cx, cy, r]. Big soft lobes on top, a flatter base.
-const BILLOWS: [number, number, number][] = [
-  [78, 142, 48], [118, 104, 54], [170, 88, 62], [222, 116, 50], [250, 156, 38],
-  [46, 168, 34], [112, 170, 56], [190, 168, 58],
+// A cumulus: a row of distinct puffs along the top, body lobes, a flat base.
+// [cx, cy, r]
+const TOP_PUFFS: [number, number, number][] = [
+  [62, 124, 34], [96, 94, 38], [138, 70, 42], [184, 68, 42], [226, 90, 38], [256, 124, 32],
 ]
+const BODY_LOBES: [number, number, number][] = [
+  [44, 164, 30], [104, 146, 50], [160, 130, 58], [212, 146, 50], [262, 164, 30],
+]
+const BILLOWS = [...TOP_PUFFS, ...BODY_LOBES]
 
 /** The cloud body. Static: it never re-renders, so its filters are painted once. */
 function CloudBody() {
   return (
     <svg viewBox="-20 -20 340 300" className="puffy__cotton" aria-hidden="true">
       <defs>
-        {/* each billow is lit from the window (top-left) and shaded underneath */}
-        <radialGradient id="billow" cx="36%" cy="30%" r="72%">
-          <stop offset="0%" stopColor="#FFF1F7" />
-          <stop offset="48%" stopColor="#FFC7DF" />
-          <stop offset="82%" stopColor="#FFB6D5" />
-          <stop offset="100%" stopColor="#F29CC5" />
-        </radialGradient>
-        <linearGradient id="cloud-underside" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0.45" stopColor="#E68FBF" stopOpacity="0" />
-          <stop offset="1" stopColor="#E68FBF" stopOpacity="0.55" />
+        {/* one light for the whole mass: bright crowns, pink middle, shaded flat base */}
+        <linearGradient id="cloud-mass" x1="0" y1="30" x2="0" y2="212" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#FFEAF3" />
+          <stop offset="0.45" stopColor="#FFC6DF" />
+          <stop offset="0.8" stopColor="#FFB6D5" />
+          <stop offset="1" stopColor="#EE9CC4" />
         </linearGradient>
+        <radialGradient id="cloud-side" cx="30" cy="40" r="300" gradientUnits="userSpaceOnUse">
+          <stop offset="0.35" stopColor="#FFFFFF" stopOpacity="0" />
+          <stop offset="1" stopColor="#D9779F" stopOpacity="0.28" />
+        </radialGradient>
         <clipPath id="cloud-clip">
-          <ellipse cx="152" cy="176" rx="118" ry="52" />
+          <rect x="30" y="150" width="244" height="60" rx="30" />
           {BILLOWS.map(([cx, cy, r], i) => (
             <circle key={i} cx={cx} cy={cy} r={r} />
           ))}
         </clipPath>
         {/* feathered edge: a real cloud has no hard outline */}
         <filter id="cloud-soft" x="-10%" y="-10%" width="120%" height="120%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="3.2" result="halo" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="halo" />
           <feGaussianBlur in="SourceGraphic" stdDeviation="0.9" result="body" />
           <feMerge>
             <feMergeNode in="halo" />
@@ -123,24 +127,33 @@ function CloudBody() {
           </feMerge>
         </filter>
         <filter id="cloud-blur" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="7" />
+          <feGaussianBlur stdDeviation="6" />
         </filter>
       </defs>
       <g filter="url(#cloud-soft)">
-        <ellipse cx="152" cy="176" rx="118" ry="52" fill="#FFBDD9" />
-        {/* back billows first, front billows over them */}
-        {BILLOWS.map(([cx, cy, r], i) => (
-          <circle key={i} cx={cx} cy={cy} r={r} fill="url(#billow)" />
-        ))}
+        <g fill="url(#cloud-mass)">
+          <rect x="30" y="150" width="244" height="60" rx="30" />
+          {BILLOWS.map(([cx, cy, r], i) => (
+            <circle key={i} cx={cx} cy={cy} r={r} />
+          ))}
+        </g>
         <g clipPath="url(#cloud-clip)">
-          {/* shadowed underside */}
-          <rect x="20" y="60" width="270" height="180" fill="url(#cloud-underside)" />
-          {/* bright crowns where the window light hits */}
+          {/* away from the window the whole mass falls into shade */}
+          <rect x="20" y="20" width="280" height="200" fill="url(#cloud-side)" />
+          {/* a soft fold shadow under each top puff; kept off the face */}
+          <g className="cloud-creases" fill="none" stroke="#E58DB8" strokeWidth="7" strokeLinecap="round" opacity="0.35" filter="url(#cloud-blur)">
+            <path d="M40 138q22 12 44 2" />
+            <path d="M70 110q24 12 50 0" />
+            <path d="M118 84q22 10 44 0M162 82q22 10 44 0" />
+            <path d="M204 106q24 12 48 0" />
+            <path d="M236 140q20 10 40-2" />
+          </g>
+          {/* only the crowns catch the window light */}
           <g className="cloud-crowns" fill="#FFFFFF" filter="url(#cloud-blur)">
-            <ellipse cx="160" cy="54" rx="40" ry="16" opacity="0.8" />
-            <ellipse cx="104" cy="76" rx="26" ry="11" opacity="0.65" />
-            <ellipse cx="62" cy="118" rx="16" ry="9" opacity="0.5" />
-            <ellipse cx="220" cy="84" rx="20" ry="9" opacity="0.45" />
+            <ellipse cx="130" cy="42" rx="26" ry="10" opacity="0.85" />
+            <ellipse cx="178" cy="40" rx="24" ry="9" opacity="0.7" />
+            <ellipse cx="88" cy="66" rx="20" ry="8" opacity="0.7" />
+            <ellipse cx="54" cy="100" rx="14" ry="7" opacity="0.5" />
           </g>
         </g>
       </g>

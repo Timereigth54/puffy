@@ -158,16 +158,12 @@
 .parent__h2 { margin: 0 0 14px; font-family: var(--font-display); font-weight: 800; font-size: 20px; line-height: 1.2; }
 .parent__foot { margin: 8px 0 0; color: var(--ink-soft); font-size: 14px; }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
-  gap: 10px;
+.summary {
   margin: 0 0 16px;
+  font-size: 17px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
-.stat { padding: 12px 14px; border-radius: 12px; background: var(--plum-soft); }
-.stat dt { font-size: 14px; color: var(--ink-soft); }
-.stat dd { margin: 2px 0 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(19px, 2.4vw, 26px); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; line-height: 1.15; }
-.stat__of { font-size: 16px; color: var(--ink-soft); }
 
 .found-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .found { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; }

@@ -15,12 +15,12 @@ const STAR = (() => {
 })()
 
 const SHAPES: Record<Element['shape'], { d: string; faceY: number; round?: number }> = {
-  round: { d: 'M60 22a40 40 0 1 1 0 80a40 40 0 1 1 0-80Z', faceY: 62 },
-  drop: { d: 'M60 14C68 30 98 56 98 76a38 38 0 0 1-76 0C22 56 52 30 60 14Z', faceY: 72 },
-  block: { d: 'M38 22h44a18 18 0 0 1 18 18v44a18 18 0 0 1-18 18H38a18 18 0 0 1-18-18V40a18 18 0 0 1 18-18Z', faceY: 62 },
-  star: { d: STAR, faceY: 66, round: 12 },
-  leaf: { d: 'M60 16C98 28 106 70 86 94c-13 14-39 14-52 0C14 72 22 30 60 16Z', faceY: 66 },
-  balloon: { d: 'M60 14c22 0 38 18 38 40c0 24-20 42-38 46c-18-4-38-22-38-46c0-22 16-40 38-40Z', faceY: 56 },
+  round: { d: 'M60 22a40 40 0 1 1 0 80a40 40 0 1 1 0-80Z', faceY: 56 },
+  drop: { d: 'M60 14C68 30 98 56 98 76a38 38 0 0 1-76 0C22 56 52 30 60 14Z', faceY: 62 },
+  block: { d: 'M38 22h44a18 18 0 0 1 18 18v44a18 18 0 0 1-18 18H38a18 18 0 0 1-18-18V40a18 18 0 0 1 18-18Z', faceY: 56 },
+  star: { d: STAR, faceY: 58, round: 12 },
+  leaf: { d: 'M60 16C98 28 106 70 86 94c-13 14-39 14-52 0C14 72 22 30 60 16Z', faceY: 56 },
+  balloon: { d: 'M60 14c22 0 38 18 38 40c0 24-20 42-38 46c-18-4-38-22-38-46c0-22 16-40 38-40Z', faceY: 52 },
 }
 
 function shade(hex: string, amt: number): string {
@@ -67,9 +67,10 @@ export default function SnackArt({ element, showSymbol, mood = 'normal' }: Props
       {showSymbol ? (
         <>
           {/* Foam-letter mode: the symbol is the snack; small eyes keep it a character. */}
-          <Eye x={50} y={s.faceY - 20} r={3.5} />
-          <Eye x={70} y={s.faceY - 20} r={3.5} />
-          <text x="60" y={s.faceY + 17} textAnchor="middle" className="snack-symbol">
+          {/* sits high on the snack so the letter stays above the waterline */}
+          <Eye x={50} y={s.faceY - 30} r={3.5} />
+          <Eye x={70} y={s.faceY - 30} r={3.5} />
+          <text x="60" y={s.faceY + 6} textAnchor="middle" className="snack-symbol">
             {element.symbol}
           </text>
         </>

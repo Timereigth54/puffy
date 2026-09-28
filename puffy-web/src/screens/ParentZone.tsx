@@ -71,26 +71,16 @@ export default function ParentZone({ settings, progress, onSettings, onName, onR
           <h2 id="p-progress" className="parent__h2">
             What {progress.childName ?? 'your child'} found
           </h2>
-          <dl className="stats">
-            <div className="stat">
-              <dt>Discoveries</dt>
-              <dd>
-                {progress.discovered.length}<span className="stat__of"> / {COMBOS.length}</span>
-              </dd>
-            </div>
-            <div className="stat">
-              <dt>This week</dt>
-              <dd>{thisWeek}</dd>
-            </div>
-            <div className="stat">
-              <dt>Time played</dt>
-              <dd>{formatMinutes(progress.secondsPlayed)}</dd>
-            </div>
-            <div className="stat">
-              <dt>Favourite snack</dt>
-              <dd>{topSnack ? ELEMENT_MAP[topSnack[0]]?.name ?? topSnack[0] : '—'}</dd>
-            </div>
-          </dl>
+          <p className="summary">
+            {[
+              `${progress.discovered.length} of ${COMBOS.length} found`,
+              thisWeek > 0 && `${thisWeek} new this week`,
+              progress.secondsPlayed >= 60 && `${formatMinutes(progress.secondsPlayed)} played`,
+              topSnack && `favourite snack: ${(ELEMENT_MAP[topSnack[0]]?.name ?? topSnack[0]).toLowerCase()}`,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
           <ul className="found-list">
             {COMBOS.filter((c) => progress.discovered.includes(c.id)).map((c) => (
               <li key={c.id} className="found">

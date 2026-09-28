@@ -159,12 +159,12 @@
   position: absolute;
   left: 0;
   right: 0;
+  top: 6px;
   bottom: var(--rim-h);
-  height: calc(var(--tub-h) - var(--rim-h) - var(--snack) * 0.62);
   z-index: 3;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(200, 236, 255, 0.55), rgba(168, 222, 250, 0.8));
-  border-top: 3px solid rgba(255, 255, 255, 0.8);
+  background: linear-gradient(to bottom, rgba(214, 241, 255, 0.5), rgba(168, 222, 250, 0.82) 70%);
+  border-top: 3px solid rgba(255, 255, 255, 0.85);
 }
 
 .tub__rim {
@@ -185,7 +185,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(var(--snack) * -0.38);
+  /* the waterline crosses each snack about 60% down: they float IN the bath */
+  top: calc(var(--snack) * -0.6);
   display: flex;
   justify-content: space-evenly;
   align-items: flex-start;
@@ -223,7 +224,7 @@
   font-size: 40px;
   fill: #fff;
   stroke: var(--ink);
-  stroke-width: 6px;
+  stroke-width: 4px;
   paint-order: stroke;
   letter-spacing: 0.02em;
 }
@@ -252,9 +253,10 @@
 }
 .snack__ripple {
   position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 60%;
+  z-index: 4;
+  left: 4%;
+  right: 4%;
+  top: 51%;
   height: 16%;
   border-radius: 50%;
   border: 3px solid rgba(255, 255, 255, 0.85);
@@ -839,7 +841,8 @@
   position: absolute;
   inset: auto;
   left: 4vw;
-  top: 4vh;
+  /* below the home duck, which must stay tappable */
+  top: calc(max(2vh, 10px) + max(96px, var(--tile) * 1.55) + 1.5vh);
   width: min(38vh, 30vw);
   aspect-ratio: 1;
   pointer-events: none;
@@ -874,30 +877,44 @@
 }
 .thought__stem--1 { width: 11%; height: 11%; right: -6%; bottom: 0; }
 .thought__stem--2 { width: 7%; height: 7%; right: -16%; bottom: -10%; animation-delay: 0.1s; }
+.thought__idea {
+  position: absolute;
+  inset: 12%;
+  animation: idea-pop 0.5s var(--ease-squish) 0.2s both, idea-bob 1.4s var(--ease-in-out) 0.7s infinite alternate;
+}
+.idea-art { width: 100%; height: 100%; overflow: visible; }
+@keyframes idea-pop {
+  from { transform: scale(0.2) rotate(-20deg); opacity: 0; }
+}
+@keyframes idea-bob {
+  to { transform: translateY(-6px) rotate(3deg); }
+}
+.idea-wing { transform-box: fill-box; transform-origin: 100% 60%; animation: flap 0.36s var(--ease-in-out) infinite alternate; }
+@keyframes flap { to { transform: rotate(-18deg); } }
+.idea-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flicker 0.4s var(--ease-in-out) infinite alternate; }
 .thought__dance {
-  position: relative;
-  width: 70%;
-  height: 50%;
-  animation: dance 1.6s linear infinite;
+  position: absolute;
+  inset: -4%;
+  animation: dance 4s linear infinite;
 }
 .thought__snack {
   position: absolute;
-  top: 10%;
-  width: 46%;
+  width: 26%;
   aspect-ratio: 1;
 }
+.thought__snack--0 { left: -2%; top: 8%; }
+.thought__snack--1 { right: -2%; bottom: 8%; }
 .thought__snack {
-  animation: dance 1.6s linear infinite reverse;
+  animation: dance 4s linear infinite reverse;
 }
-.thought__snack--0 { left: 0; }
-.thought__snack--1 { right: 0; }
 @keyframes dance {
   to { transform: rotate(360deg); }
 }
 .thought__text {
   position: absolute;
   left: 50%;
-  bottom: 12%;
+  /* below the reach of the orbiting snacks */
+  top: calc(100% + 26% + 8px);
   width: 84%;
   transform: translateX(-50%);
   margin: 0;
@@ -1064,8 +1081,8 @@
 /* ─── Portrait phones and tablets ──────────────────────────────────────── */
 @media (orientation: portrait) {
   :root {
-    --snack: clamp(64px, 14vw, 120px);
-    --tub-h: clamp(150px, 24vh, 300px);
+    --snack: clamp(88px, 14vw, 120px);
+    --tub-h: clamp(140px, 19vh, 260px);
   }
   .puffy-anchor { top: 12vh; width: min(84vw, 44vh); }
   .puffy-anchor--home { top: 16vh; }
@@ -1088,6 +1105,7 @@
   filter: none;
 }
 .is-lite .cloud-crowns,
+.is-lite .cloud-creases,
 .is-lite .wall-bubbles,
 .is-lite .tub__water::after,
 .is-lite .puffy__steam {

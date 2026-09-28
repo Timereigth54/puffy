@@ -44,7 +44,7 @@
   /* Geometry: one tile unit sets every size */
   --tile: clamp(52px, 8vmin, 96px);
   --snack: clamp(88px, 16vmin, 150px);
-  --tub-h: clamp(160px, 27vh, 300px);
+  --tub-h: clamp(140px, 22vh, 260px);
   --rim-h: clamp(34px, 6vh, 56px);
   --radius: 16px;
 

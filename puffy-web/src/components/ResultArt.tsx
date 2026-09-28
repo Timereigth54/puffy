@@ -134,9 +134,11 @@ const ART: Record<ArtId, React.ReactNode> = {
       <g className="art-flame">
         <path d="M100 32c30 40 42 62 42 88a42 42 0 0 1-84 0c0-26 12-48 42-88Z" fill="#FFB24D" />
         <path d="M100 80c18 26 24 38 24 52a24 24 0 0 1-48 0c0-14 6-26 24-52Z" fill="#FFE27A" />
-        <path d="M100 134a18 10 0 0 1 36 4H64a18 10 0 0 1 36-4Z" fill="#7FD4FF" />
+        {/* a gas flame is blue where it meets the burner: a crescent cupping the base */}
+        <path d="M59 130A42 42 0 0 0 141 130A42 20 0 0 1 59 130Z" fill="#4FB8F0" />
       </g>
-      {eyes(100, 116, 22)}
+      {eyes(100, 112, 22)}
+      {smile(100, 124, 18)}
     </g>
   ),
   diamond: (
