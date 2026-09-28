@@ -9,3 +9,5 @@ puffy-web/test-results/
 puffy-web/playwright-report/
 tools/render.log
 .audit-scan/
+.impeccable/hook.cache.json
+puffy-web/.impeccable/hook.cache.json
