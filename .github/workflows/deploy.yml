@@ -43,3 +43,20 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  e2e:
+    # Runs beside the deploy, not before it: a slow browser test never blocks a release.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: puffy-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: puffy-web/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit chromium
+      - run: npx playwright test --workers=2

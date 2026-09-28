@@ -1,6 +1,6 @@
 # Audit scan — puffy_app
 
-*Generated 2026-09-28 15:14 by `audit-scan.py`. Deterministic checks only — everything below is something a tool decided, not something anyone judged. Read “What this did not check” before concluding the project is clean.*
+*Generated 2026-09-28 17:32 by `audit-scan.py`. Deterministic checks only — everything below is something a tool decided, not something anyone judged. Read “What this did not check” before concluding the project is clean.*
 
 ## Verdict
 
@@ -8,28 +8,48 @@ Nothing urgent. What follows is quality and hygiene.
 
 | Severity | Count |
 |---|---|
-| medium | 2 |
+| low | 8 |
+| info | 1 |
 
 ## The project
 
-- **Stack:** node
-- **Files:** 82 (0.6 MB), excluding dependencies and build output
-- **Mostly:** `.tsx` ×59, `.ts` ×7, `.json` ×6, `.js` ×3, `.md` ×2, `.css` ×2
+- **Stack:** node, pwa
+- **Files:** 576 (177.4 MB), excluding dependencies and build output
+- **History:** 9 commits read, 0 of them reverts
+- **Mostly:** `(none)` ×358, `.mp3` ×154, `.tsx` ×15, `.ts` ×12, `.json` ×9, `.md` ×5
 
 ## Findings
 
-### What this project is <sub>`recon`</sub>
+### What is tracked that should not be <sub>`hygiene`</sub>
 
-- **[medium]** Not a git repository
-  There is no history to mine, no baseline to revert to, and no way to tell what changed when. Every other safety net in an audit assumes git.
+- **[low]** 1x console.log left in shipped code in puffy-web/tools/make-icons.mjs
+  Fine in development; noise or a leak in production.
+- **[low]** 4x console.log left in shipped code in puffy-web/tools/render-voice.mjs
+  Fine in development; noise or a leak in production.
 
-### Decidable risk patterns <sub>`security`</sub>
+### TODO / FIXME inventory <sub>`todos`</sub>
 
-- **[medium]** dangerouslySetInnerHTML in puffy-web/src/components/ui/chart.tsx:83
-  Safe only if the HTML is sanitised on the way IN. Check there is an allowlist, and that it runs at save time rather than at render time.
-  ```
-  dangerouslySetInnerHTML={{
-  ```
+- **[info]** 1 TODO/FIXME marker(s) across the project
+  Full list at the bottom of this report.
+
+### Files large enough to be a problem <sub>`size`</sub>
+
+- **[low]** tools/piper/en_US-lessac-high.onnx is 113.9 MB
+  Large binaries are cloned by everyone, forever, even after deletion.
+- **[low]** tools/piper/piper.zip is 22.5 MB
+  Large binaries are cloned by everyone, forever, even after deletion.
+- **[low]** tools/piper/piper/espeak-ng-data/cmn_dict is 1.6 MB
+  Large binaries are cloned by everyone, forever, even after deletion.
+- **[low]** tools/piper/piper/espeak-ng-data/ru_dict is 8.5 MB
+  Large binaries are cloned by everyone, forever, even after deletion.
+- **[low]** tools/piper/piper/libtashkeel_model.ort is 10.3 MB
+  Large binaries are cloned by everyone, forever, even after deletion.
+- **[low]** tools/piper/piper/onnxruntime.dll is 9.3 MB
+  Large binaries are cloned by everyone, forever, even after deletion.
+
+## Every TODO, in full
+
+- `tools/piper/piper/espeak-ng-data/lang/roa/ht:4` **TODO** somebody should take responsibility for this
 
 ## What this did not check
 
