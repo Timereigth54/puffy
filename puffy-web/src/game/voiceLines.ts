@@ -5,7 +5,7 @@ import {
   COMBOS,
   ELEMENTS,
   ENCOURAGEMENT_LINES,
-  FALLBACK_NOUNS,
+  FALLBACK_IDEA,
   GRAB_LINES,
   IDLE_LINES,
   LONER_LINES,
@@ -47,8 +47,7 @@ export function allLines(): string[] {
     lines.add(hintLine(c))
     lines.add(c.facts.toddler)
   }
-  for (const tn of TAG_NOUNS) tn.nouns.forEach((n) => lines.add(ideaLine(n)))
-  FALLBACK_NOUNS.forEach((n) => lines.add(ideaLine(n)))
+  for (const tn of [...TAG_NOUNS, FALLBACK_IDEA]) lines.add(ideaLine(tn.noun))
   for (const el of ELEMENTS) {
     lines.add(sameLine(el))
     if (NOBLE_GAS_IDS.includes(el.id)) LONER_LINES.forEach((l) => lines.add(l.replace('{name}', el.name)))

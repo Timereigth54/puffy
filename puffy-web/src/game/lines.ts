@@ -26,7 +26,7 @@ export function rememberLine(combo: Combo): string {
 }
 
 export function ideaLine(noun: string): string {
-  return `Maybe ${noun}?`
+  return `${noun}!`
 }
 
 export function sameLine(el: Element): string {

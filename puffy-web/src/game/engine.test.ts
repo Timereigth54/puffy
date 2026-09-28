@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { COMBOS, ELEMENTS, ELEMENT_MAP, SPICY, normalizeKey } from '../data/content'
-import { NoRepeatBank, focusedTray, hintFor, lonerSequence, nounsFor, resolve, discoveryScript } from './engine'
+import { NoRepeatBank, focusedTray, hintFor, ideasFor, lonerSequence, resolve, discoveryScript } from './engine'
 
 const ids = ELEMENTS.map((e) => e.id)
 const allPairs: [string, string][] = []
@@ -31,11 +31,11 @@ describe('starter pack coverage', () => {
     }
   })
 
-  it('has at least three silly ideas for every loner pair', () => {
+  it('has two drawn silly ideas for every loner pair', () => {
     for (const p of allPairs) {
       const o = resolve(p, [])
       if (o.kind !== 'loner') continue
-      expect(nounsFor(o.noble, o.other).length, p.join('+')).toBeGreaterThanOrEqual(3)
+      expect(ideasFor(o.noble, o.other).length, p.join('+')).toBe(2)
     }
   })
 

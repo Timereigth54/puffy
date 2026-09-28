@@ -18,7 +18,8 @@ describe('voice inventory', () => {
   it('covers every silly-idea sequence line', () => {
     for (let n = 0; n < 60; n++)
       for (const other of ['H', 'O', 'C', 'Na', 'Cl'])
-        Object.values(lonerSequence(ELEMENT_MAP.He, ELEMENT_MAP[other])).forEach(covered)
+        for (const [field, text] of Object.entries(lonerSequence(ELEMENT_MAP.He, ELEMENT_MAP[other])))
+          if (field !== 'art') covered(text) // art is a drawing key, not speech
   })
   it('covers spicy, same and hint lines', () => {
     for (let n = 0; n < 20; n++) covered(spicyLine())

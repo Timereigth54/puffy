@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Bathroom from '../components/Bathroom'
 import Puffy from '../components/Puffy'
+import IdeaArt from '../components/IdeaArt'
 import ResultArt from '../components/ResultArt'
 import SnackArt from '../components/SnackArt'
 import { BookIcon, DuckIcon } from '../components/Icons'
@@ -471,6 +472,9 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
             <span className="thought__stem thought__stem--1" aria-hidden="true" />
             <span className="thought__stem thought__stem--2" aria-hidden="true" />
             <div className="thought__bubble">
+              <div className="thought__idea" aria-hidden="true">
+                <IdeaArt art={show.seq.art} />
+              </div>
               <div className="thought__dance" aria-hidden="true">
                 {show.pair.map((el, i) => (
                   <span key={i} className={`thought__snack thought__snack--${i}`}>

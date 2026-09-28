@@ -266,33 +266,40 @@ export const NOBLE_GAS_IDS = ['He', 'Ne', 'Ar', 'Kr', 'Xe', 'Rn']
 // element to a silly thing Puffy imagines.
 export interface TagNoun {
   tags: [string, string]
-  nouns: string[]
+  /** What Puffy says, without an article: "Flying house". */
+  noun: string
+  /** The drawing in the thought bubble, so the joke works with the sound off. */
+  art: IdeaArtId
 }
 
+export type IdeaArtId =
+  | 'feather'
+  | 'puddle'
+  | 'bubble'
+  | 'candles'
+  | 'house'
+  | 'scribble'
+  | 'fries'
+  | 'disco'
+  | 'pool'
+  | 'pickle'
+  | 'squiggle'
+
+// Every "nope" pair is helium plus one other snack, so two ideas per pair.
 export const TAG_NOUNS: TagNoun[] = [
-  { tags: ['balloon', 'fuel'], nouns: ['a burp balloon'] },
-  { tags: ['squeaky', 'tiny'], nouns: ['a mouse trumpet'] },
-  { tags: ['party', 'water'], nouns: ['a flying puddle'] },
-  { tags: ['float', 'light'], nouns: ['a floaty feather'] },
-  { tags: ['squeaky', 'breathe'], nouns: ['a squeaky duck voice'] },
-  { tags: ['balloon', 'bubbles'], nouns: ['a forever bubble'] },
-  { tags: ['party', 'fire'], nouns: ['flying candles'] },
-  { tags: ['float', 'air'], nouns: ['a kite, no string'] },
-  { tags: ['float', 'building'], nouns: ['a flying house'] },
-  { tags: ['balloon', 'dark'], nouns: ['a scribble balloon'] },
-  { tags: ['party', 'strong'], nouns: ['a rock piñata'] },
-  { tags: ['squeaky', 'pencil'], nouns: ['a squeaky pencil'] },
-  { tags: ['float', 'salty'], nouns: ['flying fries'] },
-  { tags: ['balloon', 'soft'], nouns: ['a squishy balloon'] },
-  { tags: ['squeaky', 'eager'], nouns: ['a bouncy squeaker'] },
-  { tags: ['party', 'shiny'], nouns: ['a disco star'] },
-  { tags: ['float', 'pool'], nouns: ['a sky pool'] },
-  { tags: ['balloon', 'green'], nouns: ['a pickle balloon'] },
-  { tags: ['squeaky', 'clean'], nouns: ['squeaky soap'] },
-  { tags: ['party', 'sneaky'], nouns: ['a frog party'] },
+  { tags: ['float', 'light'], noun: 'Floaty feather', art: 'feather' },
+  { tags: ['party', 'water'], noun: 'Flying puddle', art: 'puddle' },
+  { tags: ['balloon', 'bubbles'], noun: 'Forever bubble', art: 'bubble' },
+  { tags: ['party', 'fire'], noun: 'Flying candles', art: 'candles' },
+  { tags: ['float', 'building'], noun: 'Flying house', art: 'house' },
+  { tags: ['balloon', 'dark'], noun: 'Scribble balloon', art: 'scribble' },
+  { tags: ['float', 'salty'], noun: 'Flying fries', art: 'fries' },
+  { tags: ['party', 'shiny'], noun: 'Disco star', art: 'disco' },
+  { tags: ['float', 'pool'], noun: 'Sky pool', art: 'pool' },
+  { tags: ['balloon', 'green'], noun: 'Pickle balloon', art: 'pickle' },
 ]
 
-export const FALLBACK_NOUNS = ['a silly thing', 'a wobbly thing', 'a giggly thing']
+export const FALLBACK_IDEA: TagNoun = { tags: ['', ''], noun: 'Silly thing', art: 'squiggle' }
 
 /** Puffy giggles at its own idea. */
 export const SILLY_LINES = ['Hee hee!', 'Silly!', 'Wheee!', 'So funny!', 'Boing!']

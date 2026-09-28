@@ -4,7 +4,7 @@ import {
   CHEERS,
   ELEMENT_MAP,
   ENCOURAGEMENT_LINES,
-  FALLBACK_NOUNS,
+  FALLBACK_IDEA,
   LONER_LINES,
   NOBLE_GAS_IDS,
   PRAISE_PREFIXES,
@@ -17,6 +17,7 @@ import {
   normalizeKey,
 } from '../data/content'
 import type { Combo, Element, Outcome } from './types'
+import type { IdeaArtId, TagNoun } from '../data/content'
 import { discoveryLine, ideaLine, repeatLine } from './lines'
 
 export { hintLine, sameLine } from './lines'
@@ -90,15 +91,11 @@ function shuffle<T>(arr: T[], rand: () => number): T[] {
 
 export const bank = new NoRepeatBank()
 
-export function nounsFor(a: Element, b: Element): string[] {
-  const out: string[] = []
-  for (const tn of TAG_NOUNS) {
+export function ideasFor(a: Element, b: Element): TagNoun[] {
+  return TAG_NOUNS.filter((tn) => {
     const [t1, t2] = tn.tags
-    if ((a.tags.includes(t1) && b.tags.includes(t2)) || (a.tags.includes(t2) && b.tags.includes(t1))) {
-      out.push(...tn.nouns)
-    }
-  }
-  return out
+    return (a.tags.includes(t1) && b.tags.includes(t2)) || (a.tags.includes(t2) && b.tags.includes(t1))
+  })
 }
 
 // ─── Scripts ────────────────────────────────────────────────────────────────
@@ -110,8 +107,9 @@ export function discoveryScript(combo: Combo, firstTime: boolean, useName: boole
 
 export interface SillySequence {
   thinking: string
-  /** "Maybe a forever bubble?" */
+  /** "Forever bubble!" */
   idea: string
+  art: IdeaArtId
   /** Puffy giggles at its own idea: "Hee hee!" */
   silly: string
   rejection: string
@@ -120,11 +118,14 @@ export interface SillySequence {
 }
 
 export function lonerSequence(noble: Element, other: Element): SillySequence {
-  const nouns = nounsFor(noble, other)
-  const noun = bank.pick(`noun:${normalizeKey([noble.id, other.id])}`, nouns.length ? nouns : FALLBACK_NOUNS)
+  const ideas = ideasFor(noble, other)
+  const pool = ideas.length ? ideas : [FALLBACK_IDEA]
+  const noun = bank.pick(`noun:${normalizeKey([noble.id, other.id])}`, pool.map((i) => i.noun))
+  const art = pool.find((i) => i.noun === noun)!.art
   return {
     thinking: bank.pick('thinking', THINKING_LINES),
     idea: ideaLine(noun),
+    art,
     silly: bank.pick('silly', SILLY_LINES),
     rejection: bank.pick('rejection', REJECTION_LINES),
     reason: bank.pick('loner', LONER_LINES).replace('{name}', noble.name),
