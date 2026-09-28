@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Puffy app icon: Puffy on a pink tile. Source for tools/make-icons.mjs. -->
+  <defs>
+    <radialGradient id="f" cx="36%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#FFE3F0"/>
+      <stop offset="58%" stop-color="#FFB6D5"/>
+      <stop offset="100%" stop-color="#E68FBF"/>
+    </radialGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE4F0"/>
+      <stop offset="1" stop-color="#FFD1E8"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g stroke="#FFF5FA" stroke-width="6">
+    <path d="M0 128H512M0 256H512M0 384H512M128 0V512M256 0V512M384 0V512"/>
+  </g>
+  <g transform="translate(52 78) scale(1.36)">
+    <g transform="translate(16 20)" fill="#C77AA6" opacity="0.22">
+      <circle cx="84" cy="128" r="52"/><circle cx="150" cy="96" r="64"/><circle cx="218" cy="124" r="54"/><ellipse cx="150" cy="160" rx="118" ry="74"/>
+    </g>
+    <circle cx="84" cy="128" r="52" fill="url(#f)"/>
+    <circle cx="150" cy="96" r="64" fill="url(#f)"/>
+    <circle cx="218" cy="124" r="54" fill="url(#f)"/>
+    <ellipse cx="150" cy="160" rx="118" ry="74" fill="url(#f)"/>
+    <ellipse cx="118" cy="62" rx="40" ry="14" fill="#FFF3F9" opacity="0.7" transform="rotate(-16 118 62)"/>
+    <ellipse cx="98" cy="160" rx="17" ry="12" fill="#FF8FBF" opacity="0.55"/>
+    <ellipse cx="202" cy="160" rx="17" ry="12" fill="#FF8FBF" opacity="0.55"/>
+    <circle cx="120" cy="126" r="16" fill="#fff"/><circle cx="180" cy="126" r="16" fill="#fff"/>
+    <circle cx="122" cy="127" r="8" fill="#5C2744"/><circle cx="182" cy="127" r="8" fill="#5C2744"/>
+    <circle cx="119" cy="120" r="3" fill="#fff"/><circle cx="179" cy="120" r="3" fill="#fff"/>
+    <path d="M122 160q28 46 56 0q-28 10-56 0z" fill="#8E3A63" stroke="#5C2744" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+</svg>
