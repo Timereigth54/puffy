@@ -1,10 +1,13 @@
-// Pre-renders every narrator line to an MP3 clip with Piper (offline TTS).
+// Pre-renders every narrator line to an MP3 clip with offline TTS.
 //
-//   node tools/render-voice.mjs            render missing clips
-//   node tools/render-voice.mjs --force    re-render everything
+//   node tools/render-voice.mjs                  render missing clips (Kokoro)
+//   node tools/render-voice.mjs --force          re-render everything
+//   node tools/render-voice.mjs --engine piper   use the older Piper voice
 //
-// Needs Piper and a voice model; see HANDOFF.md "Voice clips" for the one-time
-// download. Paths can be overridden with PIPER_EXE and PIPER_MODEL.
+// Kokoro (default) sounds far more natural than Piper, which the owner's
+// Samsung tablet test found robotic. See HANDOFF.md "Voice clips" for the
+// one-time downloads. Paths can be overridden with KOKORO_DIR, KOKORO_PYTHON,
+// PIPER_EXE and PIPER_MODEL. Switching engine needs --force.
 // Output: public/voice/<hash>.mp3 and public/voice/manifest.json, which
 // src/game/audio.ts reads at runtime. A line with no clip falls back to the
 // browser's speech synthesis, so a partial render never breaks the game.
@@ -22,8 +25,13 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const piperDir = resolve(root, '..', 'tools', 'piper')
 const PIPER = process.env.PIPER_EXE ?? join(piperDir, 'piper', process.platform === 'win32' ? 'piper.exe' : 'piper')
 const MODEL = process.env.PIPER_MODEL ?? join(piperDir, 'en_US-lessac-high.onnx')
+const kokoroDir = process.env.KOKORO_DIR ?? resolve(root, '..', 'tools', 'kokoro')
+const KOKORO_PY =
+  process.env.KOKORO_PYTHON ?? resolve(root, '..', 'tools', 'kokoro-venv', process.platform === 'win32' ? 'Scripts/python.exe' : 'bin/python')
 const OUT = join(root, 'public', 'voice')
 const force = process.argv.includes('--force')
+const engineArg = process.argv.indexOf('--engine')
+const ENGINE = engineArg > 0 ? process.argv[engineArg + 1] : 'kokoro'
 
 // Voice direction from blueprint §10: ~80% pace, warm, unhurried.
 const LENGTH_SCALE = '1.18'
@@ -31,7 +39,11 @@ const NOISE_SCALE = '0.72'
 const NOISE_W = '0.85'
 const BITRATE = 48
 
-for (const [what, p] of [['Piper', PIPER], ['voice model', MODEL]]) {
+const needs =
+  ENGINE === 'piper'
+    ? [['Piper', PIPER], ['voice model', MODEL]]
+    : [['Kokoro Python', KOKORO_PY], ['Kokoro model', join(kokoroDir, 'kokoro-v1.0.onnx')], ['Kokoro voices', join(kokoroDir, 'voices-v1.0.bin')]]
+for (const [what, p] of needs) {
   if (!existsSync(p)) {
     console.error(`${what} not found at ${p}. See HANDOFF.md "Voice clips".`)
     process.exit(1)
@@ -58,16 +70,25 @@ for (const text of lines) {
 }
 console.log(`${lines.length} lines, ${todo.length} to render`)
 
-// 2. Piper, one process for the whole batch (JSON lines on stdin).
+// 2. One TTS process for the whole batch (JSON lines on stdin).
 if (todo.length) {
   await new Promise((ok, fail) => {
-    const p = spawn(PIPER, ['-m', MODEL, '--json-input', '--length_scale', LENGTH_SCALE, '--noise_scale', NOISE_SCALE, '--noise_w', NOISE_W, '--sentence_silence', '0.15'], {
-      stdio: ['pipe', 'ignore', 'pipe'],
-    })
+    const p =
+      ENGINE === 'piper'
+        ? spawn(PIPER, ['-m', MODEL, '--json-input', '--length_scale', LENGTH_SCALE, '--noise_scale', NOISE_SCALE, '--noise_w', NOISE_W, '--sentence_silence', '0.15'], {
+            stdio: ['pipe', 'ignore', 'pipe'],
+          })
+        : spawn(KOKORO_PY, [join(root, 'tools', 'kokoro_render.py')], {
+            stdio: ['pipe', 'ignore', 'pipe'],
+            env: { ...process.env, KOKORO_DIR: kokoroDir, PYTHONIOENCODING: 'utf-8' },
+          })
     let err = ''
-    p.stderr.on('data', (d) => (err += d))
+    p.stderr.on('data', (d) => {
+      err += d
+      if (String(d).includes('kokoro:')) process.stderr.write(String(d))
+    })
     p.on('error', fail)
-    p.on('close', (code) => (code === 0 ? ok() : fail(new Error(`piper exited ${code}\n${err.slice(-2000)}`))))
+    p.on('close', (code) => (code === 0 ? ok() : fail(new Error(`${ENGINE} exited ${code}\n${err.slice(-2000)}`))))
     for (const t of todo) p.stdin.write(JSON.stringify({ text: speakable(t.text), output_file: join(tmp, t.file + '.wav') }) + '\n')
     p.stdin.end()
   })

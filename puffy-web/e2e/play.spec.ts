@@ -8,7 +8,7 @@ async function seed(page: Page, opts: { onboarded?: boolean; settings?: Record<s
       if (sessionStorage.getItem('seeded')) return
       sessionStorage.setItem('seeded', '1')
       localStorage.clear()
-      localStorage.setItem('puffy.settings', JSON.stringify({ voiceOn: false, ...settings }))
+      localStorage.setItem('puffy.settings', JSON.stringify({ voiceOn: false, childAge: onboarded ? 3 : null, ...settings }))
       if (onboarded) localStorage.setItem('puffy.progress', JSON.stringify({ onboarded: true, childName: 'Ada' }))
     },
     { onboarded: opts.onboarded ?? true, settings: opts.settings ?? {} },
@@ -39,13 +39,19 @@ async function toPlay(page: Page) {
   await expect(page.getByRole('button', { name: 'Hydrogen' })).toBeVisible()
 }
 
-test('first launch: wake Puffy, skip the name, land in guided play', async ({ page }) => {
+test('first launch: wake Puffy, pick an age, land in guided play at that level', async ({ page }) => {
   await seed(page, { onboarded: false })
   await page.getByRole('button', { name: 'Puffy' }).click({ timeout: 15000 })
-  await expect(page.getByRole('dialog', { name: /what should Puffy call your child/i })).toBeVisible({ timeout: 15000 })
-  await page.getByRole('button', { name: 'Skip for now' }).click()
+  await expect(page.getByRole('dialog', { name: /how old is your child/i })).toBeVisible({ timeout: 15000 })
+  await page.getByRole('radio', { name: '5', exact: true }).click()
+  await expect(page.getByText(/Element Friends/)).toBeVisible()
+  await page.getByRole('button', { name: /Let.s play/ }).click()
   await expect(page.getByRole('button', { name: 'Hydrogen' })).toBeVisible({ timeout: 15000 })
   await expect(page.locator('.snack.is-hinted')).toHaveCount(2)
+  const settings = await page.evaluate(() => JSON.parse(localStorage.getItem('puffy.settings') ?? '{}'))
+  expect(settings).toMatchObject({ childAge: 5, level: 2 })
+  // Element Friends shows element symbols on the snacks
+  await expect(page.locator('.float-slot .snack-symbol').first()).toBeVisible()
 })
 
 test('dragging hydrogen then oxygen discovers water and saves it', async ({ page }) => {
@@ -71,21 +77,40 @@ test('dropping a snack outside Puffy feeds nothing', async ({ page }) => {
   await expect(page.locator('.belly-snack')).toHaveCount(0)
 })
 
-test('tap-tap: tapping a second snack swaps the held one; tapping Puffy feeds it', async ({ page }) => {
+test('one tap sends a snack flying into Puffy; two taps make water', async ({ page }) => {
   await seed(page)
   await toPlay(page)
-  await page.getByRole('button', { name: 'Sodium' }).click()
   await page.getByRole('button', { name: 'Hydrogen' }).click()
-  await expect(page.locator('.snack.is-held')).toHaveAttribute('aria-label', 'Hydrogen')
-  await page.getByRole('button', { name: 'Puffy' }).click()
-  await expect(page.locator('.belly-snack')).toHaveCount(1)
+  await expect(page.locator('.belly-snack')).toHaveCount(1, { timeout: 5000 })
   await page.getByRole('button', { name: 'Oxygen' }).click()
-  await page.getByRole('button', { name: 'Oxygen' }).click() // tapping the held snack again also feeds it
   await expect.poll(async () => (await progress(page)).discovered, { timeout: 15000 }).toContain('water')
 })
 
+test('a third tap while Puffy is full feeds nothing extra', async ({ page }) => {
+  await seed(page)
+  await toPlay(page)
+  await page.getByRole('button', { name: 'Hydrogen' }).click()
+  await page.getByRole('button', { name: 'Carbon' }).click()
+  await page.getByRole('button', { name: 'Sodium' }).click()
+  await expect.poll(async () => Object.values((await progress(page)).feedCounts ?? {}).reduce((a: number, b) => a + (b as number), 0), { timeout: 8000 }).toBe(2)
+})
+
+test('age 1 shows no words; age 7 shows the formula on a discovery', async ({ page }) => {
+  await seed(page, { settings: { childAge: 1, level: 0 } })
+  await toPlay(page)
+  await expect(page.locator('.snack-symbol')).toHaveCount(0)
+  await page.evaluate(() => {
+    localStorage.setItem('puffy.settings', JSON.stringify({ voiceOn: false, childAge: 7, level: 3 }))
+  })
+  await page.reload()
+  await toPlay(page)
+  await page.getByRole('button', { name: 'Hydrogen' }).click()
+  await page.getByRole('button', { name: 'Oxygen' }).click()
+  await expect(page.locator('.discovery__formula')).toHaveText('H₂O', { timeout: 15000 })
+})
+
 test('helium with anything gets the soap-bubble silly idea, never a discovery', async ({ page }) => {
-  await seed(page, { settings: { textLevel: 'names', ageMode: 1 } })
+  await seed(page, { settings: { childAge: 4, level: 2 } })
   await toPlay(page)
   await feed(page, 'Helium')
   await feed(page, 'Carbon')
@@ -94,7 +119,7 @@ test('helium with anything gets the soap-bubble silly idea, never a discovery', 
 })
 
 test('chlorine with chlorine is spicy and named honestly', async ({ page }) => {
-  await seed(page, { settings: { textLevel: 'formulas', ageMode: 1 } })
+  await seed(page, { settings: { childAge: 7, level: 3 } })
   await toPlay(page)
   await feed(page, 'Chlorine')
   await feed(page, 'Chlorine')

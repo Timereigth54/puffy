@@ -108,3 +108,32 @@ Found by the WebKit e2e run: with no `window.AudioContext`, every sound effect t
 ## 2026-09-28 — Bouncy easing kept
 
 Impeccable's detector flags overshoot easing (`--ease-squish`, the jelly, foam and bubble wobbles) as dated. It is kept on purpose: squash and stretch is the literal motion of foam, jelly and soap bubbles, and the owner asked for more playful motion.
+
+## 2026-09-29 — Owner test on a Samsung tablet: five changes
+
+The owner and others tested on a Samsung Galaxy tablet (no iPad available). Their findings and what changed:
+
+**1. Tap feeds directly.** Dragging may be too hard for ages 1–4. One tap now makes the snack bounce and fly in an arc into Puffy's mouth; dragging still works.
+*Rejected:* the blueprint's tap-then-tap-Puffy "holding" style, which was one step too many for a toddler.
+
+**2. Bigger snacks that float.** Snacks are about 30% bigger (`--float-size`, 110–200 px). Each drifts slowly (±16 px sideways, ±12 px up and down, 6–10 s cycles) around a fixed home spot: an arc under Puffy in landscape, two rows in portrait.
+*Rejected:* free-roaming snacks across the whole screen. Moving targets are hard for 1–4-year-olds to hit, so each snack stays where a hand expects it.
+
+**3. Age sets the level; the narrator explains more as the level rises.** A grown-up picks the child's age at first launch:
+- **Giggles (age 1):** single words.
+- **Tiny Lab (2–3):** one to three words.
+- **Element Friends (4–5):** short sentences, symbols and names on screen.
+- **Real Chemist (6–8):** explanations and formulas.
+
+Words on screen follow the level; there is no separate setting. A grown-up can change the level by hand.
+- *Tested:* level 0 never says more than two words in a line, and each level says more on average than the one below.
+- *Not done:* more elements or harder chemistry at higher levels. All levels still use the same six snacks and nine discoveries; content packs 2–5 are the next step.
+
+**4. The child's name is no longer spoken, and name recording is removed.** A parent's recording sounded jarring next to the narrator ("like it screamed the name"), and a typed name could only be read by the device voice, which is the most robotic of all. The name is now shown on the grown-ups page only. Any recording left from an earlier build is deleted from the device on first launch.
+*Rejected:* keeping the recording with volume normalisation; the mismatch was in the voice, not only the loudness.
+
+**5. Narrator re-recorded with Kokoro.** The Piper voice sounded robotic on the Samsung. All lines, at all four levels, are now rendered with Kokoro v1.0 (`af_heart`, speed 0.88), an offline neural voice. `tools/render-voice.mjs --engine piper` still works.
+- *Not checked:* whether the owner finds Kokoro natural enough. Samples were sent for a listen.
+- *Also added:* the grown-ups page shows whether the tablet is playing the recorded clips or its own voice, with a "Test the voice" button.
+
+**Grown-ups entry.** The owner could not find the settings ("upgrade menu"). The tiny gear is now a labelled "Grown-ups" button on the home and bedtime screens.

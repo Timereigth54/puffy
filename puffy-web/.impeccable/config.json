@@ -20,6 +20,12 @@
         "value": "bubble-wobble",
         "createdAt": "2026-09-28T15:18:21.999Z",
         "reason": "Claude decided: squash-and-stretch is the literal motion of foam, jelly and soap bubbles in the bath-time world, and the owner asked for more playful motion"
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "tap-bounce",
+        "createdAt": "2026-09-28T17:28:21.376Z",
+        "reason": "Owner asked for tapped elements to bounce before flying into Puffy (voice message, 2026-09-29)"
       }
     ]
   }

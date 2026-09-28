@@ -231,3 +231,4 @@
 @media (max-width: 520px) {
   .age-picker--compact { grid-template-columns: repeat(4, 1fr); }
 }
+.cabinet__panel > .hint { margin-bottom: 16px; }
