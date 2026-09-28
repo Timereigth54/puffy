@@ -1,0 +1,792 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-28T15:10:07.681Z",
+  "title": "Design System: Puffy",
+  "extensions": {
+    "colorMeta": {
+      "tile-top": {
+        "role": "neutral",
+        "displayName": "Tile Top",
+        "canonical": "#FFE4F0",
+        "oklch": "oklch(94.4% 0.033 349.1)",
+        "tonalRamp": [
+          "#15050D",
+          "#311E28",
+          "#503B45",
+          "#705A64",
+          "#927B85",
+          "#B69DA8",
+          "#DBC1CC",
+          "#FEE7F1"
+        ]
+      },
+      "tile-bottom": {
+        "role": "neutral",
+        "displayName": "Tile Bottom",
+        "canonical": "#FFD1E8",
+        "oklch": "oklch(90.7% 0.059 346.8)",
+        "tonalRamp": [
+          "#1B0110",
+          "#39182B",
+          "#593548",
+          "#7A5368",
+          "#9D7489",
+          "#C296AC",
+          "#E7BAD1",
+          "#FFE7F2"
+        ]
+      },
+      "grout": {
+        "role": "neutral",
+        "displayName": "Grout",
+        "canonical": "#FFF5FA",
+        "oklch": "oklch(97.9% 0.013 345.5)",
+        "tonalRamp": [
+          "#0F090C",
+          "#2A2326",
+          "#473F43",
+          "#675E63",
+          "#887F84",
+          "#ABA2A7",
+          "#D0C6CB",
+          "#F5EBF0"
+        ]
+      },
+      "puffy": {
+        "role": "primary",
+        "displayName": "Puffy Pink",
+        "canonical": "#FFB6D5",
+        "oklch": "oklch(85.3% 0.093 352.1)",
+        "tonalRamp": [
+          "#1D000E",
+          "#440A2A",
+          "#662A47",
+          "#894A67",
+          "#AD6A88",
+          "#D38DAB",
+          "#F9B0CF",
+          "#FFE7F0"
+        ]
+      },
+      "puffy-shadow": {
+        "role": "primary",
+        "displayName": "Puffy Shade",
+        "canonical": "#E68FBF",
+        "oklch": "oklch(75.4% 0.120 346.2)",
+        "tonalRamp": [
+          "#1D0011",
+          "#470130",
+          "#6C204F",
+          "#90416F",
+          "#B56291",
+          "#DB85B5",
+          "#FEACD8",
+          "#FEE7F3"
+        ]
+      },
+      "puffy-crown": {
+        "role": "primary",
+        "displayName": "Crown Blush",
+        "canonical": "#FFEAF3",
+        "oklch": "oklch(95.6% 0.026 349.7)",
+        "tonalRamp": [
+          "#13070D",
+          "#2F2027",
+          "#4D3D44",
+          "#6D5C63",
+          "#8F7C84",
+          "#B29FA7",
+          "#D7C3CB",
+          "#FDE8F1"
+        ]
+      },
+      "puffy-cheek": {
+        "role": "primary",
+        "displayName": "Cheek Pink",
+        "canonical": "#FF8FBF",
+        "oklch": "oklch(78.3% 0.145 353.8)",
+        "tonalRamp": [
+          "#1E000D",
+          "#470329",
+          "#760D47",
+          "#9C3667",
+          "#C25988",
+          "#E97CAB",
+          "#FFADCE",
+          "#FEE7F0"
+        ]
+      },
+      "puffy-ink": {
+        "role": "primary",
+        "displayName": "Cloud Plum",
+        "canonical": "#5C2744",
+        "oklch": "oklch(35.7% 0.086 348.3)",
+        "tonalRamp": [
+          "#1D0010",
+          "#410E2C",
+          "#622D4A",
+          "#854C6A",
+          "#A96D8B",
+          "#CE8FAE",
+          "#F4B3D3",
+          "#FFE7F2"
+        ]
+      },
+      "gas": {
+        "role": "secondary",
+        "displayName": "Gas Sky",
+        "canonical": "#7FD4FF",
+        "oklch": "oklch(83.2% 0.102 231.8)",
+        "tonalRamp": [
+          "#000D17",
+          "#01293A",
+          "#084862",
+          "#136A8D",
+          "#348DB5",
+          "#5BB0DA",
+          "#88D4FC",
+          "#DDF2FE"
+        ]
+      },
+      "metal": {
+        "role": "secondary",
+        "displayName": "Metal Gold",
+        "canonical": "#C9A227",
+        "oklch": "oklch(72.8% 0.138 89.7)",
+        "tonalRamp": [
+          "#110A00",
+          "#302300",
+          "#523F01",
+          "#775E05",
+          "#9E7E19",
+          "#C7A024",
+          "#ECC452",
+          "#FEEDC1"
+        ]
+      },
+      "nonmetal": {
+        "role": "secondary",
+        "displayName": "Nonmetal Mint",
+        "canonical": "#7FD48F",
+        "oklch": "oklch(79.8% 0.128 148.9)",
+        "tonalRamp": [
+          "#001002",
+          "#032E10",
+          "#0C5022",
+          "#187435",
+          "#429756",
+          "#67BB78",
+          "#8BE09B",
+          "#C8FFD0"
+        ]
+      },
+      "accent": {
+        "role": "tertiary",
+        "displayName": "Bath Yolk",
+        "canonical": "#FFD966",
+        "oklch": "oklch(89.6% 0.139 91.1)",
+        "tonalRamp": [
+          "#110A00",
+          "#2F2400",
+          "#514000",
+          "#765E03",
+          "#9D7F16",
+          "#C6A121",
+          "#EBC551",
+          "#FFEEBD"
+        ]
+      },
+      "sad": {
+        "role": "neutral",
+        "displayName": "Sad Grey",
+        "canonical": "#B0B0C0",
+        "oklch": "oklch(76.2% 0.023 285.8)",
+        "tonalRamp": [
+          "#0A0A14",
+          "#242430",
+          "#41404E",
+          "#60606E",
+          "#818190",
+          "#A3A3B3",
+          "#C7C7D8",
+          "#EDEDFE"
+        ]
+      },
+      "water": {
+        "role": "neutral",
+        "displayName": "Bathwater",
+        "canonical": "#D8F1FF",
+        "oklch": "oklch(94.4% 0.032 232.2)",
+        "tonalRamp": [
+          "#000D16",
+          "#142832",
+          "#304550",
+          "#4F6571",
+          "#6F8693",
+          "#92A9B6",
+          "#B5CDDB",
+          "#DDF2FE"
+        ]
+      },
+      "water-deep": {
+        "role": "neutral",
+        "displayName": "Deep Bathwater",
+        "canonical": "#AEE0FB",
+        "oklch": "oklch(88.1% 0.064 232.0)",
+        "tonalRamp": [
+          "#000D17",
+          "#00293B",
+          "#17485E",
+          "#39687F",
+          "#5A89A2",
+          "#7CADC6",
+          "#A0D1EC",
+          "#DDF2FE"
+        ]
+      },
+      "water-line": {
+        "role": "neutral",
+        "displayName": "Wave Crest",
+        "canonical": "#F4FBFF",
+        "oklch": "oklch(98.4% 0.009 232.4)",
+        "tonalRamp": [
+          "#080C0E",
+          "#212629",
+          "#3D4346",
+          "#5C6266",
+          "#7D8387",
+          "#A0A6AA",
+          "#C4CACE",
+          "#E9F0F4"
+        ]
+      },
+      "suds": {
+        "role": "neutral",
+        "displayName": "Suds White",
+        "canonical": "#FFFFFF",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#A5A5A5",
+          "#C9C9C9",
+          "#EEEEEE"
+        ]
+      },
+      "enamel": {
+        "role": "neutral",
+        "displayName": "Enamel",
+        "canonical": "#FFFCFA",
+        "oklch": "oklch(99.3% 0.004 56.4)",
+        "tonalRamp": [
+          "#0D0B09",
+          "#272523",
+          "#444140",
+          "#63615F",
+          "#848280",
+          "#A7A4A2",
+          "#CBC8C6",
+          "#F1EEEC"
+        ]
+      },
+      "enamel-shade": {
+        "role": "neutral",
+        "displayName": "Enamel Shade",
+        "canonical": "#F3DBE7",
+        "oklch": "oklch(91.4% 0.031 346.0)",
+        "tonalRamp": [
+          "#14060E",
+          "#301F28",
+          "#4E3C45",
+          "#6F5A65",
+          "#917B86",
+          "#B49EA9",
+          "#D9C2CD",
+          "#FFE7F3"
+        ]
+      },
+      "enamel-edge": {
+        "role": "neutral",
+        "displayName": "Enamel Edge",
+        "canonical": "#E7C3D6",
+        "oklch": "oklch(85.4% 0.048 345.1)",
+        "tonalRamp": [
+          "#180310",
+          "#351B2A",
+          "#543848",
+          "#755667",
+          "#987789",
+          "#BC9AAC",
+          "#E1BDD0",
+          "#FEE7F3"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Plum Ink",
+        "canonical": "#3A2233",
+        "oklch": "oklch(28.9% 0.046 338.2)",
+        "tonalRamp": [
+          "#170412",
+          "#331C2D",
+          "#52394A",
+          "#73576A",
+          "#95788C",
+          "#B99AAF",
+          "#DEBED3",
+          "#FEE7F6"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Plum",
+        "canonical": "#6B4A5E",
+        "oklch": "oklch(45.2% 0.054 342.4)",
+        "tonalRamp": [
+          "#190211",
+          "#361A2C",
+          "#56364A",
+          "#77556A",
+          "#9A768B",
+          "#BE98AE",
+          "#E3BCD3",
+          "#FEE7F4"
+        ]
+      },
+      "plum": {
+        "role": "neutral",
+        "displayName": "Plum",
+        "canonical": "#A8457A",
+        "oklch": "oklch(53.8% 0.143 349.7)",
+        "tonalRamp": [
+          "#1D000F",
+          "#48002D",
+          "#74114D",
+          "#99376D",
+          "#BF5A8F",
+          "#E67DB2",
+          "#FCAED3",
+          "#FFE7F1"
+        ]
+      },
+      "plum-deep": {
+        "role": "neutral",
+        "displayName": "Plum Deep",
+        "canonical": "#85305F",
+        "oklch": "oklch(44.6% 0.128 349.3)",
+        "tonalRamp": [
+          "#1D000F",
+          "#47012D",
+          "#6F1B4C",
+          "#943E6C",
+          "#B95F8E",
+          "#E082B1",
+          "#FFACD4",
+          "#FEE7F1"
+        ]
+      },
+      "plum-soft": {
+        "role": "neutral",
+        "displayName": "Plum Soft",
+        "canonical": "#FBE3EF",
+        "oklch": "oklch(93.9% 0.030 346.0)",
+        "tonalRamp": [
+          "#14060E",
+          "#301F28",
+          "#4E3C45",
+          "#6F5A65",
+          "#917B86",
+          "#B49EA9",
+          "#D9C2CD",
+          "#FFE7F3"
+        ]
+      },
+      "jelly-green": {
+        "role": "tertiary",
+        "displayName": "Jelly Green",
+        "canonical": "#35A85A",
+        "oklch": "oklch(64.9% 0.153 150.2)",
+        "tonalRamp": [
+          "#001003",
+          "#002E10",
+          "#045023",
+          "#0E7536",
+          "#239B4E",
+          "#50BF70",
+          "#77E593",
+          "#C9FED3"
+        ]
+      },
+      "jelly-deep": {
+        "role": "tertiary",
+        "displayName": "Jelly Deep",
+        "canonical": "#2B8C4A",
+        "oklch": "oklch(56.8% 0.134 150.2)",
+        "tonalRamp": [
+          "#001003",
+          "#032E12",
+          "#005121",
+          "#037535",
+          "#399855",
+          "#60BC77",
+          "#85E29A",
+          "#C8FFD2"
+        ]
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "Danger",
+        "canonical": "#C23B55",
+        "oklch": "oklch(55.6% 0.171 13.5)",
+        "tonalRamp": [
+          "#1F0004",
+          "#4B0116",
+          "#7C092A",
+          "#AC2444",
+          "#D44C64",
+          "#FD7185",
+          "#FDB2B8",
+          "#FFE8E9"
+        ]
+      },
+      "rec-live": {
+        "role": "neutral",
+        "displayName": "Record Live",
+        "canonical": "#D9435F",
+        "oklch": "oklch(60.4% 0.186 13.9)",
+        "tonalRamp": [
+          "#1F0004",
+          "#4B0115",
+          "#7C092A",
+          "#B21540",
+          "#DA4460",
+          "#FD7184",
+          "#FDB2B8",
+          "#FFE8E9"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "foam-display": {
+        "displayName": "Foam Display",
+        "purpose": "Discovery names and Mode 1 captions; white fill, 7px plum-ink stroke beneath."
+      },
+      "foam-formula": {
+        "displayName": "Foam Formula",
+        "purpose": "Formula beside a discovery name, in Plum Deep."
+      },
+      "foam-caption": {
+        "displayName": "Foam Caption",
+        "purpose": "Short line under a soap-bubble thought in Mode 1."
+      },
+      "cabinet-title": {
+        "displayName": "Cabinet Title",
+        "purpose": "Title of the grown-up cabinet."
+      },
+      "cabinet-heading": {
+        "displayName": "Cabinet Heading",
+        "purpose": "Section headings in the parent zone."
+      },
+      "keypad": {
+        "displayName": "Keypad",
+        "purpose": "Parent gate keys, and the entry well at 36px; tabular numerals."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Parent zone text; hints capped at 60ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Button, field and setting labels."
+      },
+      "note": {
+        "displayName": "Note",
+        "purpose": "Setting notes and footers in Soft Plum."
+      }
+    },
+    "shadows": [
+      {
+        "name": "puffy-cast",
+        "value": "drop-shadow(18px 26px 20px rgba(166, 60, 120, 0.22))",
+        "purpose": "Puffy's cast on the wall, down-right of the window light."
+      },
+      {
+        "name": "snack-in-water",
+        "value": "drop-shadow(3px 5px 4px rgba(90, 140, 175, 0.28))",
+        "purpose": "Foam snacks bobbing in the bath."
+      },
+      {
+        "name": "snack-lifted",
+        "value": "drop-shadow(10px 16px 12px rgba(166, 60, 120, 0.3))",
+        "purpose": "A snack dragged or held out of the water."
+      },
+      {
+        "name": "toy-bubble",
+        "value": "0 0 0 3px rgba(255, 255, 255, 0.75), 6px 10px 16px rgba(166, 60, 120, 0.2)",
+        "purpose": "White bubble rim plus a soft cast."
+      },
+      {
+        "name": "book-plate",
+        "value": "inset 0 0 0 4px #fff, 5px 8px 12px rgba(166, 60, 120, 0.2)",
+        "purpose": "An enamel plate on the wall."
+      },
+      {
+        "name": "book-plate-empty",
+        "value": "inset 4px 6px 10px rgba(166, 60, 120, 0.18), inset -2px -2px 0 rgba(255, 255, 255, 0.6)",
+        "purpose": "An empty plate pressed into the wall."
+      },
+      {
+        "name": "hint-glow",
+        "value": "drop-shadow(0 0 14px rgba(255, 217, 102, 0.95)) drop-shadow(0 0 4px #fff)",
+        "purpose": "Bath Yolk glow on a suggested snack."
+      },
+      {
+        "name": "cabinet",
+        "value": "inset 0 0 0 1px #fff, 0 20px 50px rgba(58, 34, 51, 0.28)",
+        "purpose": "The grown-up cabinet over a rgba(58, 34, 51, 0.38) dim."
+      },
+      {
+        "name": "focus-ring",
+        "value": "outline: 3px solid #A8457A; outline-offset: 3px",
+        "purpose": "Keyboard focus everywhere."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Splashes, pops, cabinet entry, press feedback."
+      },
+      {
+        "name": "ease-squish",
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "purpose": "Squash-and-stretch arrivals and presses. Intentional bounce; suppressed in the detector config."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "purpose": "Ambient loops: bob, float, wobble, caustics, waves."
+      },
+      {
+        "name": "press-squish",
+        "value": "0.3s ease-squish; scale(1.14, 0.86) then scale(0.94, 1.06)",
+        "purpose": "Pressing a toy bubble or the jelly button."
+      },
+      {
+        "name": "snack-bob",
+        "value": "2.8s ease-in-out alternate; translateY(-3px to 5px), rotate(-3deg to 3deg), staggered -0.47s per snack",
+        "purpose": "Snacks floating at rest."
+      },
+      {
+        "name": "jelly-wobble",
+        "value": "1.8s ease-in-out infinite",
+        "purpose": "The play button. It wobbles; it never pulses."
+      },
+      {
+        "name": "bubble-pop",
+        "value": "0.22s ease-out; scale up and fade",
+        "purpose": "Soap bubbles and thoughts ending."
+      },
+      {
+        "name": "discovery-slap",
+        "value": "0.7s ease-squish",
+        "purpose": "A result slapping onto the wet tiles."
+      },
+      {
+        "name": "evening",
+        "value": "opacity 4s linear on a warm multiply overlay",
+        "purpose": "The room warms as a time limit nears; no countdown."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation and transition durations 0.01ms, one iteration",
+        "purpose": "prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "portrait",
+        "value": "(orientation: portrait)"
+      },
+      {
+        "name": "lite",
+        "value": ".is-lite (deviceMemory <= 2 GB, <= 2 cores, or ?lite in the URL)"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bath-Toy Bubble",
+      "kind": "button",
+      "refersTo": "bath-toy-button",
+      "description": "Corner navigation for the child: a bath toy floating in a soap bubble. Floats, squishes on press, shows a yolk dot for news.",
+      "html": "<button class=\"ds-toy-bubble\" aria-label=\"Book\"><svg viewBox=\"0 0 64 64\" width=\"64\" height=\"64\"><rect x=\"14\" y=\"12\" width=\"36\" height=\"42\" rx=\"5\" fill=\"#B8418A\"/><rect x=\"10\" y=\"10\" width=\"36\" height=\"42\" rx=\"5\" fill=\"#FF7FB5\"/><circle cx=\"28\" cy=\"30\" r=\"9\" fill=\"#FFD6EA\"/><circle cx=\"25\" cy=\"29\" r=\"1.6\" fill=\"#3A2233\"/><circle cx=\"31\" cy=\"29\" r=\"1.6\" fill=\"#3A2233\"/></svg><span class=\"ds-toy-bubble__news\"></span></button>",
+      "css": ".ds-toy-bubble{position:relative;width:96px;height:96px;padding:16px;border:0;border-radius:50%;cursor:pointer;background:radial-gradient(circle at 30% 24%, rgba(255,255,255,.95) 0 7%, transparent 8%),radial-gradient(circle at 50% 50%, rgba(255,255,255,.55) 0 58%, rgba(255,255,255,.25) 69%, transparent 70.5%),conic-gradient(from 210deg, #ffd1e8, #bfe9ff, #d9f7c9, #fff3b0, #e6c8ff, #ffd1e8);box-shadow:0 0 0 3px rgba(255,255,255,.75),6px 10px 16px rgba(166,60,120,.2);animation:ds-bubble-float 3.2s cubic-bezier(.65,0,.35,1) infinite alternate}.ds-toy-bubble svg{display:block;width:100%;height:100%;filter:drop-shadow(3px 5px 3px rgba(166,60,120,.25))}.ds-toy-bubble__news{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:#FFD966;box-shadow:0 0 0 4px #fff}.ds-toy-bubble:hover{box-shadow:0 0 0 4px rgba(255,255,255,.9),6px 10px 16px rgba(166,60,120,.25)}.ds-toy-bubble:focus-visible{outline:3px solid #A8457A;outline-offset:3px}.ds-toy-bubble:active{animation:ds-squish .3s cubic-bezier(.34,1.56,.64,1)}@keyframes ds-bubble-float{from{transform:translateY(-3px) scale(1,.98)}to{transform:translateY(5px) scale(.98,1.02)}}@keyframes ds-squish{40%{transform:scale(1.14,.86)}70%{transform:scale(.94,1.06)}}"
+    },
+    {
+      "name": "Jelly Play Button",
+      "kind": "button",
+      "refersTo": "jelly-play-button",
+      "description": "The wobbling green jelly sweet that starts play from home.",
+      "html": "<button class=\"ds-jelly\" aria-label=\"Play\"><svg viewBox=\"0 0 100 100\" width=\"140\" height=\"140\"><circle cx=\"52\" cy=\"54\" r=\"44\" fill=\"#2B8C4A\"/><circle cx=\"48\" cy=\"50\" r=\"44\" fill=\"#35A85A\"/><ellipse cx=\"34\" cy=\"26\" rx=\"16\" ry=\"8\" fill=\"#C8F7C5\" opacity=\".6\"/><path d=\"M40 30 L72 50 L40 70 Z\" fill=\"#fff\" stroke=\"#fff\" stroke-width=\"6\" stroke-linejoin=\"round\"/></svg></button>",
+      "css": ".ds-jelly{width:140px;height:140px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(8px 14px 12px rgba(43,140,74,.3));animation:ds-jelly 1.8s cubic-bezier(.65,0,.35,1) infinite}.ds-jelly svg{width:100%;height:100%}.ds-jelly:focus-visible{outline:3px solid #A8457A;outline-offset:3px}.ds-jelly:active{animation:ds-jsquish .35s cubic-bezier(.34,1.56,.64,1)}@keyframes ds-jelly{0%,100%{transform:scale(1,1) rotate(-2deg)}20%{transform:scale(1.07,.93) rotate(0)}40%{transform:scale(.95,1.06) rotate(2deg)}60%{transform:scale(1.03,.98) rotate(1deg)}80%{transform:scale(.99,1.01) rotate(-1deg)}}@keyframes ds-jsquish{40%{transform:scale(1.14,.86)}70%{transform:scale(.94,1.06)}}"
+    },
+    {
+      "name": "Foam Snack",
+      "kind": "custom",
+      "refersTo": "foam-snack",
+      "description": "An element as a foam bath cutout: flat top colour, darker foam edge offset down-right, top-left glaze, plum face. Bobs in the water.",
+      "html": "<button class=\"ds-snack\" aria-label=\"Hydrogen\"><svg viewBox=\"0 0 120 124\"><defs><radialGradient id=\"ds-glaze\" cx=\"32%\" cy=\"26%\" r=\"60%\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\".55\"/><stop offset=\".55\" stop-color=\"#fff\" stop-opacity=\".08\"/><stop offset=\"1\" stop-color=\"#fff\" stop-opacity=\"0\"/></radialGradient></defs><path d=\"M60 22a40 40 0 1 1 0 80a40 40 0 1 1 0-80Z\" transform=\"translate(5 6)\" fill=\"#5B98B8\"/><path d=\"M60 22a40 40 0 1 1 0 80a40 40 0 1 1 0-80Z\" fill=\"#7FD4FF\"/><path d=\"M60 22a40 40 0 1 1 0 80a40 40 0 1 1 0-80Z\" fill=\"url(#ds-glaze)\"/><circle cx=\"46\" cy=\"50\" r=\"8\" fill=\"#fff\"/><circle cx=\"47.2\" cy=\"50.5\" r=\"5\" fill=\"#3A2233\"/><circle cx=\"74\" cy=\"50\" r=\"8\" fill=\"#fff\"/><circle cx=\"75.2\" cy=\"50.5\" r=\"5\" fill=\"#3A2233\"/><path d=\"M51 64q9 10 18 0Z\" fill=\"#3A2233\" stroke=\"#3A2233\" stroke-width=\"3.4\" stroke-linejoin=\"round\"/></svg></button>",
+      "css": ".ds-snack{width:120px;height:120px;padding:0;border:0;background:none;cursor:grab}.ds-snack svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(3px 5px 4px rgba(90,140,175,.28));animation:ds-bob 2.8s cubic-bezier(.65,0,.35,1) infinite alternate;transition:transform .18s cubic-bezier(.34,1.56,.64,1)}.ds-snack:hover svg,.ds-snack:active svg{animation:none;transform:translateY(-10px) scale(1.06)}.ds-snack:focus-visible{outline:3px solid #A8457A;outline-offset:3px;border-radius:8px}@keyframes ds-bob{from{transform:translateY(-3px) rotate(-3deg)}to{transform:translateY(5px) rotate(3deg)}}"
+    },
+    {
+      "name": "Book Plate",
+      "kind": "card",
+      "refersTo": "book-plate",
+      "description": "An enamel plate on the tile wall holding one discovery, with a numbered pill tag.",
+      "html": "<button class=\"ds-plate\"><svg viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\"><rect x=\"16\" y=\"46\" width=\"68\" height=\"36\" rx=\"6\" fill=\"#4FB8F0\"/><circle cx=\"40\" cy=\"30\" r=\"6\" fill=\"#7FD4FF\"/><circle cx=\"62\" cy=\"24\" r=\"4\" fill=\"#7FD4FF\"/></svg><span class=\"ds-plate__tag\"><span class=\"ds-plate__no\">1</span><span class=\"ds-plate__name\">Water</span></span></button>",
+      "css": ".ds-plate{position:relative;width:160px;height:160px;padding:10%;border:0;border-radius:12px;cursor:pointer;background:radial-gradient(circle at 26% 20%, rgba(255,255,255,.95), transparent 50%),linear-gradient(135deg,#fffdfc,#f8e6ee);box-shadow:inset 0 0 0 4px #fff,5px 8px 12px rgba(166,60,120,.2);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}.ds-plate:hover{transform:scale(1.04)}.ds-plate:focus-visible{outline:3px solid #A8457A;outline-offset:3px}.ds-plate__tag{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);display:flex;gap:6px;align-items:baseline;padding:2px 10px;border-radius:999px;background:#fff;box-shadow:2px 3px 6px rgba(166,60,120,.18);white-space:nowrap;font-family:Sniglet,ui-rounded,system-ui,sans-serif}.ds-plate__no{font-size:13px;color:#6B4A5E;font-variant-numeric:tabular-nums}.ds-plate__name{font-size:16px;font-weight:800;color:#3A2233}"
+    },
+    {
+      "name": "Foam Caption",
+      "kind": "custom",
+      "refersTo": "foam-display",
+      "description": "Child-surface words as foam letters: Sniglet 800, white fill, plum-ink stroke painted beneath. Mode 1 and above only.",
+      "html": "<p class=\"ds-foam\">Water <span class=\"ds-foam__formula\">H&#8322;O</span></p>",
+      "css": ".ds-foam{margin:0;display:flex;gap:.4em;align-items:baseline;font-family:Sniglet,ui-rounded,system-ui,sans-serif;font-weight:800;font-size:44px;line-height:1.05;letter-spacing:.01em;color:#fff;-webkit-text-stroke:7px #3A2233;paint-order:stroke fill}.ds-foam__formula{font-size:30px;color:#85305F;-webkit-text-stroke:0}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Grown-up surface main action: plum fill, white label.",
+      "html": "<button class=\"ds-btn-primary\">Save name</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border:0;border-radius:12px;background:#A8457A;color:#fff;font:600 16px/1.2 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;cursor:pointer;transition:transform 96ms cubic-bezier(.16,1,.3,1),background .15s}.ds-btn-primary:hover{background:#85305F}.ds-btn-primary:active{transform:scale(.98);background:#85305F}.ds-btn-primary:focus-visible{outline:3px solid #A8457A;outline-offset:3px}"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Grown-up secondary action: plum-soft fill, plum-deep label.",
+      "html": "<button class=\"ds-btn-quiet\">Change</button>",
+      "css": ".ds-btn-quiet{display:inline-flex;align-items:center;min-height:48px;padding:0 18px;border:0;border-radius:12px;background:#FBE3EF;color:#85305F;font:600 16px/1.2 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;cursor:pointer;transition:transform 96ms cubic-bezier(.16,1,.3,1),background .15s}.ds-btn-quiet:hover{background:#F3DBE7}.ds-btn-quiet:active{transform:scale(.98)}.ds-btn-quiet:focus-visible{outline:3px solid #A8457A;outline-offset:3px}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field-input",
+      "description": "Grown-up text input: white well with an enamel-edge inset stroke that turns plum on focus.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field__label\">Name</span><input class=\"ds-field__input\" placeholder=\"Ada\"></label>",
+      "css": ".ds-field{display:grid;gap:6px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#3A2233}.ds-field__label{font-weight:600;font-size:15px}.ds-field__input{min-height:52px;padding:0 16px;border:0;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1.5px #E7C3D6;font:inherit;font-size:18px;color:#3A2233;caret-color:#A8457A}.ds-field__input:hover{box-shadow:inset 0 0 0 1.5px #A8457A}.ds-field__input:focus{outline:none;box-shadow:inset 0 0 0 2px #A8457A}"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "chip",
+      "refersTo": "segmented-track",
+      "description": "Grown-up single choice: plum-soft track, white selected option.",
+      "html": "<div class=\"ds-seg\" role=\"radiogroup\"><button class=\"ds-seg__opt is-on\" role=\"radio\" aria-checked=\"true\">None</button><button class=\"ds-seg__opt\" role=\"radio\" aria-checked=\"false\">Symbols</button><button class=\"ds-seg__opt\" role=\"radio\" aria-checked=\"false\">Names</button></div>",
+      "css": ".ds-seg{display:flex;gap:4px;padding:4px;border-radius:14px;background:#FBE3EF;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}.ds-seg__opt{flex:1 1 auto;min-height:44px;padding:0 14px;border:0;border-radius:10px;background:transparent;color:#85305F;font:inherit;cursor:pointer;transition:background .15s,color .15s}.ds-seg__opt:hover{background:rgba(255,255,255,.5)}.ds-seg__opt.is-on{background:#fff;color:#3A2233;font-weight:600;box-shadow:0 1px 3px rgba(58,34,51,.12)}.ds-seg__opt:focus-visible{outline:3px solid #A8457A;outline-offset:3px}"
+    },
+    {
+      "name": "Gate Key",
+      "kind": "button",
+      "refersTo": "keypad-key",
+      "description": "Parent-gate keypad key: white enamel key with Sniglet tabular numerals.",
+      "html": "<button class=\"ds-key\">7</button>",
+      "css": ".ds-key{min-width:96px;min-height:64px;border:0;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1.5px #E7C3D6;font-family:Sniglet,ui-rounded,system-ui,sans-serif;font-weight:800;font-size:26px;font-variant-numeric:tabular-nums;color:#3A2233;cursor:pointer;transition:transform 96ms cubic-bezier(.16,1,.3,1)}.ds-key:hover{background:#FFFCFA}.ds-key:active{transform:scale(.96);background:#FBE3EF}.ds-key:focus-visible{outline:3px solid #A8457A;outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Bath Time Is the Lab",
+    "overview": "Puffy lives in a 1950s pink-tile bathroom at bath time. The whole screen is the room. A glazed tile wall runs full-bleed, a band of bathwater with a white enamel rim fills the bottom fifth, and every object in the room is a bath thing: element snacks are foam cutouts bobbing half-submerged in the water, the corner controls are bath toys (a rubber duck, a sticker book) floating inside soap bubbles, the silly idea arrives in a soap bubble, and discoveries slap onto the wet tiles and then collect on a tile panel. Puffy is a pink cumulus with a row of top puffs, a flat base, one top-left light and a feathered edge, with no outline.\n\nOne window light sits top-left and governs every highlight and every shadow. Highlights sit top-left on tiles, snacks, bubbles and Puffy's crowns; shade and cast shadows fall down-right. Every state change is a physical event (a squish, a splash, a pop, a wobble) rather than an abstract fade. Density is low: the child view carries Puffy, six snacks, two toys and at most one result at a time.\n\nThere are two registers. The child surface is the bathroom itself: Mode 0 has no text at all, and Mode 1 adds Sniglet foam letters on the snacks and short captions. The grown-up surface (parent gate and parent zone) is a white-enamel bathroom cabinet that opens over a dimmed room: flat fills, a system body face, Sniglet headings, one plum accent. The build also ships an automatic light mode (`.is-lite`) for low-end kids' tablets that drops filters and ambient effects while keeping every object and every state.",
+    "keyCharacteristics": [
+      "Full-bleed room: tile wall, bathwater band, enamel rim. No floating cards on the child surface.",
+      "One top-left light for every highlight and shadow.",
+      "Foam, soap bubble, jelly and enamel are the only materials.",
+      "Squash-and-stretch motion on a bounce curve, used deliberately.",
+      "Child surface is wordless in Mode 0; words appear only as foam letters in Mode 1.",
+      "Grown-up surface is a quiet enamel cabinet in the same palette."
+    ],
+    "rules": [
+      {
+        "name": "The Blueprint Rule",
+        "body": "Puffy Pink, Puffy Shade, the tile gradient, the three family colours, Bath Yolk and Sad Grey are binding brand values. Never retune them for a screen; add a new token instead.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Yolk Rule",
+        "body": "Bath Yolk means \"look here\". It appears on at most one or two things at a time and never as a fill for large areas.",
+        "section": "colors"
+      },
+      {
+        "name": "The Plum Ink Rule",
+        "body": "Every piece of text and every face line is plum, never black. Plum Ink (`ink`) for text and snack faces, Cloud Plum (`puffy-ink`) for Puffy's face.",
+        "section": "colors"
+      },
+      {
+        "name": "The Foam Letter Rule",
+        "body": "On the child surface, words are objects: Sniglet 800, white fill, plum stroke painted beneath (`paint-order: stroke`). Plain flat text on the child surface is limited to the small thought caption.",
+        "section": "typography"
+      },
+      {
+        "name": "The Zero Words Rule",
+        "body": "Mode 0 renders no text anywhere in the child's view. Any child-surface text must be gated behind the parent's words-on-screen setting.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Count Rule",
+        "body": "Every number on the grown-up surface (found counts, gate entry, keypad) uses tabular numerals.",
+        "section": "typography"
+      },
+      {
+        "name": "The No-Scroll Room Rule",
+        "body": "The child surface never scrolls, never paginates and never shows chrome. The room is the viewport.",
+        "section": "layout"
+      },
+      {
+        "name": "The 88 Floor Rule",
+        "body": "No child-facing target is smaller than 88px. Snacks start at 88px, toy bubbles at 96px, the play button at 130px.",
+        "section": "layout"
+      },
+      {
+        "name": "The Window Light Rule",
+        "body": "Highlights sit top-left and shadows fall down-right, on every object. A shadow cast in any other direction is wrong.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Soft Cast Rule",
+        "body": "Cast shadows in the room are always blurred and tinted plum or water blue. The only hard offset in the world is a foam snack's cut edge, which is the foam's own thickness, not a shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Lite Room Rule",
+        "body": "Under `.is-lite` every filter is dropped and steam, wall bubbles, caustics, cloud creases and cloud crowns are hidden. Depth must still read from gradients and the foam edge alone.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do light every object from the top-left: glint top-left, shade and cast down-right.",
+      "Do make every state change a physical event: squish, splash, pop, wobble, slap. Use the bounce curve (`cubic-bezier(0.34, 1.56, 0.64, 1)`) for arrivals and presses; it is intentional here.",
+      "Do keep every child-facing target at 88px or more, snacks at `spacing.snack`, and toy bubbles at 96px or more.",
+      "Do build new child-surface objects from the world's materials: foam cutout, soap bubble, jelly, enamel, bathwater, tile.",
+      "Do render child-surface words only as foam letters (Sniglet 800, white fill, plum-ink stroke), and only when the parent has turned words on.",
+      "Do keep Puffy a pink cumulus: a row of top puffs, a flat base, one top-left light and a feathered edge, with no outline.",
+      "Do give every new effect a `.is-lite` fallback that keeps the object and its state readable without filters or blend modes.",
+      "Do collapse animation under reduced motion; the build sets every animation and transition to 0.01ms.",
+      "Do use tabular numerals for every count on the grown-up surface."
+    ],
+    "donts": [
+      "Don't put any text in the Mode 0 child view.",
+      "Don't add timers, scores, fail states, countdowns or red \"wrong\" signals to the child surface. A nearing time limit warms the room toward evening instead.",
+      "Don't put floating cards, panels or flat UI buttons on the child surface. Controls are toys in bubbles or the jelly button.",
+      "Don't use black or grey text anywhere; text is plum.",
+      "Don't give Puffy a hard outline or draw Puffy as cotton candy or steam.",
+      "Don't retune the blueprint colours. Sodium currently renders in Bath Yolk (#FFD966) instead of Metal Gold and carbon in slate (#5B5560) instead of Nonmetal Mint; these are open divergences from the binding family colours, not rules to copy.",
+      "Don't use Bath Yolk as a large fill or on more than one or two things at once.",
+      "Don't show the plum cabinet treatment, parent controls or system-face text inside the child room, apart from the faint parent gear on the home screen."
+    ]
+  }
+}

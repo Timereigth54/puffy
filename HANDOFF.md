@@ -42,7 +42,7 @@ puffy-web/src/
   components/          Puffy (cloud body layer + face layer), SnackArt, ResultArt, Bathroom, Icons, NameRecorder
   screens/             Onboarding, Home, Play, Book, ParentGate, ParentZone, Sleep
   styles/              tokens.css (palette, sizes), world.css (child screens), parent.css
-puffy-web/public/voice/  154 MP3 clips + manifest.json (generated; do not edit by hand)
+puffy-web/public/voice/  142 MP3 clips + manifest.json (generated; do not edit by hand)
 puffy-web/tools/         render-voice.mjs (Piper -> MP3), make-icons.mjs (icon.svg -> PNGs)
 puffy-web/e2e/           Playwright tests
 .impeccable/             design direction brief (the "bath time" contract)
@@ -69,13 +69,14 @@ On macOS or Linux, set `PIPER_EXE` and `PIPER_MODEL` to your paths. A voice acto
 - the book,
 - the parent gate and parent zone,
 - bedtime,
-- the offline build.
+- the offline build,
+- silly ideas drawn in the thought bubble, so the joke works with no sound and no text.
 
 Tests: 21 unit tests and 32 e2e runs (8 scenarios × WebKit iPad, Chromium iPad, Fire 7 size, Galaxy Tab size) pass locally.
 
 **Not checked. Read before trusting the above:**
 - **No real device has run Puffy yet**, not an iPad, a Fire tablet or a Galaxy Tab. The e2e tests use desktop browser engines at tablet sizes. Playwright's WebKit is close to Safari but is not Safari.
-- **Nobody has listened to the voice clips.** An automated check showed all 154 decode, none is silent, and speaking rate is 6–18 characters/second (median 13). Warmth and pronunciation are unjudged.
+- **Nobody has listened to the voice clips.** An automated check on 2026-09-28 showed all 142 decode, none is silent, and speaking rate is 6–18 characters/second (median 10; the lines are now short words, e.g. "Too hot!" is 0.65 s). Warmth and pronunciation are unjudged.
 - **Name recording (MediaRecorder) has not been tried on iPad Safari or a Fire tablet.**
 - **Frame rate on a low-end tablet is unknown.** Light mode exists but is untuned.
 - **No child has played it.** The blueprint's success criteria (first combo within 60 s, laughs at the silly idea) are untested.
