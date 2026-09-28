@@ -1,148 +1,207 @@
-import type { PuffyState } from '../game/types'
+import type { Element, PuffyState } from '../game/types'
+import SnackArt from './SnackArt'
 
-// Puffy the cloud — SVG character with expressions for every game state.
-// Soft pink, semi-transparent, internal bubbles and sparkles.
+// Puffy: a pink steam cloud. Semi-transparent, so eaten snacks show in the
+// belly. Every expression is a pose of the same face; the body squashes and
+// stretches through CSS classes on .puffy (see world.css).
 
-interface PuffyProps {
+interface Props {
   state: PuffyState
   chewBeat?: number
-  onClick?: () => void
+  fed?: Element[]
+  /** Where the finger is, relative to Puffy's centre, in px. Puffy leans toward it. */
+  lean?: { x: number; y: number } | null
+  sparkle?: boolean
+  onTap?: () => void
 }
 
-export default function Puffy({ state, chewBeat = 0, onClick }: PuffyProps) {
-  const mouth = mouthPath(state)
-  const eyes = eyeShape(state)
-  const showTear = state === 'sad'
-  const sparkleOpacity =
-    state === 'delighted' || state === 'proud' || state === 'spitting'
-      ? 1
-      : state === 'sad'
-        ? 0.15
-        : 0.55
-
+export default function Puffy({ state, chewBeat = 0, fed = [], lean, sparkle, onTap }: Props) {
+  const leanStyle = lean
+    ? ({
+        '--lean-x': `${Math.max(-40, Math.min(40, lean.x * 0.08))}px`,
+        '--lean-y': `${Math.max(-10, Math.min(40, lean.y * 0.08))}px`,
+        '--lean-r': `${Math.max(-8, Math.min(8, lean.x * 0.02))}deg`,
+      } as React.CSSProperties)
+    : undefined
   return (
     <div
-      className={`puffy-wrap puffy-${state} ${state === 'chewing' ? `chew-beat-${chewBeat}` : ''}`}
-      onClick={onClick}
-      role={onClick ? 'button' : undefined}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
+      className={`puffy puffy--${state} ${state === 'chewing' ? `chew-${chewBeat}` : ''} ${lean ? 'is-leaning' : ''} ${sparkle ? 'has-sparkle' : ''}`}
+      style={leanStyle}
+      onPointerUp={onTap}
+      role={onTap ? 'button' : 'img'}
+      aria-label="Puffy"
     >
-      <svg viewBox="0 0 300 260" className="puffy-svg">
-        <defs>
-          <radialGradient id="puffyGrad" cx="45%" cy="40%" r="70%">
-            <stop offset="0%" stopColor="#FFD6E8" stopOpacity="0.95" />
-            <stop offset="70%" stopColor="#FFB6D5" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#E68FBF" stopOpacity="0.95" />
-          </radialGradient>
-          <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="1.2" />
-          </filter>
-        </defs>
-
-        {/* Cloud body */}
-        <g className="puffy-body">
-          <ellipse cx="150" cy="150" rx="105" ry="78" fill="url(#puffyGrad)" />
-          <circle cx="85" cy="120" r="48" fill="url(#puffyGrad)" />
-          <circle cx="150" cy="95" r="58" fill="url(#puffyGrad)" />
-          <circle cx="215" cy="120" r="48" fill="url(#puffyGrad)" />
-          {/* rim light */}
-          <ellipse cx="150" cy="85" rx="70" ry="22" fill="#FFE9F4" opacity="0.55" filter="url(#soft)" />
-        </g>
-
-        {/* Internal bubbles */}
-        <g opacity="0.5">
-          <circle className="inner-bubble b1" cx="110" cy="165" r="10" fill="#fff" opacity="0.55" />
-          <circle className="inner-bubble b2" cx="185" cy="175" r="14" fill="#fff" opacity="0.45" />
-          <circle className="inner-bubble b3" cx="150" cy="195" r="8" fill="#fff" opacity="0.5" />
-        </g>
-
-        {/* Internal sparkles */}
-        <g opacity={sparkleOpacity}>
-          <path className="puffy-sparkle s1" d="M120 140 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z" fill="#FFF3B0" />
-          <path className="puffy-sparkle s2" d="M185 130 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z" fill="#FFF3B0" />
-          <path className="puffy-sparkle s3" d="M155 115 l2.5 7 7 2.5 -7 2.5 -2.5 7 -2.5 -7 -7 -2.5 7 -2.5 z" fill="#FFF" />
-        </g>
-
-        {/* Cheeks (puff during chew/gulp) */}
-        <ellipse className="cheek cheek-l" cx="98" cy="155" rx="16" ry="12" fill="#FF8FBF" opacity="0.6" />
-        <ellipse className="cheek cheek-r" cx="202" cy="155" rx="16" ry="12" fill="#FF8FBF" opacity="0.6" />
-
-        {/* Eyes */}
-        {eyes}
-
-        {/* Mouth */}
-        <path d={mouth.d} fill={mouth.fill} stroke="#A64D79" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fillOpacity={mouth.fill === 'none' ? 0 : 1} />
-
-        {/* Tear (sad) */}
-        {showTear && (
-          <g className="tear">
-            <path d="M100 130 q6 12 0 18 q-7 -6 0 -18" fill="#9ED9FF" />
+      <div className="puffy__shadow" aria-hidden="true" />
+      <div className="puffy__steam" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="puffy__body">
+        <svg viewBox="0 0 300 260" className="puffy__svg" aria-hidden="true">
+          <defs>
+            <radialGradient id="puffy-fill" cx="36%" cy="30%" r="78%">
+              <stop offset="0%" stopColor="#FFE3F0" />
+              <stop offset="58%" stopColor="#FFB6D5" />
+              <stop offset="100%" stopColor="#E68FBF" />
+            </radialGradient>
+            <radialGradient id="puffy-belly" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <g className="puffy__cloud">
+            <circle cx="84" cy="128" r="52" fill="url(#puffy-fill)" />
+            <circle cx="150" cy="96" r="64" fill="url(#puffy-fill)" />
+            <circle cx="218" cy="124" r="54" fill="url(#puffy-fill)" />
+            <ellipse cx="150" cy="160" rx="118" ry="74" fill="url(#puffy-fill)" />
+            <ellipse cx="118" cy="62" rx="40" ry="14" fill="#FFF3F9" opacity="0.7" transform="rotate(-16 118 62)" />
           </g>
-        )}
-
-        {/* Thought bubble stem (curious) */}
-        {state === 'curious' && (
-          <g className="thought-stem">
-            <circle cx="245" cy="80" r="7" fill="#fff" opacity="0.95" />
-            <circle cx="262" cy="58" r="10" fill="#fff" opacity="0.95" />
+          <ellipse cx="150" cy="186" rx="70" ry="44" fill="url(#puffy-belly)" />
+          <g className="puffy__bubbles" fill="#fff">
+            <circle className="b1" cx="96" cy="182" r="9" opacity="0.5" />
+            <circle className="b2" cx="206" cy="190" r="12" opacity="0.4" />
+            <circle className="b3" cx="150" cy="212" r="7" opacity="0.5" />
           </g>
-        )}
-      </svg>
+          <g className="puffy__sparkles" fill="#FFF6C2">
+            <path className="s1" d="M104 150l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" />
+            <path className="s2" d="M204 142l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" />
+            <path className="s3" d="M176 78l2.5 7 7 2.5-7 2.5-2.5 7-2.5-7-7-2.5 7-2.5z" />
+          </g>
+          <Cheeks state={state} />
+          <Eyes state={state} />
+          <Mouth state={state} />
+          {state === 'sad' && <path className="puffy__tear" d="M104 132q7 13 0 20q-8-7 0-20" fill="#9ED9FF" />}
+          {state === 'spicy' && (
+            <g className="puffy__fan" stroke="#FF7A59" strokeWidth="5" strokeLinecap="round" fill="none">
+              <path d="M118 186q-14 8-30 4" />
+              <path d="M116 198q-10 12-24 14" />
+              <path d="M182 186q14 8 30 4" />
+              <path d="M184 198q10 12 24 14" />
+            </g>
+          )}
+        </svg>
+        {/* Belly window: fed snacks bob inside the cloud */}
+        <div className="puffy__belly" aria-hidden="true">
+          {fed.map((el, i) => (
+            <div key={`${el.id}-${i}`} className={`belly-snack belly-snack--${i}`}>
+              <SnackArt element={el} mood="happy" />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
 
-function eyeShape(state: PuffyState) {
-  const lookUp = state === 'thinking' || state === 'curious'
-  const cy = lookUp ? 112 : 122
-  const closed =
-    state === 'delighted' || state === 'proud' || state === 'chewing' || state === 'sleepy'
+const INK = '#5C2744'
 
-  if (closed) {
-    return (
-      <g>
-        <path d="M108 122 q12 -12 24 0" fill="none" stroke="#5C374C" strokeWidth="5" strokeLinecap="round" />
-        <path d="M168 122 q12 -12 24 0" fill="none" stroke="#5C374C" strokeWidth="5" strokeLinecap="round" />
-      </g>
-    )
-  }
+function Cheeks({ state }: { state: PuffyState }) {
+  const hot = state === 'spicy'
   return (
-    <g className="puffy-eyes">
-      <circle cx="120" cy={cy} r="13" fill="#fff" />
-      <circle cx="180" cy={cy} r="13" fill="#fff" />
-      <circle className="pupil" cx={lookUp ? 120 : 122} cy={lookUp ? cy - 3 : cy} r="6" fill="#5C374C" />
-      <circle className="pupil" cx={lookUp ? 180 : 182} cy={lookUp ? cy - 3 : cy} r="6" fill="#5C374C" />
-      <circle cx={lookUp ? 118 : 120} cy={cy - 5} r="2.2" fill="#fff" />
-      <circle cx={lookUp ? 178 : 180} cy={cy - 5} r="2.2" fill="#fff" />
+    <g className="puffy__cheeks" fill={hot ? '#FF6F61' : '#FF8FBF'} opacity={hot ? 0.85 : 0.55}>
+      <ellipse className="cheek-l" cx="98" cy="160" rx={hot ? 22 : 17} ry={hot ? 15 : 12} />
+      <ellipse className="cheek-r" cx="202" cy="160" rx={hot ? 22 : 17} ry={hot ? 15 : 12} />
     </g>
   )
 }
 
-function mouthPath(state: PuffyState): { d: string; fill: string } {
+function Eyes({ state }: { state: PuffyState }) {
+  const closedHappy = state === 'delighted' || state === 'proud' || state === 'chewing'
+  const closedSleepy = state === 'sleepy'
+  const squeeze = state === 'spicy'
+  if (closedHappy) {
+    return (
+      <g stroke={INK} strokeWidth="6" fill="none" strokeLinecap="round">
+        <path d="M106 128q14-15 28 0" />
+        <path d="M166 128q14-15 28 0" />
+      </g>
+    )
+  }
+  if (closedSleepy) {
+    return (
+      <g stroke={INK} strokeWidth="6" fill="none" strokeLinecap="round">
+        <path d="M106 126q14 9 28 0" />
+        <path d="M166 126q14 9 28 0" />
+      </g>
+    )
+  }
+  if (squeeze) {
+    return (
+      <g stroke={INK} strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M106 118l22 9-22 9" />
+        <path d="M194 118l-22 9 22 9" />
+      </g>
+    )
+  }
+  const up = state === 'thinking' || state === 'curious'
+  const sad = state === 'sad' || state === 'shrug'
+  const big = state === 'hungry' || state === 'encouraging'
+  const cy = up ? 116 : 126
+  const r = big ? 17 : 15
+  return (
+    <g className="puffy__eyes">
+      <circle cx="120" cy={cy} r={r} fill="#fff" />
+      <circle cx="180" cy={cy} r={r} fill="#fff" />
+      <circle className="pupil" cx={up ? 118 : 122} cy={up ? cy - 5 : cy + 1} r={big ? 8.5 : 7} fill={INK} />
+      <circle className="pupil" cx={up ? 178 : 182} cy={up ? cy - 5 : cy + 1} r={big ? 8.5 : 7} fill={INK} />
+      <circle cx={up ? 115 : 119} cy={cy - 6} r="2.8" fill="#fff" />
+      <circle cx={up ? 175 : 179} cy={cy - 6} r="2.8" fill="#fff" />
+      {sad && (
+        <g stroke={INK} strokeWidth="4.5" strokeLinecap="round">
+          <path d="M104 104l20-6" />
+          <path d="M196 104l-20-6" />
+        </g>
+      )}
+      {up && (
+        <path d="M166 94q14-10 28-2" stroke={INK} strokeWidth="4.5" fill="none" strokeLinecap="round" />
+      )}
+    </g>
+  )
+}
+
+function Mouth({ state }: { state: PuffyState }) {
+  const line = (d: string) => (
+    <path d={d} fill="none" stroke={INK} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+  )
+  const open = (d: string) => <path d={d} fill="#8E3A63" stroke={INK} strokeWidth="4" strokeLinejoin="round" />
   switch (state) {
     case 'hungry':
+      return (
+        <g>
+          {open('M122 160q28 46 56 0q-28 10-56 0z')}
+          <path d="M136 176q14 10 28 0q-14 12-28 0z" fill="#FF8FB1" />
+        </g>
+      )
     case 'gulp':
-      return { d: 'M132 168 q18 26 36 0 q-8 8 -18 8 q-10 0 -18 -8 z', fill: '#8E3A63' }
+      return line('M134 170q16-8 32 0')
     case 'chewing':
-      return { d: 'M130 168 q10 -8 20 0 q10 8 20 0', fill: 'none' }
+      return line('M128 170q11-9 22 0q11 9 22 0')
     case 'thinking':
-      return { d: 'M140 170 q10 -6 20 0', fill: 'none' }
+      return line('M138 174q12-6 24 0')
     case 'delighted':
     case 'proud':
-      return { d: 'M125 162 q25 32 50 0 q-25 14 -50 0 z', fill: '#8E3A63' }
+      return open('M120 158q30 40 60 0q-30 14-60 0z')
     case 'spitting':
-      return { d: 'M128 162 q22 34 44 0 q-22 20 -44 0 z', fill: '#8E3A63' }
+      return open('M136 160a14 16 0 1 0 28 0a14 16 0 1 0-28 0z')
     case 'curious':
-      return { d: 'M140 168 q10 -8 20 0 q-10 6 -20 0 z', fill: '#8E3A63' }
+      return open('M140 170a10 9 0 1 0 20 0a10 9 0 1 0-20 0z')
     case 'shrug':
-      return { d: 'M138 172 q12 -4 24 0', fill: 'none' }
+      return line('M134 176q16-4 32 4')
     case 'sad':
-      return { d: 'M135 176 q15 -12 30 0', fill: 'none' }
+      return line('M134 180q16-14 32 0')
     case 'encouraging':
-      return { d: 'M132 166 q18 20 36 0', fill: 'none' }
+      return open('M128 162q22 30 44 0q-22 8-44 0z')
+    case 'spicy':
+      return (
+        <g>
+          {open('M130 162q20 26 40 0q-20 8-40 0z')}
+          <path d="M142 172q8 26 16 0z" fill="#FF6F8F" stroke={INK} strokeWidth="3" strokeLinejoin="round" />
+        </g>
+      )
     case 'sleepy':
-      return { d: 'M140 172 q10 6 20 0', fill: 'none' }
+      return open('M142 172a8 10 0 1 0 16 0a8 10 0 1 0-16 0z')
     default:
-      return { d: 'M134 166 q16 14 32 0', fill: 'none' }
+      return line('M132 166q18 16 36 0')
   }
 }

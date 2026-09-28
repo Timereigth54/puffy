@@ -63,7 +63,7 @@ export const ELEMENTS: Element[] = [
     atomicNumber: 11,
     color: '#FFD966',
     family: 'metal',
-    shape: 'square',
+    shape: 'star',
     face: 'eager',
     tags: ['salty', 'soft', 'eager', 'shiny'],
     personality: 'Eager, salty, a tiny bit sparky. Loves to react!',

@@ -1,558 +1,510 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Bathroom from '../components/Bathroom'
 import Puffy from '../components/Puffy'
-import Snack from '../components/Snack'
-import { ELEMENTS } from '../data/content'
+import ResultArt from '../components/ResultArt'
+import SnackArt from '../components/SnackArt'
+import { BookIcon, DuckIcon } from '../components/Icons'
+import { ELEMENTS, ELEMENT_MAP, IDLE_LINES, GRAB_LINES, UNKNOWN_LINE, normalizeKey } from '../data/content'
 import {
-  resolve,
-  generateInvalidLine,
-  generateNobleLine,
-  hintFor,
+  bank,
+  discoveryScript,
   easyWin,
-  normalizeKey,
-  type InvalidLine,
+  focusedTray,
+  hintFor,
+  hintLine,
+  lonerSequence,
+  resolve,
+  sameLine,
+  spicyLine,
+  type SillySequence,
 } from '../game/engine'
-import { sfx, narrate, stopNarration, setVoiceEnabled } from '../game/sfx'
+import { say, sfx, stopVoice, wait } from '../game/audio'
 import type { Combo, Element, Progress, PuffyState, Settings } from '../game/types'
 
-interface PlayScreenProps {
+interface Props {
   settings: Settings
   progress: Progress
-  onDiscover: (comboId: string, elementIds: string[]) => void
-  onAttempts: (pairKey: string) => void
-  onTick: (seconds: number) => void
-  onTimeUp: () => void
-  onExit: () => void
+  evening: number
+  guided?: boolean
+  onFeed: (elementId: string) => void
+  onDiscover: (combo: Combo) => void
+  onHome: () => void
+  onBook: () => void
+  onGuidedDone?: () => void
 }
 
-interface Overlay {
-  kind: 'success'
-  combo: Combo
-  isFirstTime: boolean
-}
+type Drag = { el: Element; x: number; y: number; startX: number; startY: number; moved: boolean; pointerId: number }
+type Show =
+  | { kind: 'discovery'; combo: Combo; firstTime: boolean; flying: boolean }
+  | { kind: 'thought'; seq: SillySequence; pair: Element[]; popped: boolean }
+  | { kind: 'spicy'; name: string; formula: string }
+  | { kind: 'same'; element: Element }
+  | null
 
-export default function PlayScreen({
-  settings,
-  progress,
-  onDiscover,
-  onAttempts,
-  onTick,
-  onTimeUp,
-  onExit,
-}: PlayScreenProps) {
-  const [puffyState, setPuffyState] = useState<PuffyState>('idle')
+const FULL_TRAY = ELEMENTS.map((e) => e.id)
+const DRAG_THRESHOLD = 10
+
+export default function PlayScreen({ settings, progress, evening, guided, onFeed, onDiscover, onHome, onBook, onGuidedDone }: Props) {
+  const [puffy, setPuffy] = useState<PuffyState>('idle')
   const [chewBeat, setChewBeat] = useState(0)
-  const [slots, setSlots] = useState<Element[]>([])
-  const [held, setHeld] = useState<Element[]>([]) // tap-tap holding area
-  const [overlay, setOverlay] = useState<Overlay | null>(null)
-  const [thought, setThought] = useState<InvalidLine | null>(null)
-  const [confetti, setConfetti] = useState(false)
-  const [highlighted, setHighlighted] = useState<string[]>([])
-  const [trayCap, setTrayCap] = useState(6)
+  const [fed, setFed] = useState<Element[]>([])
+  const [spat, setSpat] = useState<Element[]>([])
+  const [busy, setBusy] = useState(false)
+  const [drag, setDrag] = useState<Drag | null>(null)
+  const [lean, setLean] = useState<{ x: number; y: number } | null>(null)
+  const [held, setHeld] = useState<Element | null>(null)
+  const [show, setShow] = useState<Show>(null)
+  const [highlight, setHighlight] = useState<string[]>(guided ? ['H', 'O'] : [])
+  const [tray, setTray] = useState<string[]>(FULL_TRAY)
+  const [splashAt, setSplashAt] = useState<{ x: number; key: number } | null>(null)
 
+  const stageRef = useRef<HTMLDivElement>(null)
+  const puffyRef = useRef<HTMLDivElement>(null)
+  const alive = useRef(true)
   const busyRef = useRef(false)
-  const timersRef = useRef<number[]>([])
-  const playAreaRef = useRef<HTMLDivElement>(null)
-  const lastInteractRef = useRef(Date.now())
-  const lastDiscoveryRef = useRef(Date.now())
-  const hintGivenForRef = useRef<string | null>(null)
+  const fedRef = useRef<Element[]>([])
+  const progressRef = useRef(progress)
+  const settingsRef = useRef(settings)
+  const attempts = useRef<Record<string, number>>({})
+  const missesInRow = useRef(0)
+  const lastTouch = useRef(0)
+  const lastDiscovery = useRef(0)
+  const idleSpoken = useRef(false)
+  const firstGrab = useRef(true)
 
-  const after = useCallback((ms: number, fn: () => void) => {
-    const id = window.setTimeout(fn, ms)
-    timersRef.current.push(id)
-    return id
+  useEffect(() => {
+    progressRef.current = progress
+    settingsRef.current = settings
+  }, [progress, settings])
+  const showSymbols = settings.textLevel !== 'off'
+  const showWords = settings.textLevel !== 'off'
+
+  useEffect(() => {
+    alive.current = true
+    lastTouch.current = Date.now()
+    lastDiscovery.current = Date.now()
+    return () => {
+      alive.current = false
+      stopVoice()
+    }
   }, [])
 
-  const clearTimers = useCallback(() => {
-    timersRef.current.forEach(clearTimeout)
-    timersRef.current = []
-  }, [])
-
-  useEffect(() => {
-    setVoiceEnabled(settings.voiceOn)
-  }, [settings.voiceOn])
-
-  useEffect(() => () => clearTimers(), [clearTimers])
-
-  // Play-time ticking + parent time limit
-  useEffect(() => {
-    const started = Date.now()
-    const iv = setInterval(() => {
-      onTick(1)
-      const elapsedMin = (Date.now() - started) / 60000
-      if (settings.timeLimitMinutes && elapsedMin >= settings.timeLimitMinutes) {
-        clearInterval(iv)
-        busyRef.current = true
-        stopNarration()
-        sfx.yawn()
-        setPuffyState('sleepy')
-        narrate('Puffy is tired! Let’s come back later!')
-        after(2600, onTimeUp)
-      }
-    }, 1000)
-    return () => clearInterval(iv)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.timeLimitMinutes])
-
-  // Idle nudge after 15s + easy-win guarantee after 3 min
-  useEffect(() => {
-    const iv = setInterval(() => {
-      if (busyRef.current) return
-      const idleSec = (Date.now() - lastInteractRef.current) / 1000
-      if (idleSec > 15 && idleSec < 16) {
-        narrate(['Puffy is still hungry!', 'Got more snacks?', 'What should we try?'][Math.floor(Math.random() * 3)])
-      }
-      const sinceDiscovery = (Date.now() - lastDiscoveryRef.current) / 1000
-      if (sinceDiscovery > 180) {
-        const win = easyWin(ELEMENTS.map((e) => e.id), progress.discovered)
-        if (win) {
-          setHighlighted(win.inputs)
-          lastDiscoveryRef.current = Date.now()
-        }
-      }
-    }, 1000)
-    return () => clearInterval(iv)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [progress.discovered])
+  const setBusyBoth = (b: boolean) => {
+    busyRef.current = b
+    setBusy(b)
+  }
 
   const touch = () => {
-    lastInteractRef.current = Date.now()
+    lastTouch.current = Date.now()
+    idleSpoken.current = false
   }
 
-  const feed = useCallback(
-    (el: Element) => {
-      if (busyRef.current || slots.length >= 2) return
-      touch()
-      setHighlighted([])
-      const newSlots = [...slots, el]
-      setSlots(newSlots)
-      setHeld([])
-      sfx.gulp()
-      setPuffyState('gulp')
-      after(380, () => {
-        if (newSlots.length === 1) {
-          setPuffyState('hungry')
-        } else {
-          startChew(newSlots)
-        }
-      })
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [slots, after],
-  )
-
-  const startChew = useCallback(
-    (fed: Element[]) => {
-      busyRef.current = true
-      setPuffyState('chewing')
-      const chewTimes = [0, 420, 840]
-      chewTimes.forEach((t, i) => {
-        after(t + 60, () => {
-          setChewBeat(i)
-          sfx.chew(i)
-        })
-      })
-      after(1400, () => {
-        setPuffyState('thinking')
-        sfx.think()
-      })
-      after(2050, () => decide(fed))
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [after, progress.discovered],
-  )
-
-  const decide = useCallback(
-    (fed: Element[]) => {
-      const result = resolve(
-        fed.map((e) => e.id),
-        progress.discovered,
-      )
-      if (result.type === 'success') {
-        const { combo, isFirstTime } = result
-        lastDiscoveryRef.current = Date.now()
-        hintGivenForRef.current = null
-        setPuffyState('spitting')
-        sfx.spit(settings.spitSound === 'sweet')
-        after(650, () => {
-          const big = isFirstTime && combo.celebration !== 'small'
-          setConfetti(big)
-          setPuffyState(isFirstTime ? 'proud' : 'delighted')
-          if (isFirstTime) {
-            sfx.fanfare(combo.celebration === 'large')
-            sfx.confetti()
-          } else {
-            sfx.giggle()
-            sfx.chime()
-          }
-          setOverlay({ kind: 'success', combo, isFirstTime })
-          onDiscover(combo.id, fed.map((e) => e.id))
-
-          // Voice: praise + result (name on ~1 in 3, praise/comfort only)
-          const name = progress.childName
-          const useName = name && Math.random() < 0.34
-          if (settings.voiceOn) {
-            if (isFirstTime) {
-              const praise = ['You discovered', 'You made', 'Look at that'][
-                Math.floor(Math.random() * 3)
-              ]
-              narrate(
-                (useName ? `${name}! ` : 'Wow! ') + `${praise} ${combo.result.displayName}!`,
-              )
-            } else {
-              const cheer = ['Yeaah!', 'Nice!', 'You got it!'][
-                Math.floor(Math.random() * 3)
-              ]
-              narrate(`${combo.result.displayName}! ${cheer}`)
-            }
-          }
-          after(2600, () => setConfetti(false))
-          after(3000, () => {
-            setOverlay(null)
-            setSlots([])
-            setPuffyState('idle')
-            busyRef.current = false
-          })
-        })
-      } else {
-        // Invalid / noble gas / noble metal — the five-beat imagination sequence
-        const line =
-          result.type === 'invalid'
-            ? generateInvalidLine(fed.map((e) => e.id))
-            : generateNobleLine(
-                result.type === 'noble-gas' ? 'gas' : 'metal',
-                result.elementName,
-              )
-        const pairKey = normalizeKey(fed.map((e) => e.id))
-        const attempts = (progress.attempts[pairKey] ?? 0) + 1
-        onAttempts(pairKey)
-
-        // Adaptive: 3rd struggle → gentle hint; 5th → shrink tray
-        let hint: string | null = null
-        if (
-          attempts === 3 &&
-          settings.hints !== 'never' &&
-          hintGivenForRef.current !== pairKey
-        ) {
-          hint = hintFor(fed.map((e) => e.id))
-          hintGivenForRef.current = pairKey
-        }
-        if (attempts >= 5) setTrayCap(4)
-
-        setPuffyState('curious')
-        if (settings.voiceOn) narrate(line.thinking + ' ' + line.idea + (line.use ? ' ' + line.use : ''))
-        setThought(line)
-        sfx.think()
-
-        after(2600, () => {
-          setPuffyState('shrug')
-          sfx.sad()
-          if (settings.voiceOn) narrate(line.rejection + ' ' + line.encouragement)
-          after(1100, () => {
-            setPuffyState('sad')
-            sfx.sniffle()
-            // Sad capped at 0.8s before Encouraging
-            after(800, () => {
-              setPuffyState('encouraging')
-              sfx.boing()
-              if (hint && settings.voiceOn) {
-                after(900, () => narrate(hint))
-                after(3600, finishInvalid)
-              } else {
-                after(1200, finishInvalid)
-              }
-            })
-          })
-        })
+  // Idle nudge after 15 s; easy-win highlight after 3 min without a discovery.
+  useEffect(() => {
+    const iv = window.setInterval(() => {
+      if (busyRef.current || drag) return
+      const idle = Date.now() - lastTouch.current
+      if (idle > 15000 && !idleSpoken.current) {
+        idleSpoken.current = true
+        void say([bank.pick('idle', IDLE_LINES)])
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [after, progress, settings, onDiscover, onAttempts],
-  )
+      if (Date.now() - lastDiscovery.current > 180000) {
+        const win = easyWin(progressRef.current.discovered, tray)
+        if (win) setHighlight(win.inputs)
+        lastDiscovery.current = Date.now()
+      }
+    }, 1000)
+    return () => window.clearInterval(iv)
+  }, [drag, tray])
 
-  const finishInvalid = useCallback(() => {
-    setThought(null)
-    setSlots([])
-    // Snacks float back
-    setPuffyState('idle')
-    busyRef.current = false
+  // ─── Outcome sequences ────────────────────────────────────────────────────
+  const finish = useCallback(() => {
+    if (!alive.current) return
+    fedRef.current = []
+    setFed([])
+    setShow(null)
+    setPuffy('idle')
+    setBusyBoth(false)
+    touch()
   }, [])
 
-  const handleDragEnd = (el: Element, _x: number, _y: number, onMouth: boolean) => {
-    if (busyRef.current) return
-    if (onMouth) {
-      feed(el)
+  const spitBack = (pair: Element[]) => {
+    setSpat(pair)
+    sfx.spit(settingsRef.current.spitSound === 'sweet')
+    fedRef.current = []
+    setFed([])
+    window.setTimeout(() => {
+      if (!alive.current) return
+      setSpat([])
+      sfx.splash()
+      setSplashAt({ x: 50, key: Date.now() })
+    }, 650)
+  }
+
+  const runDiscovery = async (combo: Combo, firstTime: boolean) => {
+    setPuffy('spitting')
+    sfx.spit(settingsRef.current.spitSound === 'sweet')
+    fedRef.current = []
+    setFed([])
+    await wait(320)
+    if (!alive.current) return
+    setShow({ kind: 'discovery', combo, firstTime, flying: false })
+    setPuffy(firstTime ? 'proud' : 'delighted')
+    if (firstTime) {
+      sfx.fanfare(combo.celebration === 'large')
+      sfx.sparkle()
     } else {
-      // Dropped outside the mouth — snack gently floats back. Never a penalty.
-      touch()
+      sfx.giggle()
+      sfx.chime()
+    }
+    onDiscover(combo)
+    lastDiscovery.current = Date.now()
+    missesInRow.current = 0
+    setTray(FULL_TRAY)
+    setHighlight([])
+    const p = progressRef.current
+    const hasName = !!(p.childName || p.hasNameRecording)
+    const useName = firstTime && hasName && (guided || Math.random() < 0.34)
+    const script = discoveryScript(combo, firstTime, useName)
+    if (settingsRef.current.ageMode >= 1 && firstTime) script.push(combo.facts.kid)
+    await Promise.all([say(script), wait(2200)])
+    if (!alive.current) return
+    if (firstTime) {
+      setShow({ kind: 'discovery', combo, firstTime, flying: true })
+      sfx.bubble()
+      await wait(700)
+    }
+    finish()
+    if (guided) onGuidedDone?.()
+  }
+
+  const runLoner = async (noble: Element, other: Element, pair: Element[]) => {
+    const seq = lonerSequence(noble, other)
+    setPuffy('curious')
+    setShow({ kind: 'thought', seq, pair, popped: false })
+    sfx.think()
+    await say([seq.thinking, seq.idea, seq.use])
+    if (!alive.current) return
+    sfx.pop()
+    setShow({ kind: 'thought', seq, pair, popped: true })
+    setPuffy('shrug')
+    spitBack(pair)
+    await say([seq.rejection, seq.reason])
+    if (!alive.current) return
+    setShow(null)
+    // Sad lasts 0.8 s at most, then Puffy bounces back.
+    setPuffy('sad')
+    sfx.sad()
+    await wait(800)
+    if (!alive.current) return
+    setPuffy('encouraging')
+    sfx.boing()
+    await say([seq.encouragement])
+    await maybeHint(pair)
+    finish()
+  }
+
+  const runSpicy = async (name: string, formula: string, pair: Element[]) => {
+    setPuffy('spicy')
+    sfx.spicy()
+    setShow({ kind: 'spicy', name, formula })
+    spitBack(pair)
+    await Promise.all([say([spicyLine()]), wait(1600)])
+    if (!alive.current) return
+    setShow(null)
+    setPuffy('encouraging')
+    sfx.boing()
+    await wait(500)
+    await maybeHint(pair)
+    finish()
+  }
+
+  const runSame = async (element: Element, pair: Element[]) => {
+    setPuffy('shrug')
+    setShow({ kind: 'same', element })
+    await say([sameLine(element)])
+    if (!alive.current) return
+    spitBack(pair)
+    setPuffy('encouraging')
+    sfx.boing()
+    await wait(700)
+    await maybeHint(pair)
+    finish()
+  }
+
+  const maybeHint = async (pair: Element[]) => {
+    const key = normalizeKey(pair.map((e) => e.id))
+    const n = (attempts.current[key] = (attempts.current[key] ?? 0) + 1)
+    missesInRow.current += 1
+    if (missesInRow.current >= 5) setTray((t) => (t.length > 4 ? focusedTray(FULL_TRAY, progressRef.current.discovered, 4) : t))
+    const mode = settingsRef.current.hints
+    const wantHint = mode !== 'never' && (n === 3 || missesInRow.current === 4) && (mode === 'always' || Math.random() < 0.5)
+    if (!wantHint) return
+    const hint = hintFor(pair.map((e) => e.id), progressRef.current.discovered, tray)
+    if (!hint) return
+    setHighlight(hint.inputs)
+    await say([hintLine(hint)])
+  }
+
+  const chewAndDecide = async (pair: Element[]) => {
+    setBusyBoth(true)
+    setPuffy('chewing')
+    for (let beat = 0; beat < 3; beat++) {
+      setChewBeat(beat)
+      sfx.chew(beat)
+      await wait(380 + Math.random() * 90)
+      if (!alive.current) return
+    }
+    setPuffy('thinking')
+    sfx.think()
+    await wait(560)
+    if (!alive.current) return
+    // Digested: the belly window empties before the answer appears.
+    setFed([])
+    const outcome = resolve(pair.map((e) => e.id), progressRef.current.discovered)
+    switch (outcome.kind) {
+      case 'discovery':
+        return runDiscovery(outcome.combo, outcome.firstTime)
+      case 'loner':
+        return runLoner(outcome.noble, outcome.other, pair)
+      case 'spicy':
+        return runSpicy(outcome.spicy.name, outcome.spicy.formula, pair)
+      case 'same':
+        return runSame(outcome.element, pair)
+      case 'unknown':
+        setPuffy('curious')
+        await say([UNKNOWN_LINE])
+        spitBack(pair)
+        finish()
     }
   }
 
-  const handleTap = (el: Element) => {
-    if (busyRef.current) return
+  const feed = (el: Element) => {
+    if (busyRef.current || fedRef.current.length >= 2) return
     touch()
-    if (held.length === 0) {
-      setHeld([el])
-      setPuffyState('hungry')
-      sfx.gulp()
-    } else if (held[0].id !== el.id || held.length === 1) {
-      // tap Puffy to feed held snacks
-      setHeld([])
-      feed(el)
+    setHeld(null)
+    setHighlight((h) => (guided ? h : []))
+    const next = [...fedRef.current, el]
+    fedRef.current = next
+    setFed(next)
+    onFeed(el.id)
+    sfx.gulp()
+    setPuffy('gulp')
+    if (next.length === 2) {
+      busyRef.current = true
+      window.setTimeout(() => void chewAndDecide(next), 320)
+    } else {
+      window.setTimeout(() => alive.current && !busyRef.current && setPuffy('idle'), 420)
     }
   }
 
-  const handlePuffyTap = () => {
-    if (busyRef.current || held.length === 0) return
-    touch()
-    const el = held[0]
-    setHeld([])
-    feed(el)
+  // ─── Input: drag and tap-tap ──────────────────────────────────────────────
+  const stagePoint = (clientX: number, clientY: number) => {
+    const r = stageRef.current!.getBoundingClientRect()
+    return { x: clientX - r.left, y: clientY - r.top }
   }
 
-  const showText = settings.textLevel !== 'off'
+  const overMouth = (clientX: number, clientY: number) => {
+    const r = puffyRef.current?.getBoundingClientRect()
+    if (!r) return false
+    const cx = r.left + r.width / 2
+    const cy = r.top + r.height * 0.58
+    // Generous drop zone: most of Puffy's body counts.
+    return Math.hypot((clientX - cx) / (r.width * 0.55), (clientY - cy) / (r.height * 0.6)) < 1
+  }
+
+  const leanToward = (clientX: number, clientY: number) => {
+    const r = puffyRef.current?.getBoundingClientRect()
+    if (!r) return
+    setLean({ x: clientX - (r.left + r.width / 2), y: clientY - (r.top + r.height / 2) })
+  }
+
+  const onSnackDown = (el: Element) => (e: React.PointerEvent) => {
+    if (busyRef.current) {
+      sfx.tap()
+      return
+    }
+    e.preventDefault()
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    const p = stagePoint(e.clientX, e.clientY)
+    setDrag({ el, x: p.x, y: p.y, startX: e.clientX, startY: e.clientY, moved: false, pointerId: e.pointerId })
+    touch()
+    sfx.grab()
+    if (fedRef.current.length < 2) setPuffy('hungry')
+    if (firstGrab.current) {
+      firstGrab.current = false
+      void say(['Ooh! A snack!'])
+    } else if (Math.random() < 0.35) {
+      void say([bank.pick('grab', GRAB_LINES)])
+    }
+  }
+
+  const onSnackMove = (e: React.PointerEvent) => {
+    if (!drag || e.pointerId !== drag.pointerId) return
+    const moved = drag.moved || Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > DRAG_THRESHOLD
+    const p = stagePoint(e.clientX, e.clientY)
+    setDrag({ ...drag, x: p.x, y: p.y, moved })
+    if (moved) leanToward(e.clientX, e.clientY)
+  }
+
+  const onSnackUp = (e: React.PointerEvent) => {
+    if (!drag || e.pointerId !== drag.pointerId) return
+    const d = drag
+    setDrag(null)
+    setLean(null)
+    if (d.moved) {
+      if (overMouth(e.clientX, e.clientY)) {
+        feed(d.el)
+      } else {
+        // Dropped outside the mouth: the snack plops back into the water. Never a penalty.
+        sfx.plop()
+        if (!busyRef.current) setPuffy(held ? 'hungry' : 'idle')
+      }
+      return
+    }
+    // A tap: hold the snack up by Puffy (tap-tap style). Tapping the held snack again feeds it.
+    if (held?.id === d.el.id) {
+      feed(d.el)
+      return
+    }
+    setHeld(d.el)
+    setPuffy('hungry')
+  }
+
+  const onPuffyTap = () => {
+    if (held && !busyRef.current) feed(held)
+    else if (!busyRef.current) {
+      sfx.giggle()
+      setPuffy('delighted')
+      window.setTimeout(() => alive.current && !busyRef.current && setPuffy('idle'), 700)
+    }
+  }
+
+  const trayEls = tray.map((id) => ELEMENT_MAP[id])
 
   return (
-    <div className="play-area" ref={playAreaRef}>
-      {/* Background */}
-      <div className="play-bg" />
+    <Bathroom
+      evening={evening}
+      className={`play ${busy ? 'is-busy' : ''}`}
+      tub={
+        <div className="snack-row" style={{ '--count': trayEls.length } as React.CSSProperties}>
+          {trayEls.map((el, i) => {
+            const isDragging = drag?.el.id === el.id && drag.moved
+            const isHeld = held?.id === el.id
+            return (
+              <button
+                key={el.id}
+                type="button"
+                className={`snack ${isDragging ? 'is-dragging' : ''} ${isHeld ? 'is-held' : ''} ${highlight.includes(el.id) ? 'is-hinted' : ''}`}
+                style={{ '--i': i, '--snack-color': el.color } as React.CSSProperties}
+                aria-label={el.name}
+                onPointerDown={onSnackDown(el)}
+                onPointerMove={onSnackMove}
+                onPointerUp={onSnackUp}
+                onPointerCancel={onSnackUp}
+              >
+                <span className="snack__ripple" aria-hidden="true" />
+                <span className="snack__bob">
+                  <SnackArt element={el} showSymbol={showSymbols} />
+                </span>
+              </button>
+            )
+          })}
+          {splashAt && <span key={splashAt.key} className="tub-splash" aria-hidden="true" />}
+        </div>
+      }
+    >
+      <div
+        className="play-stage"
+        ref={stageRef}
+        onPointerMove={drag ? onSnackMove : undefined}
+      >
+        <button type="button" className="corner-tile corner-tile--left" onClick={onHome} aria-label="Home">
+          <DuckIcon />
+        </button>
+        <button type="button" className={`corner-tile corner-tile--right ${show?.kind === 'discovery' && show.flying ? 'is-receiving' : ''}`} onClick={onBook} aria-label="Discovery book">
+          <BookIcon />
+        </button>
 
-      {/* Puffy + mouth drop zone */}
-      <div className="puffy-stage">
-        <div data-mouth-zone className="mouth-zone" />
-        <Puffy state={puffyState} chewBeat={chewBeat} onClick={handlePuffyTap} />
-        {puffyState === 'chewing' && (
-          <div className="chew-particles">
-            {[...Array(6)].map((_, i) => (
-              <span key={i} className={`chew-bubble cb-${i}`} />
-            ))}
+        <div className="puffy-anchor" ref={puffyRef}>
+          <Puffy state={puffy} chewBeat={chewBeat} fed={fed} lean={lean} sparkle={progress.discovered.length >= 9} onTap={onPuffyTap} />
+          {spat.map((el, i) => (
+            <div key={el.id + i} className={`spat spat--${i}`} aria-hidden="true">
+              <SnackArt element={el} mood="sleepy" />
+            </div>
+          ))}
+        </div>
+
+        {held && !busy && (
+          <div className="held" aria-hidden="true">
+            <SnackArt element={held} showSymbol={showSymbols} mood="happy" />
+          </div>
+        )}
+
+        {show?.kind === 'discovery' && (
+          <div className={`discovery ${show.flying ? 'is-flying' : ''} ${show.firstTime ? 'is-first' : ''}`}>
+            <div className="discovery__splash" aria-hidden="true" />
+            <ResultArt art={show.combo.result.art} className="discovery__art" />
+            {showWords && (
+              <div className="discovery__label">
+                <span className="discovery__name">{show.combo.result.displayName}</span>
+                {settings.textLevel === 'formulas' && <span className="discovery__formula">{show.combo.result.formula}</span>}
+              </div>
+            )}
+            {show.firstTime && (
+              <div className="confetti" aria-hidden="true">
+                {CONFETTI.map((c, i) => (
+                  <span key={i} style={{ '--x': `${c[0]}px`, '--y': `${c[1]}px`, '--r': `${c[2]}deg`, background: c[3], animationDelay: `${(i % 6) * 40}ms` } as React.CSSProperties} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {show?.kind === 'thought' && (
+          <div className={`thought ${show.popped ? 'is-popped' : ''}`} aria-live="polite">
+            <span className="thought__stem thought__stem--1" aria-hidden="true" />
+            <span className="thought__stem thought__stem--2" aria-hidden="true" />
+            <div className="thought__bubble">
+              <div className="thought__dance" aria-hidden="true">
+                {show.pair.map((el, i) => (
+                  <span key={i} className={`thought__snack thought__snack--${i}`}>
+                    <SnackArt element={el} mood="happy" />
+                  </span>
+                ))}
+              </div>
+              {showWords && <p className="thought__text">{show.seq.idea}</p>}
+            </div>
+          </div>
+        )}
+
+        {show?.kind === 'spicy' && showWords && (
+          <div className="caption caption--spicy">
+            {show.name} <span className="caption__formula">{show.formula}</span>
+          </div>
+        )}
+        {show?.kind === 'same' && showWords && <div className="caption">Still {show.element.name.toLowerCase()}!</div>}
+
+        {guided && !busy && !drag && !held && (
+          <div className={`guide-ghost guide-ghost--${fed.length === 0 ? 'first' : 'second'}`} aria-hidden="true">
+            <SnackArt element={ELEMENT_MAP[fed.length === 0 ? 'H' : 'O']} mood="happy" />
+          </div>
+        )}
+
+        {drag?.moved && (
+          <div className="drag-ghost" style={{ left: drag.x, top: drag.y }} aria-hidden="true">
+            <SnackArt element={drag.el} showSymbol={showSymbols} mood="happy" />
           </div>
         )}
       </div>
-
-      {/* Held snack (tap-tap style) */}
-      {held.length > 0 && !busyRef.current && (
-        <div className="held-snack">
-          <Snack
-            element={held[0]}
-            index={0}
-            textLevel={settings.textLevel}
-            playAreaRef={playAreaRef}
-            onDragEnd={(el, _x, _y, onMouth) => {
-              if (onMouth) {
-                setHeld([])
-                feed(el)
-              }
-            }}
-          />
-          <div className="held-hint">{showText ? 'Tap Puffy to feed!' : '👆'}</div>
-        </div>
-      )}
-
-      {/* Fed slots indicator */}
-      <div className="fed-slots">
-        {[0, 1].map((i) => (
-          <div key={i} className={`fed-slot ${slots[i] ? 'filled' : ''}`}>
-            {slots[i] && (
-              <span style={{ color: slots[i].color }}>{slots[i].symbol}</span>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Thought bubble (invalid sequence) */}
-      {thought && (
-        <div className="thought-bubble">
-          <p className="thought-idea">{thought.idea}</p>
-          {thought.use && <p className="thought-use">{thought.use}</p>}
-        </div>
-      )}
-
-      {/* Success overlay */}
-      {overlay?.kind === 'success' && (
-        <ResultOverlay
-          combo={overlay.combo}
-          isFirstTime={overlay.isFirstTime}
-          name={progress.childName}
-          textLevel={settings.textLevel}
-          onDismiss={() => {
-            setOverlay(null)
-            setSlots([])
-            setPuffyState('idle')
-            busyRef.current = false
-          }}
-        />
-      )}
-
-      {/* Confetti */}
-      {confetti && (
-        <div className="confetti-layer">
-          {[...Array(40)].map((_, i) => (
-            <span
-              key={i}
-              className="confetti-piece"
-              style={{
-                left: `${(i * 37) % 100}%`,
-                animationDelay: `${(i % 10) * 0.12}s`,
-                backgroundColor: ['#FFD966', '#FF8FBF', '#7FD4FF', '#7FD48F', '#C9A227'][i % 5],
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Back button */}
-      <button className="play-back" onClick={onExit} aria-label="Back to home">
-        ←
-      </button>
-
-      {/* Element tray */}
-      <div className="tray">
-        {ELEMENTS.slice(0, trayCap).map((el, i) => (
-          <Snack
-            key={el.id}
-            element={el}
-            index={i}
-            textLevel={settings.textLevel}
-            disabled={busyRef.current}
-            highlighted={highlighted.includes(el.id)}
-            playAreaRef={playAreaRef}
-            onDragStart={touch}
-            onDragEnd={handleDragEnd}
-            onTap={handleTap}
-          />
-        ))}
-      </div>
-    </div>
+    </Bathroom>
   )
 }
 
-function ResultOverlay({
-  combo,
-  isFirstTime,
-  name,
-  textLevel,
-  onDismiss,
-}: {
-  combo: Combo
-  isFirstTime: boolean
-  name: string | null
-  textLevel: Settings['textLevel']
-  onDismiss: () => void
-}) {
-  useEffect(() => {
-    const t = setTimeout(onDismiss, 3000)
-    return () => clearTimeout(t)
-  }, [onDismiss])
-
-  return (
-    <div className="result-overlay" onClick={onDismiss}>
-      <div className="result-card" style={{ borderColor: combo.result.color }}>
-        <ResultAnimation animation={combo.result.animation} color={combo.result.color} />
-        <div className="result-text">
-          {isFirstTime && name && <div className="result-name-call">{name}!</div>}
-          <div className="result-action">
-            {isFirstTime ? 'You discovered' : 'You made'}…
-          </div>
-          <div className="result-display" style={{ color: combo.result.color }}>
-            {combo.result.displayName}
-          </div>
-          {textLevel === 'formulas' || textLevel === 'equations' ? (
-            <div className="result-formula">{combo.result.formula}</div>
-          ) : null}
-          {textLevel !== 'off' && (
-            <div className="result-fact">
-              {textLevel === 'symbols'
-                ? combo.facts.toddler
-                : textLevel === 'names'
-                  ? combo.facts.kid
-                  : combo.facts.junior}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ResultAnimation({ animation, color }: { animation: string; color: string }) {
-  // Lightweight canvas-free result animations, one per combo
-  switch (animation) {
-    case 'water_splash':
-      return (
-        <div className="result-anim">
-          {[...Array(8)].map((_, i) => (
-            <span key={i} className={`drop d-${i}`} style={{ backgroundColor: color }} />
-          ))}
-          <span className="result-emoji">💧</span>
-        </div>
-      )
-    case 'balloon_float':
-      return (
-        <div className="result-anim">
-          <span className="result-emoji balloon">🎈</span>
-        </div>
-      )
-    case 'deep_breath':
-      return (
-        <div className="result-anim">
-          <span className="result-emoji breathe">🫧</span>
-        </div>
-      )
-    case 'blue_mist':
-      return (
-        <div className="result-anim">
-          {[...Array(6)].map((_, i) => (
-            <span key={i} className={`mist m-${i}`} />
-          ))}
-        </div>
-      )
-    case 'salt_shaker':
-      return (
-        <div className="result-anim">
-          <span className="result-emoji shake">🧂</span>
-        </div>
-      )
-    case 'bubbles_out':
-      return (
-        <div className="result-anim">
-          {[...Array(7)].map((_, i) => (
-            <span key={i} className={`bub b-${i}`} />
-          ))}
-        </div>
-      )
-    case 'clean_sparkle':
-      return (
-        <div className="result-anim">
-          <span className="result-emoji twinkle">✨</span>
-        </div>
-      )
-    case 'fizzy':
-      return (
-        <div className="result-anim">
-          {[...Array(10)].map((_, i) => (
-            <span key={i} className={`fizz f-${i}`} />
-          ))}
-        </div>
-      )
-    case 'powder_puff':
-      return (
-        <div className="result-anim">
-          {[...Array(5)].map((_, i) => (
-            <span key={i} className={`puff p-${i}`} />
-          ))}
-        </div>
-      )
-    case 'little_flame':
-      return (
-        <div className="result-anim">
-          <span className="result-emoji flame">🔥</span>
-        </div>
-      )
-    default:
-      return (
-        <div className="result-anim">
-          <span className="result-emoji twinkle">✨</span>
-        </div>
-      )
-  }
-}
+// [x, y, rotation, colour]: a fixed burst so it never jitters between renders.
+const CONFETTI: [number, number, number, string][] = [
+  [-180, -120, 40, '#FFD966'], [-140, -170, -30, '#7FD4FF'], [-90, -200, 60, '#7FD48F'], [-30, -220, -50, '#FF8FBF'],
+  [30, -215, 20, '#C9A227'], [90, -195, -70, '#FFD966'], [140, -165, 35, '#7FD4FF'], [185, -115, -20, '#FF8FBF'],
+  [-200, -40, 80, '#7FD48F'], [200, -50, -80, '#FFD966'], [-160, 40, 15, '#FF8FBF'], [165, 30, -15, '#7FD4FF'],
+  [-60, -150, 90, '#C9A227'], [60, -140, -90, '#7FD48F'], [0, -180, 45, '#FFD966'], [-110, -80, -35, '#7FD4FF'],
+]

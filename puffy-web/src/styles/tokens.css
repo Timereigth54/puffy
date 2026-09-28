@@ -1,0 +1,100 @@
+/* Puffy design tokens.
+   World: a 1950s pink-tile bathroom at bath time. One window light from the
+   top-left sets every highlight (top-left) and every shadow (down-right).
+   Palette values marked (blueprint) are binding brand commitments. */
+
+:root {
+  /* Tile wall */
+  --tile-top: #ffe4f0; /* (blueprint) background gradient start */
+  --tile-bottom: #ffd1e8; /* (blueprint) background gradient end */
+  --grout: #fff5fa;
+  --grout-shade: rgba(214, 120, 170, 0.18);
+
+  /* Puffy */
+  --puffy: #ffb6d5; /* (blueprint) */
+  --puffy-shadow: #e68fbf; /* (blueprint) */
+  --puffy-cast: rgba(166, 60, 120, 0.22);
+
+  /* Element families */
+  --gas: #7fd4ff; /* (blueprint) */
+  --metal: #c9a227; /* (blueprint) */
+  --nonmetal: #7fd48f; /* (blueprint) */
+  --accent: #ffd966; /* (blueprint) */
+  --sad: #b0b0c0; /* (blueprint) */
+
+  /* Bath */
+  --water: #d8f1ff;
+  --water-deep: #aee0fb;
+  --water-line: #f4fbff;
+  --suds: #ffffff;
+  --enamel: #fffcfa;
+  --enamel-shade: #f3dbe7;
+  --enamel-edge: #e7c3d6;
+
+  /* Ink: Puffy's plum, used for all text */
+  --ink: #3a2233;
+  --ink-soft: #6b4a5e;
+  --plum: #a8457a;
+  --plum-deep: #85305f;
+  --plum-soft: #fbe3ef;
+
+  /* Evening (time limit nearing) */
+  --evening: linear-gradient(135deg, rgba(255, 160, 70, 0.55), rgba(140, 70, 150, 0.45));
+
+  /* Geometry: one tile unit sets every size */
+  --tile: clamp(52px, 8vmin, 96px);
+  --snack: clamp(84px, 14.5vmin, 136px);
+  --tub-h: clamp(170px, 30vh, 320px);
+  --rim-h: clamp(34px, 6vh, 56px);
+  --radius: 16px;
+
+  /* Type */
+  --font-display: 'Sniglet', ui-rounded, system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-squish: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--tile-bottom);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--puffy);
+  color: var(--ink);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--plum);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+input {
+  caret-color: var(--plum);
+}

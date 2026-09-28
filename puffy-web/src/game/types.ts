@@ -14,7 +14,7 @@ export interface Element {
   color: string
   family: Family
   /** Foam cut: the silhouette the snack is cut into. */
-  shape: 'round' | 'drop' | 'block' | 'square' | 'leaf' | 'balloon'
+  shape: 'round' | 'drop' | 'block' | 'star' | 'leaf' | 'balloon'
   face: 'giggly' | 'breathy' | 'sturdy' | 'eager' | 'sneaky' | 'floaty'
   tags: string[]
   personality: string
@@ -90,7 +90,6 @@ export type TextLevel = 'off' | 'symbols' | 'names' | 'formulas'
 export interface Settings {
   ageMode: AgeMode
   voiceOn: boolean
-  musicOn: boolean
   textLevel: TextLevel
   spitSound: 'silly' | 'sweet'
   hints: 'always' | 'sometimes' | 'never'
