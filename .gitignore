@@ -5,3 +5,6 @@ dist
 .impeccable/config.local.json
 .impeccable/review/
 tools/piper/
+puffy-web/test-results/
+puffy-web/playwright-report/
+tools/render.log
