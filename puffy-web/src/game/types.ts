@@ -40,6 +40,8 @@ export interface Combo {
   kind: 'compound' | 'element'
   result: {
     displayName: string
+    /** What the narrator says to a toddler: a short, true nickname. */
+    spoken: string
     formula: string
     art: ArtId
     color: string

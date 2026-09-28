@@ -123,9 +123,9 @@ export const COMBOS: Combo[] = [
     id: 'water',
     inputs: ['H', 'O'],
     kind: 'compound',
-    result: { displayName: 'Water', formula: 'H₂O', art: 'water', color: '#4FB8F0' },
+    result: { displayName: 'Water', spoken: 'Water', formula: 'H₂O', art: 'water', color: '#4FB8F0' },
     facts: {
-      toddler: 'Water! You drink it, splash it, swim in it!',
+      toddler: 'Drink it! Splash it!',
       kid: 'Water is a compound: two hydrogens and one oxygen.',
       junior: 'Water is polar. That is why ice floats.',
     },
@@ -136,9 +136,9 @@ export const COMBOS: Combo[] = [
     id: 'hydrogen-gas',
     inputs: ['H', 'H'],
     kind: 'element',
-    result: { displayName: 'Hydrogen gas', formula: 'H₂', art: 'rocket', color: '#7FD4FF' },
+    result: { displayName: 'Hydrogen gas', spoken: 'Hydrogen', formula: 'H₂', art: 'rocket', color: '#7FD4FF' },
     facts: {
-      toddler: 'Hydrogen gas! Rockets zoom with it!',
+      toddler: 'Rockets go zoom!',
       kid: 'Two hydrogens holding hands make hydrogen gas. Rockets burn it.',
       junior: 'H₂ is the lightest gas. Rockets burn it with oxygen.',
     },
@@ -149,9 +149,9 @@ export const COMBOS: Combo[] = [
     id: 'oxygen-gas',
     inputs: ['O', 'O'],
     kind: 'element',
-    result: { displayName: 'Oxygen gas', formula: 'O₂', art: 'breath', color: '#4FC3F7' },
+    result: { displayName: 'Oxygen gas', spoken: 'Oxygen', formula: 'O₂', art: 'breath', color: '#4FC3F7' },
     facts: {
-      toddler: 'Oxygen gas! Take a big deep breath!',
+      toddler: 'Big breath in!',
       kid: 'Two oxygens holding hands make the air you breathe.',
       junior: 'O₂ makes up about 21% of the air.',
     },
@@ -162,9 +162,9 @@ export const COMBOS: Combo[] = [
     id: 'carbon-dioxide',
     inputs: ['C', 'O'],
     kind: 'compound',
-    result: { displayName: 'Carbon dioxide', formula: 'CO₂', art: 'fizz', color: '#9FB6C8' },
+    result: { displayName: 'Carbon dioxide', spoken: 'Fizzy gas', formula: 'CO₂', art: 'fizz', color: '#9FB6C8' },
     facts: {
-      toddler: 'Carbon dioxide! The fizzy bubbles in soda!',
+      toddler: 'Fizzy bubbles!',
       kid: 'Carbon dioxide is a compound. You breathe it out.',
       junior: 'CO₂ is what you exhale. Plants use it to grow.',
     },
@@ -175,9 +175,9 @@ export const COMBOS: Combo[] = [
     id: 'salt',
     inputs: ['Na', 'Cl'],
     kind: 'compound',
-    result: { displayName: 'Salt', formula: 'NaCl', art: 'salt', color: '#F4EDE4' },
+    result: { displayName: 'Salt', spoken: 'Salt', formula: 'NaCl', art: 'salt', color: '#F4EDE4' },
     facts: {
-      toddler: 'Salt! Crunchy and salty!',
+      toddler: 'Crunchy! Salty!',
       kid: 'Salt is a compound of sodium and chlorine.',
       junior: 'NaCl is an ionic crystal. It dissolves into Na⁺ and Cl⁻.',
     },
@@ -188,9 +188,9 @@ export const COMBOS: Combo[] = [
     id: 'methane',
     inputs: ['C', 'H'],
     kind: 'compound',
-    result: { displayName: 'Methane', formula: 'CH₄', art: 'flame', color: '#FFB24D' },
+    result: { displayName: 'Methane', spoken: 'Stove gas', formula: 'CH₄', art: 'flame', color: '#FFB24D' },
     facts: {
-      toddler: 'Methane! The little blue flame on a stove!',
+      toddler: 'Little blue fire!',
       kid: 'Methane is a compound of carbon and hydrogen. Stoves burn it.',
       junior: 'CH₄ is the main part of natural gas.',
     },
@@ -201,9 +201,9 @@ export const COMBOS: Combo[] = [
     id: 'diamond',
     inputs: ['C', 'C'],
     kind: 'element',
-    result: { displayName: 'Diamond', formula: 'C', art: 'diamond', color: '#BFE9FF' },
+    result: { displayName: 'Diamond', spoken: 'Diamond', formula: 'C', art: 'diamond', color: '#BFE9FF' },
     facts: {
-      toddler: 'Diamond! Carbon holding hands with carbon, super tight!',
+      toddler: 'Super shiny!',
       kid: 'A diamond is still carbon, with every carbon holding hands very tightly.',
       junior: 'Diamond is carbon in a rigid 3D lattice. Graphite is carbon in sheets.',
     },
@@ -214,9 +214,9 @@ export const COMBOS: Combo[] = [
     id: 'hydrochloric-acid',
     inputs: ['H', 'Cl'],
     kind: 'compound',
-    result: { displayName: 'Tummy acid', formula: 'HCl', art: 'tummy', color: '#C6E377' },
+    result: { displayName: 'Tummy acid', spoken: 'Tummy juice', formula: 'HCl', art: 'tummy', color: '#C6E377' },
     facts: {
-      toddler: 'Tummy acid! Your tummy uses it to mash up food!',
+      toddler: 'It mashes food!',
       kid: 'Hydrochloric acid is a compound. A little of it helps your tummy digest.',
       junior: 'HCl in water is hydrochloric acid, the acid in your stomach.',
     },
@@ -227,9 +227,9 @@ export const COMBOS: Combo[] = [
     id: 'helium-gas',
     inputs: ['He', 'He'],
     kind: 'element',
-    result: { displayName: 'Helium gas', formula: 'He', art: 'balloon', color: '#E6C8FF' },
+    result: { displayName: 'Helium gas', spoken: 'Helium', formula: 'He', art: 'balloon', color: '#E6C8FF' },
     facts: {
-      toddler: 'Helium gas! It floats balloons!',
+      toddler: 'Balloons float up!',
       kid: 'Helium never holds hands, not even with helium. It just floats.',
       junior: 'Helium is monatomic: its atoms stay single, even as a gas.',
     },
@@ -262,83 +262,58 @@ export const SPICY_MAP: Record<string, SpicyPair> = Object.fromEntries(
 export const NOBLE_GAS_IDS = ['He', 'Ne', 'Ar', 'Kr', 'Xe', 'Rn']
 
 // ─── Silly-idea engine banks ────────────────────────────────────────────────
-// Pairs one tag from each element to a silly thing Puffy imagines.
+// Toddler words only: one to three words a line. Pairs one tag from each
+// element to a silly thing Puffy imagines.
 export interface TagNoun {
   tags: [string, string]
   nouns: string[]
 }
 
 export const TAG_NOUNS: TagNoun[] = [
-  { tags: ['balloon', 'fuel'], nouns: ['a balloon that runs on burps'] },
-  { tags: ['squeaky', 'tiny'], nouns: ['a trumpet for a mouse'] },
-  { tags: ['party', 'water'], nouns: ['a water balloon that floats away'] },
-  { tags: ['float', 'light'], nouns: ['a feather that forgot to fall'] },
-  { tags: ['squeaky', 'breathe'], nouns: ['a voice as squeaky as a duck'] },
-  { tags: ['balloon', 'bubbles'], nouns: ['a bubble that never pops'] },
-  { tags: ['party', 'fire'], nouns: ['birthday candles that fly'] },
-  { tags: ['float', 'air'], nouns: ['a kite with no string'] },
-  { tags: ['float', 'building'], nouns: ['a house that floats away'] },
-  { tags: ['balloon', 'dark'], nouns: ['a balloon made of pencil scribbles'] },
-  { tags: ['party', 'strong'], nouns: ['a piñata nobody can break'] },
-  { tags: ['squeaky', 'pencil'], nouns: ['a pencil that squeaks when it writes'] },
-  { tags: ['float', 'salty'], nouns: ['flying french fries'] },
-  { tags: ['balloon', 'soft'], nouns: ['a squishy balloon pillow'] },
-  { tags: ['squeaky', 'eager'], nouns: ['a squeaky toy that cannot sit still'] },
-  { tags: ['party', 'shiny'], nouns: ['a disco ball that bounces'] },
-  { tags: ['float', 'pool'], nouns: ['a swimming pool in the sky'] },
+  { tags: ['balloon', 'fuel'], nouns: ['a burp balloon'] },
+  { tags: ['squeaky', 'tiny'], nouns: ['a mouse trumpet'] },
+  { tags: ['party', 'water'], nouns: ['a flying puddle'] },
+  { tags: ['float', 'light'], nouns: ['a floaty feather'] },
+  { tags: ['squeaky', 'breathe'], nouns: ['a squeaky duck voice'] },
+  { tags: ['balloon', 'bubbles'], nouns: ['a forever bubble'] },
+  { tags: ['party', 'fire'], nouns: ['flying candles'] },
+  { tags: ['float', 'air'], nouns: ['a kite, no string'] },
+  { tags: ['float', 'building'], nouns: ['a flying house'] },
+  { tags: ['balloon', 'dark'], nouns: ['a scribble balloon'] },
+  { tags: ['party', 'strong'], nouns: ['a rock piñata'] },
+  { tags: ['squeaky', 'pencil'], nouns: ['a squeaky pencil'] },
+  { tags: ['float', 'salty'], nouns: ['flying fries'] },
+  { tags: ['balloon', 'soft'], nouns: ['a squishy balloon'] },
+  { tags: ['squeaky', 'eager'], nouns: ['a bouncy squeaker'] },
+  { tags: ['party', 'shiny'], nouns: ['a disco star'] },
+  { tags: ['float', 'pool'], nouns: ['a sky pool'] },
   { tags: ['balloon', 'green'], nouns: ['a pickle balloon'] },
-  { tags: ['squeaky', 'clean'], nouns: ['squeaky-clean bubbles'] },
-  { tags: ['party', 'sneaky'], nouns: ['a surprise party for a frog'] },
+  { tags: ['squeaky', 'clean'], nouns: ['squeaky soap'] },
+  { tags: ['party', 'sneaky'], nouns: ['a frog party'] },
 ]
 
-export const FALLBACK_NOUNS = ['a very silly something', 'a wobbly whatsit', 'a giggly thingamajig']
+export const FALLBACK_NOUNS = ['a silly thing', 'a wobbly thing', 'a giggly thing']
 
-/** Sentences about what the silly thing could be used for. Each is a full sentence so it can be recorded as one clip. */
-export const USE_LINES = [
-  'It could be used for a teddy bear parade!',
-  'Great for a squirrel talent show!',
-  'Perfect for a penguin pool party!',
-  'Imagine it at a birthday party!',
-  'Imagine it on the moon!',
-  'It could be used for napping knights!',
-  'Great for a dragon’s kitchen!',
-  'Perfect for cloud school show-and-tell!',
-]
+/** Puffy giggles at its own idea. */
+export const SILLY_LINES = ['Hee hee!', 'Silly!', 'Wheee!', 'So funny!', 'Boing!']
 
-export const THINKING_LINES = ['Hmmm…', 'Let me see…', 'Ooh, what’s this…', 'Hmm hmm hmm…', 'Wait a second…']
+export const THINKING_LINES = ['Hmmm…', 'Ooh…', 'Hmm hmm…', 'Let’s see…']
 
-export const REJECTION_LINES = ['But nope!', 'But no way!', 'But it doesn’t work!', 'But not today!']
+export const REJECTION_LINES = ['Nope!', 'Uh-oh!', 'No no!']
 
-export const ENCOURAGEMENT_LINES = [
-  'Oh no, try again!',
-  'Oh no! Let’s try another one!',
-  'Oh no! What else?',
-  'Oh no! One more time!',
-  'Oh no! You can do it!',
-]
+export const ENCOURAGEMENT_LINES = ['Oh no! Try again!', 'Oh no! Again!', 'Try another!', 'One more!']
 
-export const LONER_LINES = [
-  '{name} doesn’t hold hands with anyone. It’s a loner!',
-  '{name} is shy. It never mixes with other snacks!',
-  '{name} likes to float all by itself!',
-]
+/** True reason, toddler-sized: helium does not bond with anything. */
+export const LONER_LINES = ['{name} won’t hold hands!', '{name} likes to be alone!']
 
-export const SPICY_LINES = [
-  'Whoa! That one’s real, but it’s grown-up science. Too spicy for Puffy!',
-  'Ooh, spicy! That’s a real one, but only for grown-up scientists!',
-  'Hot hot hot! It’s real, but way too spicy for Puffy!',
-]
+/** Real substances that are not for Puffy. Never "not real". */
+export const SPICY_LINES = ['Too hot!', 'Hot hot hot!', 'Yikes! Too spicy!', 'Too hot! Grown-ups only!']
 
-export const PRAISE_PREFIXES = ['You discovered', 'You made', 'Look at that!']
-export const CHEERS = ['Yeaah!', 'Nice!', 'You got it!', 'Woo-hoo!']
+export const PRAISE_PREFIXES = ['Wow!', 'Yay!', 'Ta-da!']
+export const CHEERS = ['Yay!', 'Again!', 'Yum!', 'Hooray!']
 
 export const GRAB_LINES = ['Ooh!', 'Yum!', 'Snack!']
 
-export const IDLE_LINES = [
-  'Puffy is still hungry!',
-  'Got more snacks?',
-  'What should we try?',
-  'Puffy wants a yummy snack!',
-]
+export const IDLE_LINES = ['Hungry!', 'More snacks?', 'Yum yum?', 'Feed Puffy!']
 
-export const UNKNOWN_LINE = 'Hmm… Puffy doesn’t know that recipe yet!'
+export const UNKNOWN_LINE = 'Hmm? Don’t know!'

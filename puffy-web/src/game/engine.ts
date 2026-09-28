@@ -13,10 +13,13 @@ import {
   SPICY_MAP,
   TAG_NOUNS,
   THINKING_LINES,
-  USE_LINES,
+  SILLY_LINES,
   normalizeKey,
 } from '../data/content'
 import type { Combo, Element, Outcome } from './types'
+import { discoveryLine, ideaLine, repeatLine } from './lines'
+
+export { hintLine, sameLine } from './lines'
 
 /** One spoken beat: a line of text, or the child's name (recorded clip or spoken text). */
 export type Beat = string | { name: true }
@@ -100,18 +103,17 @@ export function nounsFor(a: Element, b: Element): string[] {
 
 // ─── Scripts ────────────────────────────────────────────────────────────────
 export function discoveryScript(combo: Combo, firstTime: boolean, useName: boolean): Script {
-  const name = combo.result.displayName.toLowerCase()
-  if (!firstTime) return [`${combo.result.displayName}! ${bank.pick('cheer', CHEERS)}`]
-  const prefix = bank.pick('praise', PRAISE_PREFIXES)
-  const line = prefix.endsWith('!') ? `${prefix} ${capitalize(name)}!` : `${prefix} ${name}!`
-  return [useName ? { name: true } : 'Wow!', line]
+  if (!firstTime) return [repeatLine(combo, bank.pick('cheer', CHEERS))]
+  const line = discoveryLine(combo, bank.pick('praise', PRAISE_PREFIXES))
+  return useName ? [{ name: true }, line] : [line]
 }
 
 export interface SillySequence {
   thinking: string
-  /** "maybe a bubble that never pops?" */
+  /** "Maybe a forever bubble?" */
   idea: string
-  use: string
+  /** Puffy giggles at its own idea: "Hee hee!" */
+  silly: string
   rejection: string
   reason: string
   encouragement: string
@@ -122,8 +124,8 @@ export function lonerSequence(noble: Element, other: Element): SillySequence {
   const noun = bank.pick(`noun:${normalizeKey([noble.id, other.id])}`, nouns.length ? nouns : FALLBACK_NOUNS)
   return {
     thinking: bank.pick('thinking', THINKING_LINES),
-    idea: `Maybe ${noun}?`,
-    use: bank.pick('use', USE_LINES),
+    idea: ideaLine(noun),
+    silly: bank.pick('silly', SILLY_LINES),
     rejection: bank.pick('rejection', REJECTION_LINES),
     reason: bank.pick('loner', LONER_LINES).replace('{name}', noble.name),
     encouragement: bank.pick('encourage', ENCOURAGEMENT_LINES),
@@ -132,15 +134,6 @@ export function lonerSequence(noble: Element, other: Element): SillySequence {
 
 export function spicyLine(): string {
   return bank.pick('spicy', SPICY_LINES)
-}
-
-export function sameLine(el: Element): string {
-  return `Two ${el.name.toLowerCase()}s? That’s still ${el.name.toLowerCase()}!`
-}
-
-export function hintLine(combo: Combo): string {
-  const [a, b] = combo.inputs.map((id) => ELEMENT_MAP[id].name.toLowerCase())
-  return a === b ? `What if you tried two ${a}s?` : `What if you tried ${a} with ${b}?`
 }
 
 // ─── Adaptive helpers ───────────────────────────────────────────────────────
@@ -175,8 +168,4 @@ export function focusedTray(all: readonly string[], discovered: readonly string[
   }
   const keep = [...all].sort((a, b) => (score.get(b) ?? 0) - (score.get(a) ?? 0)).slice(0, cap)
   return all.filter((id) => keep.includes(id))
-}
-
-function capitalize(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1)
 }

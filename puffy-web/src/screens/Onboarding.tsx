@@ -24,7 +24,7 @@ export default function Onboarding({ childName, onName, onDone }: Props) {
     sfx.boing()
     setStep('awake')
     setPuffy('delighted')
-    await say(['This is Puffy! Puffy is soooo hungry!'])
+    await say(['Hi! Puffy is hungry!'])
     setPuffy('hungry')
     setStep('name')
   }
@@ -33,8 +33,8 @@ export default function Onboarding({ childName, onName, onDone }: Props) {
     await onName(name, rec)
     setStep('awake')
     setPuffy('delighted')
-    if (name || rec) await say([{ name: true }, 'Let’s feed Puffy!'])
-    else await say(['Let’s feed Puffy!'])
+    if (name || rec) await say([{ name: true }, 'Feed Puffy!'])
+    else await say(['Feed Puffy!'])
     onDone()
   }
 

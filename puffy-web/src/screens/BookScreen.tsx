@@ -4,6 +4,7 @@ import ResultArt from '../components/ResultArt'
 import { DuckIcon, PlayIcon } from '../components/Icons'
 import { COMBOS } from '../data/content'
 import { say, sfx } from '../game/audio'
+import { rememberLine } from '../game/lines'
 import type { Combo, Progress, Settings } from '../game/types'
 
 // The Discovery Book is a tile panel on the bathroom wall. Each discovery is
@@ -24,7 +25,7 @@ export default function BookScreen({ progress, settings, evening, onSeen, onHome
   const words = settings.textLevel !== 'off'
 
   useEffect(() => {
-    void say([found ? 'Look what you found!' : 'Let’s go find some snacks!'])
+    void say([found ? 'Look! Your stickers!' : 'Go find snacks!'])
   }, [found])
 
   const tap = (c: Combo) => {
@@ -36,11 +37,12 @@ export default function BookScreen({ progress, settings, evening, onSeen, onHome
     setWiggle(c.id)
     window.setTimeout(() => setWiggle(null), 900)
     onSeen(c.id)
-    void say([`${c.result.displayName}! Remember?`])
+    void say([rememberLine(c)])
   }
 
   return (
-    <Bathroom evening={evening} className="book">
+    <Bathroom evening={evening} bubbles
+      className="book">
       <div className="book-stage">
         <button type="button" className="corner-tile corner-tile--left" onClick={onHome} aria-label="Home">
           <DuckIcon />

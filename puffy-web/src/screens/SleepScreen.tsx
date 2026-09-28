@@ -10,7 +10,7 @@ import { say, sfx } from '../game/audio'
 export default function SleepScreen({ onParent }: { onParent: () => void }) {
   useEffect(() => {
     sfx.yawn()
-    void say(['Puffy is sleepy! Let’s come back later.'])
+    void say(['Puffy is sleepy. Night night!'])
   }, [])
   return (
     <Bathroom evening={1} className="sleep">

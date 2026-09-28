@@ -74,7 +74,7 @@ describe('outcomes', () => {
   it('uses the name only when asked', () => {
     const water = COMBOS[0]
     expect(discoveryScript(water, true, true)[0]).toEqual({ name: true })
-    expect(discoveryScript(water, true, false)[0]).toBe('Wow!')
+    expect(discoveryScript(water, true, false)).toHaveLength(1)
     expect(discoveryScript(water, false, true).some((b) => typeof b !== 'string')).toBe(false)
   })
 })
