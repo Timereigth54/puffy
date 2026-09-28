@@ -1,26 +1,32 @@
 import type { Element, PuffyState } from '../game/types'
 import SnackArt from './SnackArt'
 
-// Puffy: a pink steam cloud. Semi-transparent, so eaten snacks show in the
-// belly. Every expression is a pose of the same face; the body squashes and
-// stretches through CSS classes on .puffy (see world.css).
+// Puffy: a pink cumulus cloud. Two layers:
+//  - the cloud body (CloudBody), SVG blur filters, painted once and only
+//    ever moved by CSS transforms, so older iPads keep their frame rate;
+//  - the face, a light SVG that changes with every state and blinks.
+// Eaten snacks show through the belly window between the two.
 
 interface Props {
   state: PuffyState
   chewBeat?: number
   fed?: Element[]
-  /** Where the finger is, relative to Puffy's centre, in px. Puffy leans toward it. */
+  /** Where the finger is, relative to Puffy's centre, in px. Puffy leans and looks toward it. */
   lean?: { x: number; y: number } | null
   sparkle?: boolean
   onTap?: () => void
 }
 
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
+
 export default function Puffy({ state, chewBeat = 0, fed = [], lean, sparkle, onTap }: Props) {
   const leanStyle = lean
     ? ({
-        '--lean-x': `${Math.max(-40, Math.min(40, lean.x * 0.08))}px`,
-        '--lean-y': `${Math.max(-10, Math.min(40, lean.y * 0.08))}px`,
-        '--lean-r': `${Math.max(-8, Math.min(8, lean.x * 0.02))}deg`,
+        '--lean-x': `${clamp(lean.x * 0.08, -40, 40)}px`,
+        '--lean-y': `${clamp(lean.y * 0.08, -10, 40)}px`,
+        '--lean-r': `${clamp(lean.x * 0.02, -8, 8)}deg`,
+        '--look-x': `${clamp(lean.x * 0.02, -5, 5)}px`,
+        '--look-y': `${clamp(lean.y * 0.02, -4, 5)}px`,
       } as React.CSSProperties)
     : undefined
   return (
@@ -31,66 +37,114 @@ export default function Puffy({ state, chewBeat = 0, fed = [], lean, sparkle, on
       role={onTap ? 'button' : 'img'}
       aria-label="Puffy"
     >
-      <div className="puffy__shadow" aria-hidden="true" />
       <div className="puffy__steam" aria-hidden="true">
         <span />
         <span />
         <span />
       </div>
       <div className="puffy__body">
-        <svg viewBox="0 0 300 260" className="puffy__svg" aria-hidden="true">
-          <defs>
-            <radialGradient id="puffy-fill" cx="36%" cy="30%" r="78%">
-              <stop offset="0%" stopColor="#FFE3F0" />
-              <stop offset="58%" stopColor="#FFB6D5" />
-              <stop offset="100%" stopColor="#E68FBF" />
-            </radialGradient>
-            <radialGradient id="puffy-belly" cx="50%" cy="45%" r="55%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.55" />
-              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <g className="puffy__cloud">
-            <circle cx="84" cy="128" r="52" fill="url(#puffy-fill)" />
-            <circle cx="150" cy="96" r="64" fill="url(#puffy-fill)" />
-            <circle cx="218" cy="124" r="54" fill="url(#puffy-fill)" />
-            <ellipse cx="150" cy="160" rx="118" ry="74" fill="url(#puffy-fill)" />
-            <ellipse cx="118" cy="62" rx="40" ry="14" fill="#FFF3F9" opacity="0.7" transform="rotate(-16 118 62)" />
-          </g>
-          <ellipse cx="150" cy="186" rx="70" ry="44" fill="url(#puffy-belly)" />
-          <g className="puffy__bubbles" fill="#fff">
-            <circle className="b1" cx="96" cy="182" r="9" opacity="0.5" />
-            <circle className="b2" cx="206" cy="190" r="12" opacity="0.4" />
-            <circle className="b3" cx="150" cy="212" r="7" opacity="0.5" />
-          </g>
-          <g className="puffy__sparkles" fill="#FFF6C2">
-            <path className="s1" d="M104 150l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" />
-            <path className="s2" d="M204 142l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" />
-            <path className="s3" d="M176 78l2.5 7 7 2.5-7 2.5-2.5 7-2.5-7-7-2.5 7-2.5z" />
-          </g>
-          <Cheeks state={state} />
-          <Eyes state={state} />
-          <Mouth state={state} />
-          {state === 'sad' && <path className="puffy__tear" d="M104 132q7 13 0 20q-8-7 0-20" fill="#9ED9FF" />}
-          {state === 'spicy' && (
-            <g className="puffy__fan" stroke="#FF7A59" strokeWidth="5" strokeLinecap="round" fill="none">
-              <path d="M118 186q-14 8-30 4" />
-              <path d="M116 198q-10 12-24 14" />
-              <path d="M182 186q14 8 30 4" />
-              <path d="M184 198q10 12 24 14" />
+        <div className="puffy__pose">
+          <CloudBody />
+          {/* Belly window: fed snacks bob inside the cloud */}
+          <div className="puffy__belly" aria-hidden="true">
+            {fed.map((el, i) => (
+              <div key={`${el.id}-${i}`} className={`belly-snack belly-snack--${i}`}>
+                <SnackArt element={el} mood="happy" />
+              </div>
+            ))}
+          </div>
+          <svg viewBox="0 0 300 260" className="puffy__face" aria-hidden="true">
+            <g transform="translate(150 150) scale(1.12) translate(-150 -150)">
+            <g className="puffy__bubbles" fill="#fff">
+              <circle className="b1" cx="96" cy="182" r="7" opacity="0.6" />
+              <circle className="b2" cx="206" cy="190" r="9" opacity="0.5" />
+              <circle className="b3" cx="150" cy="212" r="5" opacity="0.6" />
             </g>
-          )}
-        </svg>
-        {/* Belly window: fed snacks bob inside the cloud */}
-        <div className="puffy__belly" aria-hidden="true">
-          {fed.map((el, i) => (
-            <div key={`${el.id}-${i}`} className={`belly-snack belly-snack--${i}`}>
-              <SnackArt element={el} mood="happy" />
-            </div>
-          ))}
+            <g className="puffy__sparkles" fill="#FFF6C2">
+              <path className="s1" d="M84 92l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" />
+              <path className="s2" d="M224 150l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" />
+              <path className="s3" d="M190 66l2.5 7 7 2.5-7 2.5-2.5 7-2.5-7-7-2.5 7-2.5z" />
+            </g>
+            <Cheeks state={state} />
+            <Eyes state={state} />
+            <Mouth state={state} />
+            {state === 'sad' && <path className="puffy__tear" d="M104 132q7 13 0 20q-8-7 0-20" fill="#9ED9FF" />}
+            {state === 'spicy' && (
+              <g className="puffy__fan" stroke="#FF7A59" strokeWidth="5" strokeLinecap="round" fill="none">
+                <path d="M118 186q-14 8-30 4" />
+                <path d="M116 198q-10 12-24 14" />
+                <path d="M182 186q14 8 30 4" />
+                <path d="M184 198q10 12 24 14" />
+              </g>
+            )}
+            </g>
+          </svg>
         </div>
       </div>
     </div>
+  )
+}
+
+// Billows of a cumulus cloud: [cx, cy, r]. Big soft lobes on top, a flatter base.
+const BILLOWS: [number, number, number][] = [
+  [78, 142, 48], [118, 104, 54], [170, 88, 62], [222, 116, 50], [250, 156, 38],
+  [46, 168, 34], [112, 170, 56], [190, 168, 58],
+]
+
+/** The cloud body. Static: it never re-renders, so its filters are painted once. */
+function CloudBody() {
+  return (
+    <svg viewBox="-20 -20 340 300" className="puffy__cotton" aria-hidden="true">
+      <defs>
+        {/* each billow is lit from the window (top-left) and shaded underneath */}
+        <radialGradient id="billow" cx="36%" cy="30%" r="72%">
+          <stop offset="0%" stopColor="#FFF1F7" />
+          <stop offset="48%" stopColor="#FFC7DF" />
+          <stop offset="82%" stopColor="#FFB6D5" />
+          <stop offset="100%" stopColor="#F29CC5" />
+        </radialGradient>
+        <linearGradient id="cloud-underside" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0.45" stopColor="#E68FBF" stopOpacity="0" />
+          <stop offset="1" stopColor="#E68FBF" stopOpacity="0.55" />
+        </linearGradient>
+        <clipPath id="cloud-clip">
+          <ellipse cx="152" cy="176" rx="118" ry="52" />
+          {BILLOWS.map(([cx, cy, r], i) => (
+            <circle key={i} cx={cx} cy={cy} r={r} />
+          ))}
+        </clipPath>
+        {/* feathered edge: a real cloud has no hard outline */}
+        <filter id="cloud-soft" x="-10%" y="-10%" width="120%" height="120%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3.2" result="halo" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="0.9" result="body" />
+          <feMerge>
+            <feMergeNode in="halo" />
+            <feMergeNode in="body" />
+          </feMerge>
+        </filter>
+        <filter id="cloud-blur" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="7" />
+        </filter>
+      </defs>
+      <g filter="url(#cloud-soft)">
+        <ellipse cx="152" cy="176" rx="118" ry="52" fill="#FFBDD9" />
+        {/* back billows first, front billows over them */}
+        {BILLOWS.map(([cx, cy, r], i) => (
+          <circle key={i} cx={cx} cy={cy} r={r} fill="url(#billow)" />
+        ))}
+        <g clipPath="url(#cloud-clip)">
+          {/* shadowed underside */}
+          <rect x="20" y="60" width="270" height="180" fill="url(#cloud-underside)" />
+          {/* bright crowns where the window light hits */}
+          <g className="cloud-crowns" fill="#FFFFFF" filter="url(#cloud-blur)">
+            <ellipse cx="160" cy="54" rx="40" ry="16" opacity="0.8" />
+            <ellipse cx="104" cy="76" rx="26" ry="11" opacity="0.65" />
+            <ellipse cx="62" cy="118" rx="16" ry="9" opacity="0.5" />
+            <ellipse cx="220" cy="84" rx="20" ry="9" opacity="0.45" />
+          </g>
+        </g>
+      </g>
+    </svg>
   )
 }
 

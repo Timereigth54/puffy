@@ -91,6 +91,25 @@
   position: absolute;
   inset: 0 0 var(--rim-h) 0;
   background: linear-gradient(to bottom, var(--water) 0%, var(--water-deep) 100%);
+  overflow: visible;
+}
+/* light rippling through the bathwater */
+.tub__water::after {
+  content: '';
+  position: absolute;
+  inset: 30% 0 0 0;
+  background:
+    radial-gradient(ellipse 60px 10px at 20% 40%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(ellipse 90px 12px at 55% 70%, rgba(255, 255, 255, 0.45), transparent 70%),
+    radial-gradient(ellipse 70px 9px at 82% 35%, rgba(255, 255, 255, 0.5), transparent 70%),
+    radial-gradient(ellipse 50px 8px at 38% 85%, rgba(255, 255, 255, 0.4), transparent 70%);
+  background-size: 50% 100%;
+  animation: caustics 6s var(--ease-in-out) infinite alternate;
+  pointer-events: none;
+}
+@keyframes caustics {
+  from { background-position: 0 0; opacity: 0.7; }
+  to { background-position: 60px 6px; opacity: 1; }
 }
 .tub__surface {
   position: absolute;
@@ -307,13 +326,52 @@
   animation: float 3.4s var(--ease-in-out) infinite alternate;
   transform-origin: 50% 70%;
 }
-.puffy__svg {
+.puffy__pose {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.25s var(--ease-squish), filter 0.4s;
+  transform-origin: 50% 65%;
+  will-change: transform;
+}
+/* the cotton layer is drawn in a viewBox 20 units larger on every side */
+.puffy__cotton {
+  position: absolute;
+  left: -6.67%;
+  top: -7.69%;
+  width: 113.33%;
+  height: 115.38%;
+  overflow: visible;
+  filter: drop-shadow(18px 26px 20px var(--puffy-cast));
+}
+.puffy__face {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(18px 26px 20px var(--puffy-cast));
-  transition: transform 0.25s var(--ease-squish), filter 0.4s;
-  transform-origin: 50% 65%;
+}
+.puffy__eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 4.6s infinite;
+}
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.08); }
+}
+.puffy .pupil {
+  transition: transform 0.14s var(--ease-out);
+}
+.puffy.is-leaning .pupil {
+  transform: translate(var(--look-x), var(--look-y));
+}
+.puffy--idle .pupil {
+  animation: look-around 7s var(--ease-in-out) infinite;
+}
+@keyframes look-around {
+  0%, 30%, 100% { transform: translate(0, 0); }
+  38%, 52% { transform: translate(-4px, -1px); }
+  60%, 74% { transform: translate(4px, 1px); }
 }
 @keyframes float {
   from { transform: translateY(-6px); }
@@ -356,7 +414,7 @@
   width: 22%;
   height: 60%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+  background: radial-gradient(circle, rgba(255, 214, 234, 0.9), rgba(255, 214, 234, 0));
   animation: steam 3.2s var(--ease-out) infinite;
 }
 .puffy__steam span:nth-child(1) { left: 8%; }
@@ -411,16 +469,16 @@
 }
 
 /* states */
-.puffy.is-leaning .puffy__svg {
+.puffy.is-leaning .puffy__pose {
   transform: translate(var(--lean-x), var(--lean-y)) rotate(var(--lean-r)) scale(1.05);
 }
-.puffy--hungry .puffy__svg { transform: scale(1.05); }
-.puffy--gulp .puffy__svg { animation: gulp 0.36s var(--ease-squish); }
+.puffy--hungry .puffy__pose { transform: scale(1.05); }
+.puffy--gulp .puffy__pose { animation: gulp 0.36s var(--ease-squish); }
 @keyframes gulp {
   40% { transform: scale(1.1, 0.88); }
   70% { transform: scale(0.95, 1.06); }
 }
-.puffy--chewing .puffy__svg { animation: chew 0.42s var(--ease-in-out) infinite alternate; }
+.puffy--chewing .puffy__pose { animation: chew 0.42s var(--ease-in-out) infinite alternate; }
 @keyframes chew {
   from { transform: scale(1.04, 0.97) rotate(-2deg); }
   to { transform: scale(0.97, 1.04) rotate(2deg); }
@@ -428,19 +486,19 @@
 .puffy--chewing .cheek-l, .puffy--chewing .cheek-r { transform-box: fill-box; transform-origin: center; animation: cheek 0.42s var(--ease-in-out) infinite alternate; }
 .puffy--chewing .cheek-r { animation-direction: alternate-reverse; }
 @keyframes cheek { to { transform: scale(1.35); } }
-.puffy--thinking .puffy__svg { transform: rotate(-4deg); }
-.puffy--curious .puffy__svg { transform: rotate(7deg) translateY(-4px); }
-.puffy--delighted .puffy__svg { animation: delight 0.8s var(--ease-squish); }
+.puffy--thinking .puffy__pose { transform: rotate(-4deg); }
+.puffy--curious .puffy__pose { transform: rotate(7deg) translateY(-4px); }
+.puffy--delighted .puffy__pose { animation: delight 0.8s var(--ease-squish); }
 @keyframes delight {
   30% { transform: translateY(-26px) scale(1.06, 0.96) rotate(-8deg); }
   60% { transform: translateY(0) scale(1.08, 0.92) rotate(6deg); }
 }
-.puffy--spitting .puffy__svg { animation: spit 0.34s var(--ease-out); }
+.puffy--spitting .puffy__pose { animation: spit 0.34s var(--ease-out); }
 @keyframes spit {
   40% { transform: scale(1.14); }
   70% { transform: scale(0.94, 1.04) translateY(6px); }
 }
-.puffy--proud .puffy__svg { animation: proud 1.2s var(--ease-squish); transform: scale(1.06); }
+.puffy--proud .puffy__pose { animation: proud 1.2s var(--ease-squish); transform: scale(1.06); }
 @keyframes proud {
   0% { transform: scale(1); }
   25% { transform: scale(1.14) translateY(-18px) rotate(-6deg); }
@@ -448,19 +506,19 @@
   65% { transform: scale(1.08) translateY(-6px); }
   100% { transform: scale(1.06); }
 }
-.puffy--shrug .puffy__svg { animation: shrug 0.6s var(--ease-squish); }
+.puffy--shrug .puffy__pose { animation: shrug 0.6s var(--ease-squish); }
 @keyframes shrug {
   35% { transform: translateY(-14px) scale(1.04, 0.96); }
 }
-.puffy--sad .puffy__svg { transform: translateY(10px) scale(0.97); filter: drop-shadow(18px 26px 20px var(--puffy-cast)) saturate(0.55); }
+.puffy--sad .puffy__pose { transform: translateY(10px) scale(0.97); filter: saturate(0.55); }
 .puffy__tear { animation: tear 0.8s ease-in forwards; }
 @keyframes tear { to { transform: translateY(26px); opacity: 0; } }
-.puffy--encouraging .puffy__svg { animation: boing 0.7s var(--ease-squish); }
+.puffy--encouraging .puffy__pose { animation: boing 0.7s var(--ease-squish); }
 @keyframes boing {
   30% { transform: translateY(8px) scale(1.1, 0.9); }
   60% { transform: translateY(-22px) scale(0.94, 1.08); }
 }
-.puffy--spicy .puffy__svg { animation: spicy-shake 0.14s linear 6; filter: drop-shadow(18px 26px 20px var(--puffy-cast)) hue-rotate(-18deg) saturate(1.4); }
+.puffy--spicy .puffy__pose { animation: spicy-shake 0.14s linear 6; filter: hue-rotate(-18deg) saturate(1.4); }
 @keyframes spicy-shake {
   25% { transform: translateX(-6px) rotate(-2deg); }
   75% { transform: translateX(6px) rotate(2deg); }
@@ -471,7 +529,7 @@
   from { transform: translateY(6px) scale(1, 0.98); }
   to { transform: translateY(10px) scale(1.02, 1); }
 }
-.puffy.has-sparkle .puffy__svg { filter: drop-shadow(18px 26px 20px var(--puffy-cast)) drop-shadow(0 0 18px rgba(255, 246, 194, 0.9)); }
+.puffy.has-sparkle .puffy__cotton { filter: drop-shadow(18px 26px 20px var(--puffy-cast)) drop-shadow(0 0 18px rgba(255, 246, 194, 0.9)); }
 
 /* spat-out snacks arc back into the bath */
 .spat {
@@ -499,24 +557,44 @@
 .corner-tile {
   position: absolute;
   top: max(2vh, 10px);
-  width: calc(var(--tile) * 1.3);
-  height: calc(var(--tile) * 1.3);
-  min-width: 88px;
-  min-height: 88px;
-  padding: 14px;
+  width: calc(var(--tile) * 1.55);
+  height: calc(var(--tile) * 1.55);
+  min-width: 96px;
+  min-height: 96px;
+  padding: 16px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 50%;
+  /* a soap bubble holding a bath toy */
   background:
-    radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.9), transparent 55%),
-    linear-gradient(135deg, #fffdfc, #f6e3ec);
-  box-shadow: inset 0 0 0 3px #fff, 4px 6px 10px rgba(166, 60, 120, 0.2);
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.95) 0 7%, transparent 8%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.55) 0 58%, rgba(255, 255, 255, 0.25) 69%, transparent 70.5%),
+    conic-gradient(from 210deg, #ffd1e8, #bfe9ff, #d9f7c9, #fff3b0, #e6c8ff, #ffd1e8);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.75), 6px 10px 16px rgba(166, 60, 120, 0.2);
   cursor: pointer;
-  transition: transform 0.12s var(--ease-out);
+  animation: bubble-float 3.2s var(--ease-in-out) infinite alternate;
+}
+.corner-tile .icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(3px 5px 3px rgba(166, 60, 120, 0.25));
+  animation: toy-tilt 2.6s var(--ease-in-out) infinite alternate;
+}
+@keyframes bubble-float {
+  from { transform: translateY(-3px) scale(1, 0.98); }
+  to { transform: translateY(5px) scale(0.98, 1.02); }
+}
+@keyframes toy-tilt {
+  from { transform: rotate(-6deg); }
+  to { transform: rotate(6deg); }
 }
 .corner-tile--left { left: max(2vw, 12px); }
 .corner-tile--right { right: max(2vw, 12px); }
-.corner-tile:active { transform: scale(0.94); }
-.corner-tile .icon { width: 100%; height: 100%; }
+.corner-tile:active { animation: squish 0.3s var(--ease-squish); }
+@keyframes squish {
+  40% { transform: scale(1.14, 0.86); }
+  70% { transform: scale(0.94, 1.06); }
+}
 .corner-tile.is-receiving { animation: receive 0.6s var(--ease-squish) 0.45s; }
 @keyframes receive {
   40% { transform: scale(1.2) rotate(-6deg); }
@@ -552,23 +630,67 @@
 
 .play-button {
   position: absolute;
-  left: 76%;
+  left: 82%;
   top: 22vh;
-  width: clamp(120px, 24vh, 210px);
-  height: clamp(120px, 24vh, 210px);
-  margin-left: calc(clamp(120px, 24vh, 210px) / -2);
+  width: clamp(130px, 27vh, 230px);
+  height: clamp(130px, 27vh, 230px);
+  margin-left: calc(clamp(130px, 27vh, 230px) / -2);
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
-  animation: play-pulse 1.6s var(--ease-in-out) infinite alternate;
-  filter: drop-shadow(6px 10px 10px rgba(63, 158, 87, 0.28));
+  animation: jelly 1.8s var(--ease-in-out) infinite;
+  filter: drop-shadow(8px 14px 12px rgba(43, 140, 74, 0.3));
 }
 .play-button .icon { width: 100%; height: 100%; }
-.play-button:active { transform: scale(0.92); animation: none; }
-@keyframes play-pulse {
-  from { transform: scale(0.96) rotate(-2deg); }
-  to { transform: scale(1.04) rotate(2deg); }
+.play-button:active { animation: squish 0.35s var(--ease-squish); }
+/* a jelly sweet: it wobbles, it never just pulses */
+@keyframes jelly {
+  0%, 100% { transform: scale(1, 1) rotate(-2deg); }
+  20% { transform: scale(1.07, 0.93) rotate(0deg); }
+  40% { transform: scale(0.95, 1.06) rotate(2deg); }
+  60% { transform: scale(1.03, 0.98) rotate(1deg); }
+  80% { transform: scale(0.99, 1.01) rotate(-1deg); }
+}
+
+/* ─── Soap bubbles drifting up the wall ────────────────────────────────── */
+.wall-bubbles {
+  position: absolute;
+  inset: 0 0 var(--tub-h) 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.wall-bubble {
+  position: absolute;
+  bottom: -60px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: pointer;
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.95) 0 9%, transparent 10%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.12) 0 60%, rgba(255, 255, 255, 0.5) 70%, transparent 71%),
+    conic-gradient(from 200deg, rgba(255, 209, 232, 0.8), rgba(191, 233, 255, 0.8), rgba(217, 247, 201, 0.8), rgba(255, 243, 176, 0.8), rgba(230, 200, 255, 0.8), rgba(255, 209, 232, 0.8));
+  -webkit-mask: radial-gradient(circle, #000 70%, transparent 71%);
+  mask: radial-gradient(circle, #000 70%, transparent 71%);
+  animation-name: wall-bubble-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+@keyframes wall-bubble-rise {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  8% { opacity: 1; }
+  50% { transform: translate(18px, -38vh) scale(1); }
+  92% { opacity: 1; }
+  100% { transform: translate(-10px, -76vh) scale(1.05); opacity: 0; }
+}
+.wall-bubble.is-popping {
+  animation: bubble-burst 0.22s var(--ease-out) forwards;
+}
+@keyframes bubble-burst {
+  to { transform: scale(1.5); opacity: 0; }
 }
 
 /* ─── Held snack (tap-tap) and drag ghost ──────────────────────────────── */
@@ -954,6 +1076,29 @@
   .plates { top: 14vh; --plate-size: min(27vw, 18vh); }
   .snack-row { padding: 0 6px; }
   .caption { top: calc(12vh + min(84vw, 44vh) * 0.87 + 1vh); }
+}
+
+/* ─── Light mode for low-end kids' tablets ─────────────────────────────── */
+.is-lite .puffy__cotton,
+.is-lite .puffy__cotton g,
+.is-lite .snack-art,
+.is-lite .discovery__art,
+.is-lite .corner-tile .icon,
+.is-lite .play-button {
+  filter: none;
+}
+.is-lite .cloud-crowns,
+.is-lite .wall-bubbles,
+.is-lite .tub__water::after,
+.is-lite .puffy__steam {
+  display: none;
+}
+.is-lite .bathroom__window-light {
+  mix-blend-mode: normal;
+  opacity: 0.5;
+}
+.is-lite .belly-snack {
+  mix-blend-mode: normal;
 }
 
 @media (prefers-reduced-motion: reduce) {

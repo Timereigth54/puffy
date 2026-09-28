@@ -21,6 +21,7 @@ export default function HomeScreen({ evening, sparkle, newStickers, onPlay, onBo
   return (
     <Bathroom
       evening={evening}
+      bubbles
       className="home"
       tub={
         <div className="snack-row snack-row--resting" style={{ '--count': ELEMENTS.length } as React.CSSProperties}>

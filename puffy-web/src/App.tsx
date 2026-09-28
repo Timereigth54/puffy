@@ -26,6 +26,13 @@ type Overlay = 'gate' | 'parent' | null
 
 const CHILD_SCREENS: Screen[] = ['home', 'play', 'book']
 
+// Kids' tablets (Amazon Fire, Galaxy Tab A) are far weaker than iPads.
+// On 2 GB or less, or 2 cores or fewer, drop the costly paint effects.
+const LITE = (() => {
+  const nav = navigator as Navigator & { deviceMemory?: number }
+  return (nav.deviceMemory !== undefined && nav.deviceMemory <= 2) || (navigator.hardwareConcurrency ?? 8) <= 2 || location.search.includes('lite')
+})()
+
 // Counted once per page load (React StrictMode runs initializers twice in dev).
 let sessionCounted = false
 function bootProgress(): Progress {
@@ -145,7 +152,7 @@ export default function App() {
   const allFound = progress.discovered.length >= COMBOS.length
 
   return (
-    <div className="app">
+    <div className={`app ${LITE ? 'is-lite' : ''}`}>
       {shown === 'splash' && (
         <Bathroom className="splash">
           <div className="home-stage">

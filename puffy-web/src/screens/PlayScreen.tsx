@@ -57,6 +57,8 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
   const [highlight, setHighlight] = useState<string[]>(guided ? ['H', 'O'] : [])
   const [tray, setTray] = useState<string[]>(FULL_TRAY)
   const [splashAt, setSplashAt] = useState<{ x: number; key: number } | null>(null)
+  /** Last resolved outcome, kept on the stage as data-outcome for tests and debugging. */
+  const [lastOutcome, setLastOutcome] = useState<string>('none')
 
   const stageRef = useRef<HTMLDivElement>(null)
   const puffyRef = useRef<HTMLDivElement>(null)
@@ -166,7 +168,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     const hasName = !!(p.childName || p.hasNameRecording)
     const useName = firstTime && hasName && (guided || Math.random() < 0.34)
     const script = discoveryScript(combo, firstTime, useName)
-    if (settingsRef.current.ageMode >= 1 && firstTime) script.push(combo.facts.kid)
+    if (settingsRef.current.ageMode >= 1 && firstTime) script.push(combo.facts.toddler)
     await Promise.all([say(script), wait(2200)])
     if (!alive.current) return
     if (firstTime) {
@@ -183,7 +185,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     setPuffy('curious')
     setShow({ kind: 'thought', seq, pair, popped: false })
     sfx.think()
-    await say([seq.thinking, seq.idea, seq.use])
+    await say([seq.thinking, seq.idea, seq.silly])
     if (!alive.current) return
     sfx.pop()
     setShow({ kind: 'thought', seq, pair, popped: true })
@@ -262,6 +264,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     // Digested: the belly window empties before the answer appears.
     setFed([])
     const outcome = resolve(pair.map((e) => e.id), progressRef.current.discovered)
+    setLastOutcome(outcome.kind)
     switch (outcome.kind) {
       case 'discovery':
         return runDiscovery(outcome.combo, outcome.firstTime)
@@ -308,9 +311,9 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     const r = puffyRef.current?.getBoundingClientRect()
     if (!r) return false
     const cx = r.left + r.width / 2
-    const cy = r.top + r.height * 0.58
-    // Generous drop zone: most of Puffy's body counts.
-    return Math.hypot((clientX - cx) / (r.width * 0.55), (clientY - cy) / (r.height * 0.6)) < 1
+    const cy = r.top + r.height * 0.55
+    // Generous drop zone: all of Puffy's body counts, but not the wall below it.
+    return Math.hypot((clientX - cx) / (r.width * 0.5), (clientY - cy) / (r.height * 0.46)) < 1
   }
 
   const leanToward = (clientX: number, clientY: number) => {
@@ -333,7 +336,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     if (fedRef.current.length < 2) setPuffy('hungry')
     if (firstGrab.current) {
       firstGrab.current = false
-      void say(['Ooh! A snack!'])
+      void say(['Ooh! Snack!'])
     } else if (Math.random() < 0.35) {
       void say([bank.pick('grab', GRAB_LINES)])
     }
@@ -385,6 +388,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
   return (
     <Bathroom
       evening={evening}
+      bubbles
       className={`play ${busy ? 'is-busy' : ''}`}
       tub={
         <div className="snack-row" style={{ '--count': trayEls.length } as React.CSSProperties}>
@@ -417,6 +421,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
       <div
         className="play-stage"
         ref={stageRef}
+        data-outcome={lastOutcome}
         onPointerMove={drag ? onSnackMove : undefined}
       >
         <button type="button" className="corner-tile corner-tile--left" onClick={onHome} aria-label="Home">
