@@ -2,34 +2,61 @@
 // The narrator plays pre-rendered clips from /voice when a clip exists for a
 // line, and falls back to the browser's speech synthesis when it does not.
 import type { Beat, Script } from './engine'
+import { lineKey } from './lines'
 
+// Sound must never break play. Tablets without WebAudio (or with it blocked,
+// or interrupted by a phone call on iOS) get silence, and the game carries on.
 let ctx: AudioContext | null = null
+let ctxFailed = false
 let sfxBus: GainNode | null = null
 let voiceBus: GainNode | null = null
 
-function ac(): AudioContext {
-  if (!ctx) {
-    ctx = new AudioContext()
-    // Levels from blueprint §17: narrator loudest, effects under it.
-    sfxBus = ctx.createGain()
-    sfxBus.gain.value = 0.42
-    sfxBus.connect(ctx.destination)
-    voiceBus = ctx.createGain()
-    voiceBus.gain.value = 1
-    voiceBus.connect(ctx.destination)
+type WindowWithWebkitAudio = Window & { webkitAudioContext?: typeof AudioContext }
+
+function ac(): AudioContext | null {
+  if (!ctx && !ctxFailed) {
+    // Safari before iOS 14.5 only has the prefixed constructor.
+    const Ctor = window.AudioContext ?? (window as WindowWithWebkitAudio).webkitAudioContext
+    try {
+      if (!Ctor) throw new Error('no WebAudio')
+      ctx = new Ctor()
+      // Levels from blueprint §17: narrator loudest, effects under it.
+      sfxBus = ctx.createGain()
+      sfxBus.gain.value = 0.42
+      sfxBus.connect(ctx.destination)
+      voiceBus = ctx.createGain()
+      voiceBus.gain.value = 1
+      voiceBus.connect(ctx.destination)
+    } catch {
+      ctxFailed = true
+      ctx = null
+    }
   }
-  if (ctx.state === 'suspended') void ctx.resume()
+  if (ctx && ctx.state !== 'running') ctx.resume().catch(() => {})
   return ctx
+}
+
+/** Old WebKit's decodeAudioData takes callbacks and returns nothing. */
+function decode(c: AudioContext, data: ArrayBuffer): Promise<AudioBuffer> {
+  return new Promise((resolve, reject) => {
+    const r = c.decodeAudioData(data, resolve, reject) as Promise<AudioBuffer> | undefined
+    r?.then(resolve, reject)
+  })
 }
 
 /** Call from the first user gesture: iOS will not play audio before one. */
 export function unlockAudio() {
   const c = ac()
-  const b = c.createBuffer(1, 1, 22050)
-  const s = c.createBufferSource()
-  s.buffer = b
-  s.connect(c.destination)
-  s.start(0)
+  try {
+    if (c) {
+      const s = c.createBufferSource()
+      s.buffer = c.createBuffer(1, 1, 22050)
+      s.connect(c.destination)
+      s.start(0)
+    }
+  } catch {
+    /* silence is fine */
+  }
   if (typeof speechSynthesis !== 'undefined') {
     // A silent utterance inside the gesture unlocks speech on iOS Safari.
     const u = new SpeechSynthesisUtterance(' ')
@@ -40,6 +67,7 @@ export function unlockAudio() {
 
 function tone(f0: number, f1: number, dur: number, type: OscillatorType = 'sine', vol = 0.5, delay = 0) {
   const c = ac()
+  if (!c) return
   const t0 = c.currentTime + delay
   const osc = c.createOscillator()
   const g = c.createGain()
@@ -57,6 +85,7 @@ function tone(f0: number, f1: number, dur: number, type: OscillatorType = 'sine'
 let noiseBuf: AudioBuffer | null = null
 function noise(dur: number, vol = 0.3, delay = 0, lowpass = 1200, highpass = 0) {
   const c = ac()
+  if (!c) return
   if (!noiseBuf) {
     noiseBuf = c.createBuffer(1, c.sampleRate, c.sampleRate)
     const d = noiseBuf.getChannelData(0)
@@ -80,7 +109,7 @@ function noise(dur: number, vol = 0.3, delay = 0, lowpass = 1200, highpass = 0) 
 
 const jitter = (n: number, amt = 0.08) => n * (1 + (Math.random() * 2 - 1) * amt)
 
-export const sfx = {
+const rawSfx = {
   tap() {
     tone(jitter(620), jitter(820), 0.07, 'sine', 0.22)
   },
@@ -163,11 +192,26 @@ export const sfx = {
   },
 }
 
+/** Every effect is wrapped: a throwing audio node must never stop the game loop. */
+export const sfx = Object.fromEntries(
+  Object.entries(rawSfx).map(([k, fn]) => [
+    k,
+    (...args: unknown[]) => {
+      try {
+        ;(fn as (...a: unknown[]) => void)(...args)
+      } catch {
+        /* no sound this time */
+      }
+    },
+  ]),
+) as typeof rawSfx
+
 // ─── Narrator ───────────────────────────────────────────────────────────────
 let voiceEnabled = true
 let manifest: Record<string, string> | null = null
 let manifestLoading: Promise<void> | null = null
 let nameClip: AudioBuffer | null = null
+let nameBlob: Blob | null = null
 let childName: string | null = null
 let speechVoice: SpeechSynthesisVoice | null = null
 let generation = 0
@@ -184,25 +228,15 @@ export function setChildName(name: string | null) {
 }
 
 export async function setNameClip(blob: Blob | null) {
-  if (!blob) {
-    nameClip = null
-    return
-  }
+  nameBlob = blob
+  nameClip = null
+  const c = blob ? ac() : null
+  if (!blob || !c) return
   try {
-    nameClip = await ac().decodeAudioData(await blob.arrayBuffer())
+    nameClip = await decode(c, await blob.arrayBuffer())
   } catch {
     nameClip = null
   }
-}
-
-/** Normalizes line text to the manifest key used by tools/render-voice.mjs. */
-export function lineKey(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[’']/g, '')
-    .replace(/…/g, '...')
-    .replace(/\s+/g, ' ')
-    .trim()
 }
 
 function loadManifest(): Promise<void> {
@@ -224,7 +258,10 @@ function clipBuffer(file: string): Promise<AudioBuffer | null> {
   if (!p) {
     p = fetch(`${import.meta.env.BASE_URL}voice/${file}`)
       .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject()))
-      .then((b) => ac().decodeAudioData(b))
+      .then((b) => {
+        const c = ac()
+        return c ? decode(c, b) : null
+      })
       .catch(() => null)
     bufferCache.set(file, p)
   }
@@ -248,6 +285,7 @@ if (typeof speechSynthesis !== 'undefined') {
 function playBuffer(buf: AudioBuffer): Promise<void> {
   return new Promise((resolve) => {
     const c = ac()
+    if (!c) return resolve()
     const src = c.createBufferSource()
     src.buffer = buf
     src.connect(voiceBus!)
@@ -290,14 +328,35 @@ function speak(text: string): Promise<void> {
   })
 }
 
+/** For tablets without WebAudio: play the file with a plain audio element. */
+function playElement(src: string, revoke = false): Promise<void> {
+  return new Promise((resolve) => {
+    const a = new Audio(src)
+    const done = () => {
+      if (revoke) URL.revokeObjectURL(src)
+      resolve()
+    }
+    a.onended = a.onerror = done
+    current = {
+      stop: () => {
+        a.pause()
+        done()
+      },
+    }
+    a.play().catch(done)
+  })
+}
+
 async function playBeat(beat: Beat): Promise<void> {
   if (typeof beat !== 'string') {
     if (nameClip) return playBuffer(nameClip)
+    if (nameBlob && !ac()) return playElement(URL.createObjectURL(nameBlob), true)
     return speak(childName ? `${childName}!` : 'Wow!')
   }
   await loadManifest()
   const file = manifest?.[lineKey(beat)]
   if (file) {
+    if (!ac()) return playElement(`${import.meta.env.BASE_URL}voice/${file}`)
     const buf = await clipBuffer(file)
     if (buf) return playBuffer(buf)
   }
