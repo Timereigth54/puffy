@@ -402,8 +402,9 @@
   100% { transform: translateY(-70px); opacity: 0; }
 }
 
-/* steam: Puffy is a bath-time cloud */
+/* hot steam only when something was too spicy; a calm cloud does not steam */
 .puffy__steam {
+  display: none;
   position: absolute;
   left: 30%;
   right: 30%;
@@ -525,6 +526,7 @@
   25% { transform: translateX(-6px) rotate(-2deg); }
   75% { transform: translateX(6px) rotate(2deg); }
 }
+.puffy--spicy .puffy__steam { display: block; }
 .puffy--spicy .puffy__steam span { background: radial-gradient(circle, rgba(255, 140, 110, 0.85), rgba(255, 140, 110, 0)); animation-duration: 0.9s; }
 .puffy--sleepy .puffy__body { animation: sleep-breathe 3.6s var(--ease-in-out) infinite alternate; }
 @keyframes sleep-breathe {
@@ -625,7 +627,7 @@
   border: 0;
   border-radius: 12px;
   background: transparent;
-  color: rgba(107, 74, 94, 0.55);
+  color: rgba(107, 74, 94, 0.72);
   cursor: pointer;
 }
 .gear .icon { width: 100%; height: 100%; }
