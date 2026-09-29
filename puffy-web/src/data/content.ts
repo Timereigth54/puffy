@@ -1,4 +1,4 @@
-import type { Combo, Element, Level, SpicyPair } from '../game/types'
+import type { Combo, Element, FactPair, Level, SpicyPair } from '../game/types'
 
 // ─── Starter pack (Mode 0, ages 2–3) ────────────────────────────────────────
 // Six snacks chosen so that every one of the 21 possible pairs has an honest
@@ -513,6 +513,59 @@ export const COMBOS: Combo[] = [
     celebration: 'medium',
     plate: 20,
   },
+  // Pack 2, pairs first answered "doesn't know yet", now given their real answer
+  {
+    id: 'iron-nitride',
+    inputs: ['Fe', 'N'],
+    kind: 'compound',
+    result: { displayName: 'Iron nitride', spoken: 'Iron nitride', word: 'Tool', formulaSpoken: 'F E four N', formula: 'Fe₄N', art: 'wrench', color: '#6F7C8C' },
+    facts: {
+      toddler: 'Tough tools!',
+      kid: 'Iron nitride is a compound of iron and nitrogen. It makes a hard skin on steel tools.',
+      junior: 'Heating steel in nitrogen-rich gas grows a hard iron nitride skin. It is called nitriding.',
+    },
+    celebration: 'medium',
+    plate: 21,
+  },
+  {
+    id: 'magnesium-nitride',
+    inputs: ['Mg', 'N'],
+    kind: 'compound',
+    result: { displayName: 'Magnesium nitride', spoken: 'Magnesium nitride', word: 'Powder', formulaSpoken: 'M G three N two', formula: 'Mg₃N₂', art: 'powder', color: '#C9D66B' },
+    facts: {
+      toddler: 'Yellow-green powder!',
+      kid: 'Magnesium nitride is a compound of magnesium and nitrogen. Magnesium burns even in nitrogen and leaves a yellow-green powder.',
+      junior: 'When magnesium burns in air, a little Mg₃N₂ forms alongside the white magnesium oxide.',
+    },
+    celebration: 'medium',
+    plate: 22,
+  },
+  {
+    id: 'copper-sulfide',
+    inputs: ['Cu', 'S'],
+    kind: 'compound',
+    result: { displayName: 'Copper sulfide', spoken: 'Copper sulfide', word: 'Crystal', formulaSpoken: 'C U S', formula: 'CuS', art: 'crystal', color: '#3F4FA8' },
+    facts: {
+      toddler: 'Deep blue crystal!',
+      kid: 'Copper sulfide is a compound of copper and sulfur. In rocks it is a deep blue mineral.',
+      junior: 'CuS is found in rocks as covellite, an indigo-blue mineral.',
+    },
+    celebration: 'large',
+    plate: 23,
+  },
+  {
+    id: 'blue-gold',
+    inputs: ['Au', 'Fe'],
+    kind: 'mixture',
+    result: { displayName: 'Blue gold', spoken: 'Blue gold', word: 'Blue', formulaSpoken: 'gold with iron', formula: 'Au + Fe', art: 'nugget', color: '#8FA6C8' },
+    facts: {
+      toddler: 'Gold that looks blue!',
+      kid: 'Blue gold is gold with iron mixed in. It is a mixture, not a compound.',
+      junior: 'Blue gold is an alloy of gold and iron, with a blue-grey shine.',
+    },
+    celebration: 'large',
+    plate: 24,
+  },
 ]
 
 export const COMBO_MAP: Record<string, Combo> = Object.fromEntries(
@@ -543,6 +596,9 @@ export const SPICY: SpicyPair[] = [
   { inputs: ['C', 'S'], name: 'Carbon disulfide', formula: 'CS₂', why: 'It is a poisonous liquid that catches fire easily.' },
   { inputs: ['S', 'Cl'], name: 'Sulfur dichloride', formula: 'SCl₂', why: 'It is a harsh liquid that burns skin.' },
   { inputs: ['Na', 'S'], name: 'Sodium sulfide', formula: 'Na₂S', why: 'It turns into a strong lye in water.' },
+  { inputs: ['N', 'S'], name: 'Sulfur nitride', formula: 'S₄N₄', why: 'It can explode when it is bumped.' },
+  { inputs: ['Mg', 'C'], name: 'Magnesium carbide', formula: 'MgC₂', why: 'It gives off a burning gas when it touches water.' },
+  { inputs: ['Mg', 'S'], name: 'Magnesium sulfide', formula: 'MgS', why: 'It gives off smelly, poisonous gas when it touches water.' },
 ]
 export const SPICY_MAP: Record<string, SpicyPair> = Object.fromEntries(
   SPICY.map((s) => [normalizeKey(s.inputs), s]),
@@ -558,19 +614,86 @@ export const NOBLE_GAS_IDS = ['He', 'Ne', 'Ar', 'Kr', 'Xe', 'Rn']
 export const NOBLE_METAL_PAIRS: Record<string, string[]> = { Au: ['H', 'O', 'N', 'C', 'S'] }
 
 /**
- * Pairs that answer "Puffy doesn't know that one yet". Each is listed on
- * purpose: engine.test.ts fails if any pair falls through to "unknown"
- * without being here. Several do make real substances (iron nitride, copper
- * sulfide, magnesium sulfide...); they are left for a later pack rather than
- * called "not real".
+ * Real answers that are not stickers: these pairs do not react, do not mix,
+ * or only melt into an ordinary alloy. With these, every one of the 78 pairs
+ * has a real answer; "Puffy doesn't know that one yet" is left only as a
+ * fallback for future content gaps (engine.test.ts checks no pair uses it).
  */
-export const NOT_YET: [string, string][] = [
-  ['N', 'Fe'], ['N', 'Cu'], ['N', 'Mg'], ['N', 'S'],
-  ['Fe', 'H'], ['Fe', 'Na'], ['Fe', 'Cu'], ['Fe', 'Au'], ['Fe', 'Mg'],
-  ['Cu', 'H'], ['Cu', 'C'], ['Cu', 'Na'], ['Cu', 'Mg'], ['Cu', 'S'],
-  ['Au', 'Na'], ['Au', 'Mg'],
-  ['Mg', 'C'], ['Mg', 'Na'], ['Mg', 'S'],
+export const FACTS: FactPair[] = [
+  {
+    inputs: ['Fe', 'Mg'],
+    caption: 'Won’t mix!',
+    kid: 'Iron and magnesium don’t mix, even when melted. They separate like oil and water!',
+    junior: 'Iron and magnesium are immiscible: even melted, they separate into layers, like oil and water.',
+  },
+  {
+    inputs: ['Fe', 'Na'],
+    caption: 'Won’t mix!',
+    kid: 'Iron and sodium don’t mix. Melted sodium can even flow through iron pipes!',
+    junior: 'Sodium does not dissolve iron, so some power stations pump hot liquid sodium through steel pipes.',
+  },
+  {
+    inputs: ['Cu', 'Na'],
+    caption: 'Won’t mix!',
+    kid: 'Copper and sodium hardly mix at all, even when melted.',
+    junior: 'Copper and sodium barely dissolve in each other: melted together, they stay in separate layers.',
+  },
+  {
+    inputs: ['Mg', 'Na'],
+    caption: 'Won’t mix!',
+    kid: 'Sodium and magnesium don’t mix, even when melted.',
+    junior: 'Liquid sodium and liquid magnesium separate into two layers: they are immiscible.',
+  },
+  {
+    inputs: ['Fe', 'Cu'],
+    caption: 'Won’t mix!',
+    kid: 'Iron and copper barely mix. When they cool down, they separate again.',
+    junior: 'Solid iron and copper hardly dissolve in each other, so they cool into separate specks.',
+  },
+  {
+    inputs: ['Cu', 'C'],
+    caption: 'Won’t join!',
+    kid: 'Copper and carbon don’t join. Copper is even melted in pots made of carbon!',
+    junior: 'Copper forms no stable carbide and barely dissolves carbon, so it is melted in graphite pots.',
+  },
+  {
+    inputs: ['Fe', 'H'],
+    caption: 'Won’t join!',
+    kid: 'Iron and hydrogen don’t make a compound. But hydrogen can sneak into iron and make it crack!',
+    junior: 'Iron forms no stable hydride, but hydrogen atoms can slip into steel and make it brittle.',
+  },
+  {
+    inputs: ['Cu', 'H'],
+    caption: 'Won’t join!',
+    kid: 'Copper and hydrogen gas don’t join. Copper stays copper.',
+    junior: 'Hydrogen gas does not react with copper. Chemists even use hydrogen to turn copper oxide back into copper.',
+  },
+  {
+    inputs: ['N', 'Cu'],
+    caption: 'Won’t join!',
+    kid: 'Nitrogen gas is very lazy. It won’t join copper.',
+    junior: 'Nitrogen’s triple bond is so strong that nitrogen gas leaves copper alone.',
+  },
+  {
+    inputs: ['Au', 'Na'],
+    caption: 'Lab only!',
+    kid: 'Gold and sodium can melt into a rare metal mix. Only scientists make it.',
+    junior: 'Gold and sodium can form an unusual compound, made only in science labs.',
+  },
+  {
+    inputs: ['Au', 'Mg'],
+    caption: 'Metal mix!',
+    kid: 'Melted together, gold and magnesium make a metal mix called an alloy.',
+    junior: 'Melted together, gold and magnesium form alloys, metal mixtures with their own crystal patterns.',
+  },
+  {
+    inputs: ['Cu', 'Mg'],
+    caption: 'Metal mix!',
+    kid: 'Melted together, copper and magnesium make an alloy, a metal mixture.',
+    junior: 'Some magnesium alloys have a little copper in them to make them stronger.',
+  },
 ]
+export const FACT_MAP: Record<string, FactPair> = Object.fromEntries(FACTS.map((f) => [normalizeKey(f.inputs), f]))
 
 /** The snacks and discoveries a level can meet: the starter pack below age 4, both packs from 4. */
 export function packFor(level: Level): 1 | 2 {

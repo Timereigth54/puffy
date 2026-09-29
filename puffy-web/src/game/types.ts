@@ -49,6 +49,10 @@ export type ArtId =
   | 'ring'
   | 'flash'
   | 'flakes'
+  | 'wrench'
+  | 'powder'
+  | 'crystal'
+  | 'nugget'
 
 export interface Combo {
   id: string
@@ -84,6 +88,20 @@ export interface SpicyPair {
   why: string
 }
 
+/**
+ * A real answer that is not a sticker: the two do not react, do not mix, or
+ * only melt into an ordinary alloy. Said at levels 2–3 (pack 2 only).
+ */
+export interface FactPair {
+  inputs: [string, string]
+  /** On screen, a few words: "Won't mix!" */
+  caption: string
+  /** Level 2 */
+  kid: string
+  /** Level 3 */
+  junior: string
+}
+
 export type Outcome =
   | { kind: 'discovery'; combo: Combo; firstTime: boolean }
   | { kind: 'spicy'; spicy: SpicyPair }
@@ -91,6 +109,8 @@ export type Outcome =
   | { kind: 'loner'; noble: Element; other: Element }
   /** Gold with something it will not react with: it stays shiny. */
   | { kind: 'noble-metal'; metal: Element; other: Element }
+  /** A true "no": they will not react or mix, or only make a plain alloy. */
+  | { kind: 'fact'; fact: FactPair }
   | { kind: 'unknown'; inputs: string[] }
 
 export type PuffyState =

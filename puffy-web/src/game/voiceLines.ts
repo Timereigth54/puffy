@@ -1,7 +1,7 @@
 // Every line the narrator can say, at every level, for pre-rendering voice
 // clips. voiceLines.test.ts checks that runtime scripts only use lines listed here.
-import { ELEMENT_MAP, FALLBACK_IDEA, NOBLE_GAS_IDS, NOBLE_METAL_PAIRS, SPICY, TAG_NOUNS, VOICE, combosFor, elementsFor, packFor } from '../data/content'
-import { arrivalLine, askLine, discoveryLines, hintLine, ideaLine, nobleMetalLine, otherLine, rememberLine, repeatLine, rightLine, sameLine, showLine, spicyBuiltLines, touchLine } from './lines'
+import { ELEMENT_MAP, FACTS, FALLBACK_IDEA, NOBLE_GAS_IDS, NOBLE_METAL_PAIRS, SPICY, TAG_NOUNS, VOICE, combosFor, elementsFor, packFor } from '../data/content'
+import { arrivalLine, askLine, discoveryLines, factLine, hintLine, ideaLine, nobleMetalLine, otherLine, rememberLine, repeatLine, rightLine, sameLine, showLine, spicyBuiltLines, touchLine } from './lines'
 import { skillsFor } from './learning'
 import type { Level } from './types'
 
@@ -22,6 +22,7 @@ export function allLines(): string[] {
     // Only what this level can meet: toddlers never meet pack 2, so it gets no toddler clips.
     const pack = packFor(level)
     for (const s of SPICY) if (s.inputs.every((i) => ELEMENT_MAP[i].pack <= pack)) add(spicyBuiltLines(s, level))
+    for (const f of FACTS) if (f.inputs.every((i) => ELEMENT_MAP[i].pack <= pack)) add([factLine(f, level)])
     for (const c of combosFor(level)) {
       for (const p of v.praise) add(discoveryLines(c, level, p))
       for (const ch of v.cheers) add([repeatLine(c, level, ch)])

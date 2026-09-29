@@ -26,7 +26,7 @@ export default function BookScreen({ progress, settings, evening, onSeen, onHome
   const found = progress.discovered.length
   const words = textForLevel(settings.level) !== 'off'
   const level = settings.level
-  // Toddlers see the nine starter plates; from age 4 the book holds twenty.
+  // Toddlers see the nine starter plates; from age 4 the book holds twenty-four.
   const plates = [...combosFor(level)].sort((a, b) => a.plate - b.plate)
 
   useEffect(() => {

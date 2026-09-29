@@ -50,6 +50,63 @@ const eyes = (x: number, y: number, gap = 22) => (
 )
 
 const ART: Record<ArtId, React.ReactNode> = {
+  wrench: (
+    <g>
+      <path d="M58 30a36 36 0 0 0 40 52l62 62a14 14 0 0 1-20 20l-62-62a36 36 0 0 1-52-40l22 22 20-4 4-20Z" fill="#6F7C8C" strokeLinejoin="round" />
+      <path d="M150 150l10 10" stroke="#9AA6B4" strokeWidth="6" strokeLinecap="round" />
+      {eyes(92, 92, 18)}
+      {smile(96, 104, 12)}
+      <g className="art-glints" fill="#FFF6C2">
+        <path d="M160 40l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" />
+      </g>
+    </g>
+  ),
+  powder: (
+    // raised so the book's name tag does not cover the face
+    <g transform="translate(0 -30)">
+      <path d="M26 170c10-50 40-86 74-86s64 36 74 86Z" fill="#C9D66B" />
+      <path d="M52 170c8-32 26-54 48-54s40 22 48 54Z" fill="#DCE58E" />
+      <g fill="#E8EFB0">
+        <circle cx="70" cy="60" r="5" />
+        <circle cx="128" cy="50" r="4" />
+        <circle cx="100" cy="36" r="6" />
+      </g>
+      {eyes(100, 140, 26)}
+      {smile(100, 154, 16)}
+    </g>
+  ),
+  crystal: (
+    <g>
+      <path d="M62 170l-14-70 34-50 34 50-14 70Z" fill="#3F4FA8" />
+      <path d="M82 50l34 50-14 70H82Z" fill="#32408C" />
+      <path d="M120 170l-8-50 24-34 24 34-8 50Z" fill="#5566C4" />
+      <path d="M136 86l24 34-8 50h-16Z" fill="#4454B0" />
+      <g fill="#fff">
+        <circle cx="74" cy="118" r="6" />
+        <circle cx="94" cy="118" r="6" />
+      </g>
+      <g fill={INK}>
+        <circle cx="75" cy="119" r="3.5" />
+        <circle cx="95" cy="119" r="3.5" />
+      </g>
+      <path d="M76 134q8 7 16 0" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+      <g className="art-glints" fill="#DDE3FF">
+        <path d="M150 50l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" />
+      </g>
+    </g>
+  ),
+  nugget: (
+    <g>
+      <path d="M40 130c-6-34 20-66 58-70c30-4 62 14 66 44c4 34-24 60-62 62c-30 2-56-10-62-36Z" fill="#8FA6C8" />
+      <path d="M62 92c10-14 28-20 44-18" fill="none" stroke="#C9D6EA" strokeWidth="8" strokeLinecap="round" />
+      {eyes(104, 116, 26)}
+      {smile(104, 130, 16)}
+      <g className="art-glints" fill="#FFF6C2">
+        <path d="M160 46l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" />
+        <path d="M36 70l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" />
+      </g>
+    </g>
+  ),
   // ─── Pack 2 ───────────────────────────────────────────────────────────────
   air: (
     <g>

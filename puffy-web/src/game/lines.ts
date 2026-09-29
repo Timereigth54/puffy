@@ -2,7 +2,7 @@
 // (voiceLines.ts), so every line the narrator can say has a recorded clip.
 // Each builder takes the level: 0 single words ... 3 explanations.
 import { ELEMENT_MAP, type TagNoun } from '../data/content'
-import type { Combo, Element, Level, Skill, SpicyPair } from './types'
+import type { Combo, Element, FactPair, Level, Skill, SpicyPair } from './types'
 
 /** Normalizes line text to the manifest key. Used by audio.ts at runtime and by tools/render-voice.mjs. */
 export function lineKey(text: string): string {
@@ -96,6 +96,11 @@ export function nobleMetalLine(metal: Element, level: Level): string {
   return level === 3
     ? `${metal.name} is a noble metal. It almost never reacts, so it stays shiny.`
     : `${metal.name} almost never mixes, so it stays shiny!`
+}
+
+/** A real "no" (won't react, won't mix, plain alloy). Levels 2–3 only. */
+export function factLine(fact: FactPair, level: Level): string {
+  return level === 3 ? fact.junior : fact.kid
 }
 
 /** Level 0 gets no spoken hint: the snacks just glow. */

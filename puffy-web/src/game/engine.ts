@@ -2,6 +2,7 @@ import {
   COMBOS,
   COMBO_MAP,
   ELEMENT_MAP,
+  FACT_MAP,
   FALLBACK_IDEA,
   NOBLE_GAS_IDS,
   NOBLE_METAL_PAIRS,
@@ -15,7 +16,7 @@ import {
 import type { Combo, Element, Level, Outcome, SpicyPair } from './types'
 import { discoveryLines, ideaLine, repeatLine, spicyBuiltLines } from './lines'
 
-export { hintLine, nobleMetalLine, sameLine } from './lines'
+export { factLine, hintLine, nobleMetalLine, sameLine } from './lines'
 
 /** One spoken beat. The narrator never says the child's name (DECISIONS.md). */
 export type Beat = string
@@ -47,6 +48,9 @@ export function resolve(inputs: readonly string[], discovered: readonly string[]
       return { kind: 'noble-metal', metal: ELEMENT_MAP[metalId], other: ELEMENT_MAP[otherId] }
     }
   }
+
+  const fact = FACT_MAP[key]
+  if (fact) return { kind: 'fact', fact }
 
   return { kind: 'unknown', inputs: [...inputs].sort() }
 }

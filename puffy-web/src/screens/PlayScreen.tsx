@@ -12,6 +12,7 @@ import {
   easyWin,
   focusedTray,
   hintFor,
+  factLine,
   hintLine,
   lonerSequence,
   nobleMetalLine,
@@ -25,7 +26,7 @@ import { ASK_EVERY, dayKey, nextArrival, nextAsk, roster, snackShows, type Ask }
 import { slotsFor } from '../game/layout'
 import { arrivalLine, askLine, otherLine, rightLine, showLine, touchLine } from '../game/lines'
 import { textForLevel } from '../game/store'
-import type { Combo, Element, Progress, PuffyState, Settings } from '../game/types'
+import type { Combo, Element, FactPair, Progress, PuffyState, Settings } from '../game/types'
 
 interface Props {
   settings: Settings
@@ -52,6 +53,7 @@ type Show =
   | { kind: 'spicy'; name: string; formula: string }
   | { kind: 'same'; element: Element }
   | { kind: 'shiny'; metal: Element }
+  | { kind: 'fact'; caption: string }
   | null
 /** "Puffy wants…": the bubble stays up until the child feeds a snack, then shows how it went. */
 type Crave = { ask: Ask; result: 'right' | 'wrong' | null }
@@ -353,6 +355,20 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
     finish()
   }
 
+  /** A true "no": they will not react or mix. Puffy shrugs, the narrator says why. */
+  const runFact = async (fact: FactPair, pair: Element[]) => {
+    setPuffy('shrug')
+    setShow({ kind: 'fact', caption: fact.caption })
+    await say([factLine(fact, settingsRef.current.level)])
+    if (!alive.current) return
+    spitBack(pair)
+    setPuffy('encouraging')
+    sfx.boing()
+    await wait(700)
+    await maybeHint(pair)
+    finish()
+  }
+
   const runSame = async (element: Element, pair: Element[]) => {
     setPuffy('shrug')
     setShow({ kind: 'same', element })
@@ -412,6 +428,8 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
         return runSame(outcome.element, pair)
       case 'noble-metal':
         return runShiny(outcome.metal, pair)
+      case 'fact':
+        return runFact(outcome.fact, pair)
       case 'unknown':
         setPuffy('curious')
         await say([VOICE[settingsRef.current.level].unknown])
@@ -665,6 +683,7 @@ export default function PlayScreen({ settings, progress, evening, guided, onFeed
         )}
         {show?.kind === 'same' && showWords && <div className="caption">Still {show.element.name.toLowerCase()}!</div>}
         {show?.kind === 'shiny' && showWords && <div className="caption">{show.metal.name} stays shiny!</div>}
+        {show?.kind === 'fact' && showWords && <div className="caption">{show.caption}</div>}
 
         {guided && !busy && !drag && flights.length === 0 && (
           <div className={`guide-ghost guide-ghost--${fed.length === 0 ? 'first' : 'second'}`} aria-hidden="true">

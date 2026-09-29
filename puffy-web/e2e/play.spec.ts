@@ -226,10 +226,19 @@ test('toddlers never get pack 2, even with every snack let in', async ({ page })
   await expect(page.getByRole('button', { name: 'Iron' })).toHaveCount(0)
 })
 
-test('the book holds twenty plates from age 4, nine below', async ({ page }) => {
+test('iron and magnesium get a true answer: they won’t mix', async ({ page }) => {
+  await seed(page, { settings: { childAge: 5, level: 2, snacks: 'all' } })
+  await toPlay(page)
+  await page.getByRole('button', { name: 'Iron' }).click()
+  await page.getByRole('button', { name: 'Magnesium' }).click()
+  await expect(page.locator('[data-outcome="fact"]')).toBeAttached({ timeout: 15000 })
+  await expect(page.locator('.caption')).toHaveText('Won’t mix!')
+})
+
+test('the book holds twenty-four plates from age 4, nine below', async ({ page }) => {
   await seed(page, { settings: { childAge: 5, level: 2 } })
   await page.getByRole('button', { name: 'Discovery book' }).click()
-  await expect(page.locator('.plate')).toHaveCount(20)
+  await expect(page.locator('.plate')).toHaveCount(24)
   await page.evaluate(() => localStorage.setItem('puffy.settings', JSON.stringify({ voiceOn: false, childAge: 3, level: 1 })))
   await page.reload()
   await page.getByRole('button', { name: 'Discovery book' }).click()

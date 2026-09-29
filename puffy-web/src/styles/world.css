@@ -1063,10 +1063,10 @@
 }
 .plate__no { font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 .plate__name { font-size: 16px; font-weight: 800; color: var(--ink); }
-/* From age 4 the book holds twenty plates: five across, smaller, names may wrap. */
+/* From age 4 the book holds twenty-four plates: six across, smaller, names may wrap. */
 .plates--many {
-  grid-template-columns: repeat(5, var(--plate-size));
-  --plate-size: min(17vh, 14.5vw);
+  grid-template-columns: repeat(6, var(--plate-size));
+  --plate-size: min(17vh, 12vw);
 }
 /* number above name, so long names ("Magnesium chloride") wrap inside their own plate */
 .plates--many .plate__tag { flex-direction: column; align-items: center; gap: 0; white-space: normal; text-align: center; width: max-content; max-width: 100%; padding: 1px 8px 2px; line-height: 1.1; border-radius: 10px; }
@@ -1108,7 +1108,7 @@
   .play-button { left: 50%; top: auto; bottom: calc(var(--tub-h) + 4vh); }
   .held { left: 50%; top: 52vh; margin-left: calc(var(--snack) * -0.55); }
   .plates { top: 14vh; --plate-size: min(27vw, 18vh); }
-  .plates--many { grid-template-columns: repeat(4, var(--plate-size)); --plate-size: min(20vw, 13vh); }
+  .plates--many { grid-template-columns: repeat(4, var(--plate-size)); --plate-size: min(20vw, 11vh); }
   .snack-row { padding: 0 6px; }
   .caption { top: calc(12vh + min(84vw, 44vh) * 0.87 + 1vh); }
 }

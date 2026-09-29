@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { ELEMENT_MAP, SPICY, VOICE, combosFor, elementsFor, packFor } from '../data/content'
-import { discoveryScript, hintLine, lonerSequence, nobleMetalLine, sameLine, spicyScript } from './engine'
+import { ELEMENT_MAP, FACTS, SPICY, VOICE, combosFor, elementsFor, packFor } from '../data/content'
+import { discoveryScript, factLine, hintLine, lonerSequence, nobleMetalLine, sameLine, spicyScript } from './engine'
 import { arrivalLine, askLine, lineKey, otherLine, rightLine, showLine, touchLine } from './lines'
 import { skillsFor, snackShows } from './learning'
 import type { ElementLearning, Skill } from './types'
@@ -32,6 +32,7 @@ describe('voice inventory', () => {
       for (let n = 0; n < 10; n++) for (const s of spicy) spicyScript(s, level).forEach(covered)
       for (const el of elementsFor(level)) covered(sameLine(el, level))
       if (level >= 2) covered(nobleMetalLine(ELEMENT_MAP.Au, level))
+      if (level >= 2) FACTS.forEach((f) => covered(factLine(f, level)))
       combosFor(level).forEach((c) => {
         const h = hintLine(c, level)
         if (h) covered(h)

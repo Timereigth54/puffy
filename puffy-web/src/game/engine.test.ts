@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { COMBOS, ELEMENTS, ELEMENT_MAP, NOT_YET, SPICY, normalizeKey } from '../data/content'
+import { COMBOS, ELEMENTS, ELEMENT_MAP, FACTS, SPICY, normalizeKey } from '../data/content'
 import { NoRepeatBank, focusedTray, hintFor, ideasFor, lonerSequence, resolve, discoveryScript } from './engine'
 
 function pairsOf(ids: string[]) {
@@ -9,7 +9,6 @@ function pairsOf(ids: string[]) {
 }
 const allPairs = pairsOf(ELEMENTS.map((e) => e.id))
 const starterPairs = pairsOf(ELEMENTS.filter((e) => e.pack === 1).map((e) => e.id))
-const notYet = new Set(NOT_YET.map((p) => normalizeKey(p)))
 
 describe('every pair has an honest answer', () => {
   it('has 21 starter pairs and 78 pairs with pack 2', () => {
@@ -17,26 +16,24 @@ describe('every pair has an honest answer', () => {
     expect(allPairs).toHaveLength(78)
   })
 
-  it('never answers a starter pair with "doesn’t know that one yet"', () => {
-    for (const p of starterPairs) expect(resolve(p, []).kind, p.join('+')).not.toBe('unknown')
+  it('gives every one of the 78 pairs a real answer: none is "doesn’t know that one yet"', () => {
+    for (const p of allPairs) expect(resolve(p, []).kind, p.join('+')).not.toBe('unknown')
+    expect(starterPairs.every((p) => resolve(p, []).kind !== 'unknown')).toBe(true)
   })
 
-  it('answers "doesn’t know that one yet" only for pairs listed in NOT_YET, on purpose', () => {
-    for (const p of allPairs) {
-      const unknown = resolve(p, []).kind === 'unknown'
-      expect(unknown, p.join('+')).toBe(notYet.has(normalizeKey(p)))
-    }
-    expect(notYet.size).toBe(NOT_YET.length)
+  it('lists each pair in at most one place', () => {
+    const keys = [...COMBOS.map((c) => c.inputs), ...SPICY.map((s) => s.inputs), ...FACTS.map((f) => f.inputs)].map((p) => normalizeKey(p))
+    expect(new Set(keys).size).toBe(keys.length)
   })
 
-  it('counts pack 2 outcomes as planned: 11 discoveries, 11 spicy, 5 shiny gold, 6 helium, 5 same, 19 not yet', () => {
+  it('counts pack 2 outcomes as planned: 15 discoveries, 14 spicy, 5 shiny gold, 6 helium, 5 same, 12 true "no"s', () => {
     const packTwo = allPairs.filter((p) => p.some((id) => ELEMENT_MAP[id].pack === 2))
     const count: Record<string, number> = {}
     for (const p of packTwo) {
       const k = resolve(p, []).kind
       count[k] = (count[k] ?? 0) + 1
     }
-    expect(count).toEqual({ discovery: 11, spicy: 11, 'noble-metal': 5, loner: 6, same: 5, unknown: 19 })
+    expect(count).toEqual({ discovery: 15, spicy: 14, 'noble-metal': 5, loner: 6, same: 5, fact: 12 })
   })
 
   it('only gold stays shiny', () => {
