@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Bathroom from '../components/Bathroom'
 import ResultArt from '../components/ResultArt'
 import { DuckIcon, PlayIcon } from '../components/Icons'
-import { COMBOS } from '../data/content'
+import { combosFor } from '../data/content'
 import { say, sfx } from '../game/audio'
 import { rememberLine } from '../game/lines'
 import { textForLevel } from '../game/store'
@@ -26,6 +26,8 @@ export default function BookScreen({ progress, settings, evening, onSeen, onHome
   const found = progress.discovered.length
   const words = textForLevel(settings.level) !== 'off'
   const level = settings.level
+  // Toddlers see the nine starter plates; from age 4 the book holds twenty.
+  const plates = [...combosFor(level)].sort((a, b) => a.plate - b.plate)
 
   useEffect(() => {
     void say([found ? VOICE[level].bookFound : VOICE[level].bookEmpty])
@@ -53,8 +55,8 @@ export default function BookScreen({ progress, settings, evening, onSeen, onHome
         <button type="button" className="corner-tile corner-tile--right" onClick={onPlay} aria-label="Play">
           <PlayIcon />
         </button>
-        <div className="plates" role="list">
-          {[...COMBOS].sort((a, b) => a.plate - b.plate).map((c) => {
+        <div className={`plates ${plates.length > 9 ? 'plates--many' : ''}`} role="list">
+          {plates.map((c) => {
             const has = progress.discovered.includes(c.id)
             const isNew = progress.unseenStickers.includes(c.id)
             return (

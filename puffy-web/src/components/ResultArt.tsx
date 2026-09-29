@@ -50,6 +50,180 @@ const eyes = (x: number, y: number, gap = 22) => (
 )
 
 const ART: Record<ArtId, React.ReactNode> = {
+  // ─── Pack 2 ───────────────────────────────────────────────────────────────
+  air: (
+    <g>
+      <g fill="none" stroke="#DDE3FF" strokeWidth="12" strokeLinecap="round">
+        <path d="M14 44h74a18 18 0 1 0-18-18" />
+        <path d="M112 176h66a16 16 0 1 1-16 16" />
+      </g>
+      {/* two nitrogens holding on tight: N₂ */}
+      <circle cx="78" cy="104" r="44" fill="#A9B8FF" />
+      <circle cx="126" cy="104" r="44" fill="#95A6F7" />
+      {eyes(78, 98, 20)}
+      {smile(78, 114, 14)}
+      {eyes(126, 98, 20)}
+      {smile(126, 114, 14)}
+    </g>
+  ),
+  spray: (
+    <g>
+      <path d="M78 40h44v22H78Z" fill="#6FA8C8" />
+      <path d="M92 26h58l8 22h-24l-6-10H92Z" fill="#4F8FB4" />
+      <path d="M118 62l14 28H72l14-28Z" fill="#6FA8C8" />
+      <path d="M68 90h72v84a12 12 0 0 1-12 12H80a12 12 0 0 1-12-12Z" fill="#BFE3F2" />
+      <path d="M68 130h72v44a12 12 0 0 1-12 12H80a12 12 0 0 1-12-12Z" fill="#9ED3EA" />
+      {eyes(104, 116, 24)}
+      {smile(104, 130, 16)}
+      <g className="art-bubbles" fill="#DDF3FF">
+        <circle cx="170" cy="36" r="6" />
+        <circle cx="184" cy="54" r="4" />
+        <circle cx="178" cy="20" r="4" />
+      </g>
+    </g>
+  ),
+  giggle: (
+    <g>
+      <path d="M52 150a36 36 0 0 1-8-70a44 44 0 0 1 64-30a40 40 0 0 1 58 34a32 32 0 0 1-12 66Z" fill="#FFD1E8" />
+      <g fill="none" stroke={INK} strokeWidth="4.5" strokeLinecap="round">
+        <path d="M78 96q8-10 16 0M112 96q8-10 16 0" />
+      </g>
+      <path d="M84 116q19 30 38 0Z" fill={INK} />
+      <path d="M92 124q11 8 22 0" fill="none" stroke="#FF8FBF" strokeWidth="5" strokeLinecap="round" />
+      <g className="art-bubbles" fill="#FFB6D5">
+        <circle cx="36" cy="46" r="9" />
+        <circle cx="172" cy="40" r="7" />
+        <circle cx="180" cy="160" r="6" />
+      </g>
+    </g>
+  ),
+  rust: (
+    <g>
+      <path d="M40 58l18-18 24 24-18 18Z" fill="#9AA3AD" />
+      <path d="M60 66l14-14 90 90-10 22-22 2Z" fill="#8C96A1" />
+      <g fill="#B5562E">
+        <ellipse cx="96" cy="96" rx="14" ry="9" transform="rotate(45 96 96)" />
+        <ellipse cx="130" cy="130" rx="16" ry="10" transform="rotate(45 130 130)" />
+        <circle cx="52" cy="52" r="6" />
+        <circle cx="150" cy="154" r="6" />
+      </g>
+      <g fill="#D9824F">
+        <circle cx="112" cy="116" r="5" />
+        <circle cx="80" cy="80" r="4" />
+      </g>
+      {eyes(112, 98, 18)}
+      {smile(118, 110, 12)}
+    </g>
+  ),
+  steel: (
+    <g>
+      <path d="M30 46h140v26h-50v56h50v26H30v-26h50V72H30Z" fill="#8FA0B0" />
+      <path d="M30 46h140v10H30ZM30 128h50v8H30ZM120 128h50v8h-50Z" fill="#B7C4D0" />
+      <g fill="#6D7E8E">
+        <circle cx="44" cy="62" r="4" />
+        <circle cx="156" cy="62" r="4" />
+        <circle cx="44" cy="142" r="4" />
+        <circle cx="156" cy="142" r="4" />
+      </g>
+      {eyes(100, 94, 16)}
+      {smile(100, 108, 12)}
+    </g>
+  ),
+  pyrite: (
+    <g>
+      {/* shiny cubes, the way pyrite grows */}
+      <g>
+        <path d="M40 118l40-20 40 20-40 20Z" fill="#F0D37A" />
+        <path d="M40 118v44l40 20v-44Z" fill="#C9A227" />
+        <path d="M120 118v44l-40 20v-44Z" fill="#A8861B" />
+      </g>
+      <g>
+        <path d="M96 70l40-20 40 20-40 20Z" fill="#F0D37A" />
+        <path d="M96 70v44l40 20V90Z" fill="#C9A227" />
+        <path d="M176 70v44l-40 20V90Z" fill="#A8861B" />
+      </g>
+      {eyes(60, 146, 16)}
+      {smile(60, 158, 12)}
+      <g className="art-glints" fill="#FFF6C2">
+        <path d="M150 30l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" />
+        <path d="M34 84l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" />
+      </g>
+    </g>
+  ),
+  penny: (
+    <g>
+      <circle cx="100" cy="104" r="72" fill="#8A6A5E" />
+      <circle cx="100" cy="104" r="58" fill="#5A4A48" />
+      {/* one bright copper patch left: the rest has turned black */}
+      <path d="M62 70a50 50 0 0 1 30-18l-4 18a34 34 0 0 0-16 10Z" fill="#D9825B" />
+      <g fill="#fff">
+        <circle cx="86" cy="100" r="7" />
+        <circle cx="114" cy="100" r="7" />
+      </g>
+      <g fill={INK}>
+        <circle cx="87" cy="101" r="4" />
+        <circle cx="115" cy="101" r="4" />
+      </g>
+      <path d="M90 124q10 8 20 0" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+    </g>
+  ),
+  firework: (
+    <g>
+      <g stroke="#4FC9B0" strokeWidth="10" strokeLinecap="round">
+        <path d="M100 96V30M100 96l47-47M100 96h66M100 96l47 47M100 96v66M100 96l-47 47M100 96H34M100 96L53 49" />
+      </g>
+      <g className="art-glints" fill="#7FE0A0">
+        <circle cx="100" cy="22" r="8" />
+        <circle cx="154" cy="42" r="8" />
+        <circle cx="174" cy="96" r="8" />
+        <circle cx="154" cy="150" r="8" />
+        <circle cx="100" cy="170" r="8" />
+        <circle cx="46" cy="150" r="8" />
+        <circle cx="26" cy="96" r="8" />
+        <circle cx="46" cy="42" r="8" />
+      </g>
+      <circle cx="100" cy="96" r="26" fill="#3BB39B" />
+      {eyes(100, 92, 16)}
+      {smile(100, 104, 12)}
+    </g>
+  ),
+  ring: (
+    <g>
+      <ellipse cx="100" cy="116" rx="60" ry="56" fill="none" stroke="#E8A58C" strokeWidth="22" />
+      <path d="M52 86a60 56 0 0 1 36-24" fill="none" stroke="#FFD7C8" strokeWidth="7" strokeLinecap="round" />
+      <path d="M78 58l22-26 22 26-22 14Z" fill="#FFC9D9" />
+      <path d="M78 58h44l-22 14Z" fill="#FFB0C8" />
+      {eyes(100, 112, 24)}
+      {smile(100, 126, 16)}
+    </g>
+  ),
+  flash: (
+    <g>
+      <path d="M100 12l14 44 44-20-20 44 44 14-44 14 20 44-44-20-14 44-14-44-44 20 20-44-44-14 44-14-20-44 44 20Z" fill="#FFF6C2" />
+      <circle cx="100" cy="94" r="44" fill="#F4F4F8" />
+      <g fill="none" stroke={INK} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M78 84l10 6-10 6M122 84l-10 6 10 6" />
+      </g>
+      <path d="M88 108q12 12 24 0Z" fill={INK} />
+    </g>
+  ),
+  flakes: (
+    <g>
+      <path d="M48 98h104l-10 70a14 14 0 0 1-14 12H72a14 14 0 0 1-14-12Z" fill="#E3F1F7" />
+      <path d="M44 92h112a6 6 0 0 1 0 12H44a6 6 0 0 1 0-12Z" fill="#BFDDEB" />
+      <g fill="#FFFFFF" stroke="#BFDDEB" strokeWidth="2">
+        <path d="M70 60l10-6 6 10-10 6Z" />
+        <path d="M112 44l12-4 4 12-12 4Z" />
+        <path d="M136 70l9-7 7 9-9 7Z" />
+        <path d="M92 78l8-5 5 8-8 5Z" />
+        <path d="M78 84l10-3 3 10-10 3Z" />
+        <path d="M118 84l9-4 4 9-9 4Z" />
+      </g>
+      {eyes(100, 132, 26)}
+      {smile(100, 146, 18)}
+    </g>
+  ),
+
   water: (
     <g>
       <path d="M18 120c20-22 40-22 60 0s40 22 60 0s30-18 44-6v58a12 12 0 0 1-12 12H30a12 12 0 0 1-12-12Z" fill="#4FB8F0" />

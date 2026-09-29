@@ -1,10 +1,11 @@
 // Everything stays on the device, in localStorage.
 import { levelForAge } from '../data/content'
+import { ARRIVAL_ORDER } from './learning'
 import type { Level, Progress, Settings, TextLevel } from './types'
 
 const PROGRESS_KEY = 'puffy.progress'
 const SETTINGS_KEY = 'puffy.settings'
-export const PROGRESS_VERSION = 2
+export const PROGRESS_VERSION = 3
 
 export const DEFAULT_SETTINGS: Settings = {
   childAge: null,
@@ -13,6 +14,7 @@ export const DEFAULT_SETTINGS: Settings = {
   voiceOn: true,
   spitSound: 'silly',
   hints: 'always',
+  snacks: 'one-by-one',
   timeLimitMinutes: null,
 }
 
@@ -33,6 +35,9 @@ export function freshProgress(): Progress {
     secondsPlayed: 0,
     sessions: 0,
     unseenStickers: [],
+    arrived: [],
+    lastArrivalDay: null,
+    learning: {},
   }
 }
 
@@ -57,6 +62,11 @@ function write(key: string, value: unknown) {
 export function loadProgress(): Progress {
   const stored = read<Progress & { hasNameRecording?: boolean }>(PROGRESS_KEY) ?? {}
   delete stored.hasNameRecording
+  // Version 2 and earlier had the starter six from the start. A child who has
+  // already played keeps them; new players see snacks arrive one by one.
+  if (stored.arrived === undefined && (stored.onboarded || (stored.discovered?.length ?? 0) > 0)) {
+    stored.arrived = ARRIVAL_ORDER.slice(0, 6)
+  }
   return { ...freshProgress(), ...stored, version: PROGRESS_VERSION }
 }
 

@@ -1,18 +1,49 @@
 import { describe, expect, it } from 'vitest'
-import { COMBOS, ELEMENTS, ELEMENT_MAP, SPICY, normalizeKey } from '../data/content'
+import { COMBOS, ELEMENTS, ELEMENT_MAP, NOT_YET, SPICY, normalizeKey } from '../data/content'
 import { NoRepeatBank, focusedTray, hintFor, ideasFor, lonerSequence, resolve, discoveryScript } from './engine'
 
-const ids = ELEMENTS.map((e) => e.id)
-const allPairs: [string, string][] = []
-for (let i = 0; i < ids.length; i++) for (let j = i; j < ids.length; j++) allPairs.push([ids[i], ids[j]])
+function pairsOf(ids: string[]) {
+  const out: [string, string][] = []
+  for (let i = 0; i < ids.length; i++) for (let j = i; j < ids.length; j++) out.push([ids[i], ids[j]])
+  return out
+}
+const allPairs = pairsOf(ELEMENTS.map((e) => e.id))
+const starterPairs = pairsOf(ELEMENTS.filter((e) => e.pack === 1).map((e) => e.id))
+const notYet = new Set(NOT_YET.map((p) => normalizeKey(p)))
 
-describe('starter pack coverage', () => {
-  it('has 21 unordered pairs', () => {
-    expect(allPairs).toHaveLength(21)
+describe('every pair has an honest answer', () => {
+  it('has 21 starter pairs and 78 pairs with pack 2', () => {
+    expect(starterPairs).toHaveLength(21)
+    expect(allPairs).toHaveLength(78)
   })
 
-  it('classifies every pair, and none falls through to "unknown"', () => {
-    for (const p of allPairs) expect(resolve(p, []).kind, p.join('+')).not.toBe('unknown')
+  it('never answers a starter pair with "doesn’t know that one yet"', () => {
+    for (const p of starterPairs) expect(resolve(p, []).kind, p.join('+')).not.toBe('unknown')
+  })
+
+  it('answers "doesn’t know that one yet" only for pairs listed in NOT_YET, on purpose', () => {
+    for (const p of allPairs) {
+      const unknown = resolve(p, []).kind === 'unknown'
+      expect(unknown, p.join('+')).toBe(notYet.has(normalizeKey(p)))
+    }
+    expect(notYet.size).toBe(NOT_YET.length)
+  })
+
+  it('counts pack 2 outcomes as planned: 11 discoveries, 11 spicy, 5 shiny gold, 6 helium, 5 same, 19 not yet', () => {
+    const packTwo = allPairs.filter((p) => p.some((id) => ELEMENT_MAP[id].pack === 2))
+    const count: Record<string, number> = {}
+    for (const p of packTwo) {
+      const k = resolve(p, []).kind
+      count[k] = (count[k] ?? 0) + 1
+    }
+    expect(count).toEqual({ discovery: 11, spicy: 11, 'noble-metal': 5, loner: 6, same: 5, unknown: 19 })
+  })
+
+  it('only gold stays shiny', () => {
+    for (const p of allPairs) {
+      const o = resolve(p, [])
+      if (o.kind === 'noble-metal') expect(p).toContain('Au')
+    }
   })
 
   it('resolves both orders of a pair to the same outcome', () => {
@@ -39,8 +70,17 @@ describe('starter pack coverage', () => {
     }
   })
 
-  it('numbers book plates 1..n without gaps', () => {
+  it('numbers book plates 1..n without gaps, starter plates first', () => {
     expect(COMBOS.map((c) => c.plate).sort((a, b) => a - b)).toEqual(COMBOS.map((_, i) => i + 1))
+    const starter = COMBOS.filter((c) => c.inputs.every((i) => ELEMENT_MAP[i].pack === 1))
+    expect(Math.max(...starter.map((c) => c.plate))).toBe(starter.length)
+  })
+
+  it('calls a mixture a mixture: it has no single formula', () => {
+    for (const c of COMBOS.filter((x) => x.kind === 'mixture')) {
+      expect(c.facts.kid.toLowerCase(), c.id).toContain('mixture')
+      expect(c.result.formula, c.id).toContain('+')
+    }
   })
 })
 
@@ -104,7 +144,7 @@ describe('adaptive helpers', () => {
     }
   })
   it('focused tray keeps undiscovered combos reachable', () => {
-    const tray = focusedTray(ids, ['water'], 4)
+    const tray = focusedTray(ELEMENTS.map((e) => e.id), ['water'], 4)
     expect(tray).toHaveLength(4)
     const reachable = COMBOS.filter((c) => c.id !== 'water' && c.inputs.every((i) => tray.includes(i)))
     expect(reachable.length).toBeGreaterThanOrEqual(3)

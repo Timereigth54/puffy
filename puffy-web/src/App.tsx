@@ -8,8 +8,9 @@ import ParentGate from './screens/ParentGate'
 import ParentZone from './screens/ParentZone'
 import PlayScreen from './screens/PlayScreen'
 import SleepScreen from './screens/SleepScreen'
-import { COMBOS, levelForAge } from './data/content'
+import { combosFor, levelForAge } from './data/content'
 import { setVoiceEnabled, unlockAudio } from './game/audio'
+import { dayKey, learn, type Ask } from './game/learning'
 import { deleteLegacyNameRecording, freshProgress, loadProgress, loadSettings, saveProgress, saveSettings } from './game/store'
 import type { Combo, Progress, Settings } from './game/types'
 
@@ -137,7 +138,7 @@ export default function App() {
     if (!progress.onboarded && settings.childAge === null) setScreen('onboarding')
   }
 
-  const allFound = progress.discovered.length >= COMBOS.length
+  const allFound = combosFor(settings.level).every((c) => progress.discovered.includes(c.id))
 
   return (
     <div className={`app ${LITE ? 'is-lite' : ''}`}>
@@ -171,6 +172,8 @@ export default function App() {
           guided={!progress.onboarded}
           onFeed={(id) => update((p) => ({ ...p, feedCounts: { ...p.feedCounts, [id]: (p.feedCounts[id] ?? 0) + 1 } }))}
           onDiscover={discover}
+          onArrive={(id) => update((p) => (p.arrived.includes(id) ? p : { ...p, arrived: [...p.arrived, id], lastArrivalDay: dayKey() }))}
+          onAnswer={(ask: Ask, ok: boolean) => update((p) => ({ ...p, learning: learn(p.learning, ask, ok, dayKey()) }))}
           onGuidedDone={() => update((p) => ({ ...p, onboarded: true }))}
           onHome={() => setScreen('home')}
           onBook={() => setScreen('book')}

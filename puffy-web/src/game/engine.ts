@@ -4,6 +4,7 @@ import {
   ELEMENT_MAP,
   FALLBACK_IDEA,
   NOBLE_GAS_IDS,
+  NOBLE_METAL_PAIRS,
   SPICY_MAP,
   TAG_NOUNS,
   VOICE,
@@ -14,7 +15,7 @@ import {
 import type { Combo, Element, Level, Outcome, SpicyPair } from './types'
 import { discoveryLines, ideaLine, repeatLine, spicyBuiltLines } from './lines'
 
-export { hintLine, sameLine } from './lines'
+export { hintLine, nobleMetalLine, sameLine } from './lines'
 
 /** One spoken beat. The narrator never says the child's name (DECISIONS.md). */
 export type Beat = string
@@ -39,7 +40,15 @@ export function resolve(inputs: readonly string[], discovered: readonly string[]
     return { kind: 'same', element: ELEMENT_MAP[inputs[0]] }
   }
 
-  return { kind: 'unknown', inputs: [...inputs] }
+  const metalId = inputs.find((id) => NOBLE_METAL_PAIRS[id])
+  if (metalId) {
+    const otherId = inputs.find((id) => id !== metalId)!
+    if (NOBLE_METAL_PAIRS[metalId].includes(otherId)) {
+      return { kind: 'noble-metal', metal: ELEMENT_MAP[metalId], other: ELEMENT_MAP[otherId] }
+    }
+  }
+
+  return { kind: 'unknown', inputs: [...inputs].sort() }
 }
 
 // ─── Variant banks ──────────────────────────────────────────────────────────

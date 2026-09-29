@@ -21,6 +21,13 @@ const SHAPES: Record<Element['shape'], { d: string; faceY: number; round?: numbe
   star: { d: STAR, faceY: 58, round: 12 },
   leaf: { d: 'M60 16C98 28 106 70 86 94c-13 14-39 14-52 0C14 72 22 30 60 16Z', faceY: 56 },
   balloon: { d: 'M60 14c22 0 38 18 38 40c0 24-20 42-38 46c-18-4-38-22-38-46c0-22 16-40 38-40Z', faceY: 52 },
+  // Pack 2
+  cloud: { d: 'M34 98a18 18 0 0 1-5-36a22 22 0 0 1 31-25a23 23 0 0 1 37 10a19 19 0 0 1-2 51Z', faceY: 68 },
+  hexagon: { d: 'M40 22h40l22 40-22 40H40L18 62Z', faceY: 60, round: 10 },
+  heart: { d: 'M60 104C30 84 14 66 16 46c2-16 16-26 29-24c7 1 12 6 15 12c3-6 8-11 15-12c13-2 27 8 29 24c2 20-14 38-44 58Z', faceY: 62 },
+  bar: { d: 'M38 30h44l20 70H18Z', faceY: 70, round: 10 },
+  triangle: { d: 'M60 16L104 98H16Z', faceY: 70, round: 14 },
+  rhombus: { d: 'M60 14L104 62L60 110L16 62Z', faceY: 60, round: 12 },
 }
 
 function shade(hex: string, amt: number): string {
@@ -32,10 +39,12 @@ function shade(hex: string, amt: number): string {
 interface Props {
   element: Element
   showSymbol?: boolean
+  /** The atomic number, shown on a round foam tag once the child is learning it. */
+  number?: number
   mood?: 'normal' | 'happy' | 'sleepy'
 }
 
-export default function SnackArt({ element, showSymbol, mood = 'normal' }: Props) {
+export default function SnackArt({ element, showSymbol, number, mood = 'normal' }: Props) {
   const s = SHAPES[element.shape]
   const edge = shade(element.color, -0.28)
   const stroke = s.round ? { stroke: element.color, strokeWidth: s.round, strokeLinejoin: 'round' as const } : {}
@@ -76,6 +85,14 @@ export default function SnackArt({ element, showSymbol, mood = 'normal' }: Props
         </>
       ) : (
         <Face kind={element.face} y={s.faceY} mood={mood} />
+      )}
+      {number !== undefined && (
+        <g className="snack-number">
+          <circle cx="100" cy="22" r="16" fill="#fff" stroke={INK} strokeWidth="3" />
+          <text x="100" y="29" textAnchor="middle">
+            {number}
+          </text>
+        </g>
       )}
     </svg>
   )

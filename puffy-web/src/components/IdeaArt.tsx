@@ -58,6 +58,32 @@ const sparkle = (x: number, y: number, s = 1) => (
 )
 
 const IDEAS: Record<IdeaArtId, React.ReactNode> = {
+  crown: (
+    <g>
+      <Wings x={100} y={112} span={120} />
+      <path d="M46 138l-8-66 34 30 28-44 28 44 34-30-8 66Z" fill="#E0A526" strokeLinejoin="round" />
+      <path d="M46 138h108v16a6 6 0 0 1-6 6H52a6 6 0 0 1-6-6Z" fill="#C98E14" />
+      <g fill="#FF8FBF">
+        <circle cx="72" cy="146" r="6" />
+        <circle cx="128" cy="146" r="6" />
+      </g>
+      <circle cx="100" cy="146" r="7" fill="#7FD4FF" />
+      {eyes(100, 112)}
+      {smile(100, 122)}
+      {sparkle(40, 50, 0.9)}
+      {sparkle(166, 60, 0.8)}
+    </g>
+  ),
+  banana: (
+    <g>
+      <path d="M112 150c-8 12 8 20 0 36" fill="none" stroke="#B8A21E" strokeWidth="4" strokeLinecap="round" />
+      <path d="M58 44c-10 40 4 84 52 104c10 4 16-4 10-10c-34-22-44-56-38-92c2-10-20-14-24-2Z" fill="#F7E04B" />
+      <path d="M58 44c-2-8 6-14 12-12l12 4c-4 2-6 6-6 10Z" fill="#8A6E1A" />
+      <path d="M106 142h14l-6 10Z" fill="#B8A21E" />
+      {eyes(84, 96, 16)}
+      {smile(86, 108, 12)}
+    </g>
+  ),
   feather: (
     <g>
       <path d="M60 160C70 100 110 50 160 36c-6 50-40 104-96 126Z" fill="#E6C8FF" />

@@ -8,6 +8,8 @@ export const ELEMENTS: Element[] = [
   {
     id: 'H',
     symbol: 'H',
+    symbolSpoken: 'H',
+    pack: 1,
     name: 'Hydrogen',
     atomicNumber: 1,
     color: '#7FD4FF',
@@ -25,6 +27,8 @@ export const ELEMENTS: Element[] = [
   {
     id: 'O',
     symbol: 'O',
+    symbolSpoken: 'O',
+    pack: 1,
     name: 'Oxygen',
     atomicNumber: 8,
     color: '#4FC3F7',
@@ -42,6 +46,8 @@ export const ELEMENTS: Element[] = [
   {
     id: 'C',
     symbol: 'C',
+    symbolSpoken: 'C',
+    pack: 1,
     name: 'Carbon',
     atomicNumber: 6,
     color: '#5B5560',
@@ -59,6 +65,9 @@ export const ELEMENTS: Element[] = [
   {
     id: 'Na',
     symbol: 'Na',
+    symbolSpoken: 'N A',
+    pack: 1,
+    latinSymbol: true,
     name: 'Sodium',
     atomicNumber: 11,
     color: '#FFD966',
@@ -76,6 +85,8 @@ export const ELEMENTS: Element[] = [
   {
     id: 'Cl',
     symbol: 'Cl',
+    symbolSpoken: 'C L',
+    pack: 1,
     name: 'Chlorine',
     atomicNumber: 17,
     color: '#7FD48F',
@@ -93,6 +104,8 @@ export const ELEMENTS: Element[] = [
   {
     id: 'He',
     symbol: 'He',
+    symbolSpoken: 'H E',
+    pack: 1,
     name: 'Helium',
     atomicNumber: 2,
     color: '#E6C8FF',
@@ -107,6 +120,125 @@ export const ELEMENTS: Element[] = [
       junior: 'Helium is element 2. Its full outer shell makes it unreactive.',
     },
   },
+
+  // ─── Pack 2: harder chemistry, ages 4 and up (levels 2–3) ─────────────────
+  {
+    id: 'N',
+    symbol: 'N',
+    symbolSpoken: 'N',
+    pack: 2,
+    name: 'Nitrogen',
+    atomicNumber: 7,
+    color: '#A9B8FF',
+    family: 'gas',
+    shape: 'cloud',
+    face: 'breathy',
+    tags: ['air', 'bubbles', 'light'],
+    personality: 'Calm and everywhere. Most of the air is nitrogen.',
+    facts: {
+      toddler: 'Most of the air is nitrogen!',
+      kid: 'Nitrogen is most of the air you breathe, about four parts in five.',
+      junior: 'Nitrogen is element 7. N₂ makes up about 78% of the air.',
+    },
+  },
+  {
+    id: 'Fe',
+    symbol: 'Fe',
+    symbolSpoken: 'F E',
+    latinSymbol: true,
+    pack: 2,
+    name: 'Iron',
+    atomicNumber: 26,
+    color: '#7E8894',
+    family: 'metal',
+    shape: 'hexagon',
+    face: 'sturdy',
+    tags: ['strong', 'building', 'dark', 'magnet'],
+    personality: 'Strong and magnetic. Holds up bridges.',
+    facts: {
+      toddler: 'Iron is strong, and magnets love it!',
+      kid: 'Iron is a strong metal. Magnets stick to it, and your blood uses it too.',
+      junior: 'Iron is element 26. Its symbol Fe comes from its Latin name, ferrum.',
+    },
+  },
+  {
+    id: 'Mg',
+    symbol: 'Mg',
+    symbolSpoken: 'M G',
+    pack: 2,
+    name: 'Magnesium',
+    atomicNumber: 12,
+    color: '#CFE3E8',
+    family: 'metal',
+    shape: 'triangle',
+    face: 'eager',
+    tags: ['fire', 'light'],
+    personality: 'Light and fiery. Burns with a dazzling white flash.',
+    facts: {
+      toddler: 'Magnesium burns super bright!',
+      kid: 'Magnesium is a light metal that burns with a dazzling white light.',
+      junior: 'Magnesium is element 12. It is in fireworks, and in the green of every leaf.',
+    },
+  },
+  {
+    id: 'S',
+    symbol: 'S',
+    symbolSpoken: 'S',
+    pack: 2,
+    name: 'Sulfur',
+    atomicNumber: 16,
+    color: '#E6E05A',
+    family: 'nonmetal',
+    shape: 'rhombus',
+    face: 'sneaky',
+    tags: ['yellow', 'fire', 'smelly'],
+    personality: 'Yellow and a bit smelly. Loves volcanoes.',
+    facts: {
+      toddler: 'Sulfur is yellow and smelly!',
+      kid: 'Sulfur is a yellow element found near volcanoes.',
+      junior: 'Sulfur is element 16. It burns with a blue flame.',
+    },
+  },
+  {
+    id: 'Cu',
+    symbol: 'Cu',
+    symbolSpoken: 'C U',
+    latinSymbol: true,
+    pack: 2,
+    name: 'Copper',
+    atomicNumber: 29,
+    color: '#D9825B',
+    family: 'metal',
+    shape: 'heart',
+    face: 'eager',
+    tags: ['shiny', 'green', 'wire'],
+    personality: 'Warm and shiny. Carries electricity through wires.',
+    facts: {
+      toddler: 'Copper is in wires and pennies!',
+      kid: 'Copper carries electricity in wires. Old copper turns green.',
+      junior: 'Copper is element 29. Cu comes from its Latin name, cuprum.',
+    },
+  },
+  {
+    id: 'Au',
+    symbol: 'Au',
+    symbolSpoken: 'A U',
+    latinSymbol: true,
+    pack: 2,
+    name: 'Gold',
+    atomicNumber: 79,
+    color: '#E0A526',
+    family: 'metal',
+    shape: 'bar',
+    face: 'giggly',
+    tags: ['shiny', 'treasure'],
+    personality: 'Shiny and calm. Almost never changes.',
+    facts: {
+      toddler: 'Gold is shiny treasure!',
+      kid: 'Gold almost never reacts, so it stays shiny for thousands of years.',
+      junior: 'Gold is element 79. Au comes from its Latin name, aurum.',
+    },
+  },
 ]
 
 export const ELEMENT_MAP: Record<string, Element> = Object.fromEntries(
@@ -117,7 +249,7 @@ export function normalizeKey(inputs: readonly string[]): string {
   return [...inputs].sort().join('+')
 }
 
-// ─── Discoveries: the nine stickers of the starter book ─────────────────────
+// ─── Discoveries: nine starter stickers, eleven more in pack 2 ──────────────
 export const COMBOS: Combo[] = [
   {
     id: 'water',
@@ -236,6 +368,151 @@ export const COMBOS: Combo[] = [
     celebration: 'medium',
     plate: 9,
   },
+
+  // ─── Pack 2 ────────────────────────────────────────────────────────────────
+  {
+    id: 'nitrogen-gas',
+    inputs: ['N', 'N'],
+    kind: 'element',
+    result: { displayName: 'Nitrogen gas', spoken: 'Nitrogen', word: 'Air', formulaSpoken: 'N two', formula: 'N₂', art: 'air', color: '#A9B8FF' },
+    facts: {
+      toddler: 'Most of the air!',
+      kid: 'Two nitrogens holding hands make nitrogen gas, most of the air around you.',
+      junior: 'N₂ has a triple bond, one of the strongest there is. That is why it rarely reacts.',
+    },
+    celebration: 'medium',
+    plate: 10,
+  },
+  {
+    id: 'ammonia',
+    inputs: ['N', 'H'],
+    kind: 'compound',
+    result: { displayName: 'Ammonia', spoken: 'Ammonia', word: 'Cleaner', formulaSpoken: 'N H three', formula: 'NH₃', art: 'spray', color: '#BFE3F2' },
+    facts: {
+      toddler: 'Sniff! Stinky clean!',
+      kid: 'Ammonia is a compound of nitrogen and hydrogen. It is in some cleaners and in plant food.',
+      junior: 'NH₃ is made in huge amounts. Most of it becomes fertiliser for farms.',
+    },
+    celebration: 'medium',
+    plate: 11,
+  },
+  {
+    id: 'laughing-gas',
+    inputs: ['N', 'O'],
+    kind: 'compound',
+    result: { displayName: 'Laughing gas', spoken: 'Laughing gas', word: 'Giggle', formulaSpoken: 'N two O', formula: 'N₂O', art: 'giggle', color: '#FFD1E8' },
+    facts: {
+      toddler: 'Hee hee!',
+      kid: 'Laughing gas is a compound of nitrogen and oxygen. Dentists use it to help people relax.',
+      junior: 'N₂O is nitrous oxide. Nitrogen and oxygen can also make NO and NO₂.',
+    },
+    celebration: 'large',
+    plate: 12,
+  },
+  {
+    id: 'rust',
+    inputs: ['Fe', 'O'],
+    kind: 'compound',
+    result: { displayName: 'Rust', spoken: 'Rust', word: 'Rust', formulaSpoken: 'F E two O three', formula: 'Fe₂O₃', art: 'rust', color: '#B5562E' },
+    facts: {
+      toddler: 'Old and orange!',
+      kid: 'Rust is iron oxide. Iron slowly joins with oxygen when it gets wet.',
+      junior: 'Rust is mostly Fe₂O₃. Water speeds it up, which is why a bike left in the rain rusts.',
+    },
+    celebration: 'medium',
+    plate: 13,
+  },
+  {
+    id: 'steel',
+    inputs: ['Fe', 'C'],
+    kind: 'mixture',
+    result: { displayName: 'Steel', spoken: 'Steel', word: 'Bridge', formulaSpoken: 'iron with a little carbon', formula: 'Fe + C', art: 'steel', color: '#8FA0B0' },
+    facts: {
+      toddler: 'Super strong!',
+      kid: 'Steel is iron with a little carbon mixed in. It is a mixture, not a compound.',
+      junior: 'Steel is an alloy: a mixture, so it has no formula of its own. A little carbon makes iron much harder.',
+    },
+    celebration: 'large',
+    plate: 14,
+  },
+  {
+    id: 'fools-gold',
+    inputs: ['Fe', 'S'],
+    kind: 'compound',
+    result: { displayName: 'Fool’s gold', spoken: 'Fool’s gold', word: 'Cube', formulaSpoken: 'F E S two', formula: 'FeS₂', art: 'pyrite', color: '#D4B24C' },
+    facts: {
+      toddler: 'Shiny cubes!',
+      kid: 'Fool’s gold is a compound of iron and sulfur. It looks like gold, but it is not.',
+      junior: 'Fool’s gold is pyrite, FeS₂. It grows in rocks as shiny cubes.',
+    },
+    celebration: 'large',
+    plate: 15,
+  },
+  {
+    id: 'magnesium-oxide',
+    inputs: ['Mg', 'O'],
+    kind: 'compound',
+    result: { displayName: 'Magnesium oxide', spoken: 'Magnesium oxide', word: 'Flash', formulaSpoken: 'M G O', formula: 'MgO', art: 'flash', color: '#F4F4F8' },
+    facts: {
+      toddler: 'Flash! So bright!',
+      kid: 'Magnesium oxide is a compound of magnesium and oxygen. Burning magnesium makes it in a bright white flash.',
+      junior: 'MgO is the white powder left after magnesium burns in air.',
+    },
+    celebration: 'large',
+    plate: 16,
+  },
+  {
+    id: 'magnesium-chloride',
+    inputs: ['Mg', 'Cl'],
+    kind: 'compound',
+    result: { displayName: 'Magnesium chloride', spoken: 'Bath flakes', word: 'Bath', formulaSpoken: 'M G C L two', formula: 'MgCl₂', art: 'flakes', color: '#E3F1F7' },
+    facts: {
+      toddler: 'Bath flakes!',
+      kid: 'Magnesium chloride is a compound of magnesium and chlorine. People put its flakes in bath water.',
+      junior: 'MgCl₂ is taken from seawater. It is also used to make magnesium metal.',
+    },
+    celebration: 'medium',
+    plate: 17,
+  },
+  {
+    id: 'copper-oxide',
+    inputs: ['Cu', 'O'],
+    kind: 'compound',
+    result: { displayName: 'Copper oxide', spoken: 'Copper oxide', word: 'Penny', formulaSpoken: 'C U O', formula: 'CuO', art: 'penny', color: '#5A4A48' },
+    facts: {
+      toddler: 'Dark penny!',
+      kid: 'Copper oxide is a compound of copper and oxygen. Copper heated in air turns black with it.',
+      junior: 'CuO is black. The green on old copper roofs is a different copper compound.',
+    },
+    celebration: 'medium',
+    plate: 18,
+  },
+  {
+    id: 'copper-chloride',
+    inputs: ['Cu', 'Cl'],
+    kind: 'compound',
+    result: { displayName: 'Copper chloride', spoken: 'Copper chloride', word: 'Firework', formulaSpoken: 'C U C L two', formula: 'CuCl₂', art: 'firework', color: '#4FC9B0' },
+    facts: {
+      toddler: 'Blue-green sparkle!',
+      kid: 'Copper chloride is a compound of copper and chlorine. It makes blue-green colours in fireworks.',
+      junior: 'CuCl₂ turns a flame blue-green: heated copper gives off light of that colour.',
+    },
+    celebration: 'large',
+    plate: 19,
+  },
+  {
+    id: 'rose-gold',
+    inputs: ['Au', 'Cu'],
+    kind: 'mixture',
+    result: { displayName: 'Rose gold', spoken: 'Rose gold', word: 'Ring', formulaSpoken: 'gold with copper', formula: 'Au + Cu', art: 'ring', color: '#E8A58C' },
+    facts: {
+      toddler: 'Pink gold!',
+      kid: 'Rose gold is gold with copper mixed in. It is a mixture, not a compound.',
+      junior: 'Rose gold is an alloy. The more copper, the pinker it is.',
+    },
+    celebration: 'medium',
+    plate: 20,
+  },
 ]
 
 export const COMBO_MAP: Record<string, Combo> = Object.fromEntries(
@@ -254,12 +531,58 @@ export const SPICY: SpicyPair[] = [
   { inputs: ['H', 'Na'], name: 'Sodium hydride', formula: 'NaH', why: 'It fizzes and burns when it touches water.' },
   { inputs: ['C', 'Na'], name: 'Sodium carbide', formula: 'Na₂C₂', why: 'It reacts wildly with water.' },
   { inputs: ['Na', 'O'], name: 'Sodium oxide', formula: 'Na₂O', why: 'It turns into a strong lye in water.' },
+  // Pack 2
+  { inputs: ['C', 'N'], name: 'Cyanogen', formula: '(CN)₂', why: 'It is a poisonous gas.' },
+  { inputs: ['Na', 'N'], name: 'Sodium azide', formula: 'NaN₃', why: 'It is the poisonous powder that fills car airbags.' },
+  { inputs: ['N', 'Cl'], name: 'Nitrogen trichloride', formula: 'NCl₃', why: 'It can explode.' },
+  { inputs: ['Fe', 'Cl'], name: 'Iron chloride', formula: 'FeCl₃', why: 'It eats into metal, so grown-ups use it to etch circuit boards.' },
+  { inputs: ['Au', 'Cl'], name: 'Gold chloride', formula: 'AuCl₃', why: 'It is a harsh chemical that burns skin.' },
+  { inputs: ['Mg', 'H'], name: 'Magnesium hydride', formula: 'MgH₂', why: 'It fizzes and burns when it touches water.' },
+  { inputs: ['H', 'S'], name: 'Hydrogen sulfide', formula: 'H₂S', why: 'It is a poisonous gas that smells of rotten eggs.' },
+  { inputs: ['S', 'O'], name: 'Sulfur dioxide', formula: 'SO₂', why: 'It is a choking gas that volcanoes puff out.' },
+  { inputs: ['C', 'S'], name: 'Carbon disulfide', formula: 'CS₂', why: 'It is a poisonous liquid that catches fire easily.' },
+  { inputs: ['S', 'Cl'], name: 'Sulfur dichloride', formula: 'SCl₂', why: 'It is a harsh liquid that burns skin.' },
+  { inputs: ['Na', 'S'], name: 'Sodium sulfide', formula: 'Na₂S', why: 'It turns into a strong lye in water.' },
 ]
 export const SPICY_MAP: Record<string, SpicyPair> = Object.fromEntries(
   SPICY.map((s) => [normalizeKey(s.inputs), s]),
 )
 
 export const NOBLE_GAS_IDS = ['He', 'Ne', 'Ar', 'Kr', 'Xe', 'Rn']
+
+/**
+ * Gold with these does not react under any conditions a child could picture,
+ * so Puffy says it stays shiny. Gold with chlorine is spicy (AuCl₃), gold with
+ * copper is rose gold, and gold with the metals is on the NOT_YET list.
+ */
+export const NOBLE_METAL_PAIRS: Record<string, string[]> = { Au: ['H', 'O', 'N', 'C', 'S'] }
+
+/**
+ * Pairs that answer "Puffy doesn't know that one yet". Each is listed on
+ * purpose: engine.test.ts fails if any pair falls through to "unknown"
+ * without being here. Several do make real substances (iron nitride, copper
+ * sulfide, magnesium sulfide...); they are left for a later pack rather than
+ * called "not real".
+ */
+export const NOT_YET: [string, string][] = [
+  ['N', 'Fe'], ['N', 'Cu'], ['N', 'Mg'], ['N', 'S'],
+  ['Fe', 'H'], ['Fe', 'Na'], ['Fe', 'Cu'], ['Fe', 'Au'], ['Fe', 'Mg'],
+  ['Cu', 'H'], ['Cu', 'C'], ['Cu', 'Na'], ['Cu', 'Mg'], ['Cu', 'S'],
+  ['Au', 'Na'], ['Au', 'Mg'],
+  ['Mg', 'C'], ['Mg', 'Na'], ['Mg', 'S'],
+]
+
+/** The snacks and discoveries a level can meet: the starter pack below age 4, both packs from 4. */
+export function packFor(level: Level): 1 | 2 {
+  return level >= 2 ? 2 : 1
+}
+export function elementsFor(level: Level): Element[] {
+  return ELEMENTS.filter((e) => e.pack <= packFor(level))
+}
+export function combosFor(level: Level): Combo[] {
+  const pack = packFor(level)
+  return COMBOS.filter((c) => c.inputs.every((i) => ELEMENT_MAP[i].pack <= pack))
+}
 
 // ─── Silly-idea engine ──────────────────────────────────────────────────────
 // Pairs one tag from each element to a silly thing Puffy imagines. Each idea
@@ -286,9 +609,12 @@ export type IdeaArtId =
   | 'disco'
   | 'pool'
   | 'pickle'
+  | 'crown'
+  | 'banana'
   | 'squiggle'
 
 // Every "nope" pair is helium plus one other snack, so two ideas per pair.
+// Pack 2 snacks reuse these through their tags, plus a crown and a banana.
 export const TAG_NOUNS: TagNoun[] = [
   { tags: ['float', 'light'], noun: 'Floaty feather', word: 'Feather', phrase: 'a floaty feather', art: 'feather' },
   { tags: ['party', 'water'], noun: 'Flying puddle', word: 'Puddle', phrase: 'a flying puddle', art: 'puddle' },
@@ -300,6 +626,9 @@ export const TAG_NOUNS: TagNoun[] = [
   { tags: ['party', 'shiny'], noun: 'Disco star', word: 'Star', phrase: 'a disco star', art: 'disco' },
   { tags: ['float', 'pool'], noun: 'Sky pool', word: 'Pool', phrase: 'a swimming pool in the sky', art: 'pool' },
   { tags: ['balloon', 'green'], noun: 'Pickle balloon', word: 'Pickle', phrase: 'a pickle balloon', art: 'pickle' },
+  // Pack 2 (helium with gold, helium with sulfur)
+  { tags: ['float', 'treasure'], noun: 'Flying crown', word: 'Crown', phrase: 'a flying crown', art: 'crown' },
+  { tags: ['balloon', 'yellow'], noun: 'Banana balloon', word: 'Banana', phrase: 'a banana balloon', art: 'banana' },
 ]
 
 export const FALLBACK_IDEA: TagNoun = { tags: ['', ''], noun: 'Silly thing', word: 'Silly', phrase: 'something silly', art: 'squiggle' }
@@ -311,12 +640,10 @@ export const FALLBACK_IDEA: TagNoun = { tags: ['', ''], noun: 'Silly thing', wor
 export interface VoiceBank {
   intro: string
   feedPuffy: string
-  firstGrab: string
   bookFound: string
   bookEmpty: string
   sleep: string
   unknown: string
-  grab: string[]
   idle: string[]
   thinking: string[]
   silly: string[]
@@ -335,12 +662,10 @@ export const VOICE: Record<Level, VoiceBank> = {
   0: {
     intro: 'Hi! Puffy!',
     feedPuffy: 'Yum!',
-    firstGrab: 'Ooh!',
     bookFound: 'Look!',
     bookEmpty: 'Snacks!',
     sleep: 'Night night!',
     unknown: 'Hmm?',
-    grab: ['Ooh!', 'Yum!'],
     idle: ['Yum yum?', 'Hungry!'],
     thinking: ['Hmm?', 'Ooh…'],
     silly: ['Hee hee!', 'Ha ha!'],
@@ -354,12 +679,10 @@ export const VOICE: Record<Level, VoiceBank> = {
   1: {
     intro: 'Hi! Puffy is hungry!',
     feedPuffy: 'Feed Puffy!',
-    firstGrab: 'Ooh! Snack!',
     bookFound: 'Look! Your stickers!',
     bookEmpty: 'Go find snacks!',
     sleep: 'Puffy is sleepy. Night night!',
     unknown: 'Hmm? Don’t know!',
-    grab: ['Ooh!', 'Yum!', 'Snack!'],
     idle: ['Hungry!', 'More snacks?', 'Yum yum?', 'Feed Puffy!'],
     thinking: ['Hmmm…', 'Ooh…', 'Hmm hmm…', 'Let’s see…'],
     silly: ['Hee hee!', 'Silly!', 'Wheee!', 'So funny!', 'Boing!'],
@@ -373,12 +696,10 @@ export const VOICE: Record<Level, VoiceBank> = {
   2: {
     intro: 'Hi! This is Puffy. Puffy is a hungry cloud!',
     feedPuffy: 'Let’s feed Puffy two snacks!',
-    firstGrab: 'Ooh, a snack!',
     bookFound: 'Look at all the things you made!',
     bookEmpty: 'Let’s go make something!',
     sleep: 'Puffy is sleepy now. Let’s play again later!',
     unknown: 'Hmm, Puffy doesn’t know that one yet!',
-    grab: ['Ooh, good one!', 'Yummy snack!', 'Ooh, a snack!'],
     idle: ['Puffy is still hungry!', 'Which snacks should we try?', 'Feed Puffy two snacks!'],
     thinking: ['Hmm, let me think…', 'Ooh, what could it be?'],
     silly: ['Hee hee, that’s silly!', 'Ha ha, so silly!'],
@@ -392,12 +713,10 @@ export const VOICE: Record<Level, VoiceBank> = {
   3: {
     intro: 'Hi! This is Puffy, a chemistry cloud. Feed Puffy two elements and see what they make!',
     feedPuffy: 'Pick two elements for Puffy!',
-    firstGrab: 'Good pick!',
     bookFound: 'Here is everything you have discovered.',
     bookEmpty: 'No discoveries yet. Let’s start experimenting!',
     sleep: 'Puffy is tired. Time for a break!',
     unknown: 'Hmm, Puffy doesn’t know that reaction yet.',
-    grab: ['Good pick!', 'Interesting element!', 'Nice choice!'],
     idle: ['Which two elements should we combine?', 'Try mixing two elements!', 'Puffy is ready for an experiment!'],
     thinking: ['Let me think…', 'Hmm, what will happen?'],
     silly: ['Ha ha, what a silly idea!', 'Hee hee, imagine that!'],

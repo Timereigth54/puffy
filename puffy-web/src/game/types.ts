@@ -14,11 +14,17 @@ export interface Element {
   color: string
   family: Family
   /** Foam cut: the silhouette the snack is cut into. */
-  shape: 'round' | 'drop' | 'block' | 'star' | 'leaf' | 'balloon'
+  shape: 'round' | 'drop' | 'block' | 'star' | 'leaf' | 'balloon' | 'cloud' | 'hexagon' | 'heart' | 'bar' | 'triangle' | 'rhombus'
   face: 'giggly' | 'breathy' | 'sturdy' | 'eager' | 'sneaky' | 'floaty'
   tags: string[]
   personality: string
   facts: Facts
+  /** How the narrator says the symbol, letter by letter: "H", "N A". */
+  symbolSpoken: string
+  /** 1 = the starter six, every age. 2 = harder chemistry, ages 4 and up. */
+  pack: 1 | 2
+  /** The symbol comes from an old or Latin name (Na from natrium), so it does not match the English name's first sound. */
+  latinSymbol?: boolean
 }
 
 /** Art ids for the result illustrations drawn in ResultArt.tsx. */
@@ -32,12 +38,26 @@ export type ArtId =
   | 'diamond'
   | 'tummy'
   | 'balloon'
+  | 'air'
+  | 'spray'
+  | 'giggle'
+  | 'rust'
+  | 'steel'
+  | 'pyrite'
+  | 'penny'
+  | 'firework'
+  | 'ring'
+  | 'flash'
+  | 'flakes'
 
 export interface Combo {
   id: string
   inputs: [string, string]
-  /** 'compound' = different elements bonded; 'element' = still one element (H₂, diamond, helium gas). */
-  kind: 'compound' | 'element'
+  /**
+   * 'compound' = different elements bonded; 'element' = still one element (H₂, diamond, helium gas);
+   * 'mixture' = mixed but not bonded, so no formula of its own (steel, rose gold).
+   */
+  kind: 'compound' | 'element' | 'mixture'
   result: {
     displayName: string
     /** What the narrator says to a toddler: a short, true nickname. */
@@ -69,6 +89,8 @@ export type Outcome =
   | { kind: 'spicy'; spicy: SpicyPair }
   | { kind: 'same'; element: Element }
   | { kind: 'loner'; noble: Element; other: Element }
+  /** Gold with something it will not react with: it stays shiny. */
+  | { kind: 'noble-metal'; metal: Element; other: Element }
   | { kind: 'unknown'; inputs: string[] }
 
 export type PuffyState =
@@ -106,8 +128,28 @@ export interface Settings {
   voiceOn: boolean
   spitSound: 'silly' | 'sweet'
   hints: 'always' | 'sometimes' | 'never'
+  /** New snacks arrive one at a time as the child learns, or all are there from the start. */
+  snacks: 'one-by-one' | 'all'
   timeLimitMinutes: number | null
 }
+
+/**
+ * The three things a child learns about each element, in this order:
+ * its name (hears "oxygen", finds it), its letters (sees O, finds it),
+ * its number (sees 8, finds it). See DECISIONS.md "Learning ladder".
+ */
+export type Skill = 'name' | 'letter' | 'number'
+
+export interface SkillProgress {
+  /** teach: Puffy asks with the answer visible. check: asks with it hidden. known: passed the check. */
+  stage: 'teach' | 'check' | 'known'
+  /** Right answers while being taught. Three moves the skill to check. */
+  teachHits: number
+  /** Latest check answers, oldest first, at most six. day is the local date, YYYY-MM-DD. */
+  recent: { ok: boolean; day: string }[]
+}
+
+export type ElementLearning = Partial<Record<Skill, SkillProgress>>
 
 export interface Progress {
   version: number
@@ -122,4 +164,10 @@ export interface Progress {
   sessions: number
   /** Stickers not yet tapped in the book: they pulse until seen. */
   unseenStickers: string[]
+  /** Snacks that arrived during play, beyond the level's starting snacks. */
+  arrived: string[]
+  /** Local date of the last arrival: at most one new snack a day. */
+  lastArrivalDay: string | null
+  /** Per element id: how far the child has come on each skill. */
+  learning: Record<string, ElementLearning>
 }

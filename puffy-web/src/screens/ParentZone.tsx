@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import ResultArt from '../components/ResultArt'
+import SnackArt from '../components/SnackArt'
 import { CloseIcon, SpeakerIcon } from '../components/Icons'
-import { COMBOS, ELEMENT_MAP, LEVELS, VOICE, levelForAge } from '../data/content'
+import { ELEMENT_MAP, LEVELS, VOICE, combosFor, levelForAge } from '../data/content'
+import { SKILLS, levelSnacks, roster, skillStatus, type SkillStatus } from '../game/learning'
 import { say, voiceCheck } from '../game/audio'
 import type { Level, Progress, Settings } from '../game/types'
 
@@ -41,6 +43,16 @@ function Segmented<T extends string | number | null>({ label, value, options, on
   )
 }
 
+const STATUS: Record<SkillStatus, string> = {
+  known: 'Knows it',
+  checking: 'Checking',
+  learning: 'Learning',
+  'not-yet': 'Not yet',
+  'needs-sound': 'Needs sound',
+  later: 'Older',
+}
+const SKILL_LABEL = { name: 'Name', letter: 'Letters', number: 'Number' }
+
 function formatMinutes(sec: number) {
   const m = Math.round(sec / 60)
   if (m < 60) return `${m} min`
@@ -58,6 +70,8 @@ export default function ParentZone({ settings, progress, onSettings, onName, onR
   const thisWeek = Object.values(progress.discoveredAt).filter((d) => Date.parse(d) > weekAgo).length
   const topSnack = Object.entries(progress.feedCounts).sort((a, b) => b[1] - a[1])[0]
   const levelInfo = LEVELS[settings.level]
+  const combos = combosFor(settings.level)
+  const tray = roster(progress.arrived, settings.level, settings.snacks === 'all')
 
   useEffect(() => {
     void voiceCheck().then((v) =>
@@ -90,7 +104,7 @@ export default function ParentZone({ settings, progress, onSettings, onName, onR
           </h2>
           <p className="summary">
             {[
-              `${progress.discovered.length} of ${COMBOS.length} found`,
+              `${combos.filter((c) => progress.discovered.includes(c.id)).length} of ${combos.length} found`,
               thisWeek > 0 && `${thisWeek} new this week`,
               progress.secondsPlayed >= 60 && `${formatMinutes(progress.secondsPlayed)} played`,
               topSnack && `favourite snack: ${(ELEMENT_MAP[topSnack[0]]?.name ?? topSnack[0]).toLowerCase()}`,
@@ -99,7 +113,7 @@ export default function ParentZone({ settings, progress, onSettings, onName, onR
               .join(' · ')}
           </p>
           <ul className="found-list">
-            {COMBOS.filter((c) => progress.discovered.includes(c.id)).map((c) => (
+            {combos.filter((c) => progress.discovered.includes(c.id)).map((c) => (
               <li key={c.id} className="found">
                 <ResultArt art={c.result.art} className="found__art" />
                 <div>
@@ -112,6 +126,65 @@ export default function ParentZone({ settings, progress, onSettings, onName, onR
             ))}
           </ul>
           {progress.discovered.length === 0 && <p className="hint">Nothing discovered yet. Feed Puffy two snacks to start.</p>}
+        </section>
+
+        <section className="parent__section" aria-labelledby="p-learning">
+          <h2 id="p-learning" className="parent__h2">
+            What {progress.childName ?? 'your child'} is learning
+          </h2>
+          <p className="hint">
+            Now and then Puffy asks for one snack: first by its name, then by its letters, then by its number. At first the answer is shown on the
+            snack. Once it is hidden, <strong>Knows it</strong> means 5 right of the last 6 asks, on at least 2 different days. It is a sign of
+            learning, not a test score.
+          </p>
+          <table className="learn">
+            <thead>
+              <tr>
+                <th scope="col">Element</th>
+                {SKILLS.map((s) => (
+                  <th key={s} scope="col">
+                    {SKILL_LABEL[s]}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {levelSnacks(settings.level).map((id) => {
+                const el = ELEMENT_MAP[id]
+                const here = tray.includes(id)
+                return (
+                  <tr key={id} className={here ? '' : 'is-waiting'}>
+                    <th scope="row">
+                      <span className="learn__el">
+                        <SnackArt element={el} />
+                        <span>
+                          {el.name} <span className="learn__sym">{el.symbol} · {el.atomicNumber}</span>
+                        </span>
+                      </span>
+                    </th>
+                    {here ? (
+                      SKILLS.map((s) => {
+                        const st = skillStatus(progress.learning[id], el, settings.level, settings.voiceOn, s)
+                        return (
+                          <td key={s} className={`learn__st learn__st--${st}`}>
+                            {STATUS[st]}
+                          </td>
+                        )
+                      })
+                    ) : (
+                      <td colSpan={3} className="learn__st">
+                        Arrives later
+                      </td>
+                    )}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+          <p className="hint">
+            Letters that come from Latin names (Na for sodium, Fe for iron, Cu for copper, Au for gold) and numbers above ten wait until age 4.
+            New snacks arrive one a day at most, once every snack in the tub has been taught and everything it makes has been found.
+          </p>
         </section>
 
         <section className="parent__section" aria-labelledby="p-child">
@@ -155,6 +228,16 @@ export default function ParentZone({ settings, progress, onSettings, onName, onR
             options={LEVELS.map((l) => ({ value: l.level, label: `${l.name} · ${l.ages}` }))}
             onChange={setLevel}
             note={levelInfo.note}
+          />
+          <Segmented
+            label="New snacks"
+            value={settings.snacks}
+            options={[
+              { value: 'one-by-one', label: 'One at a time' },
+              { value: 'all', label: 'All at once' },
+            ]}
+            onChange={(v) => set('snacks', v)}
+            note="One at a time lets each snack's name sink in before the next arrives."
           />
           <Segmented label="Narrator voice" value={settings.voiceOn ? 1 : 0} options={[{ value: 1, label: 'On' }, { value: 0, label: 'Off' }]} onChange={(v) => set('voiceOn', v === 1)} />
           <div className="row voice-check">
