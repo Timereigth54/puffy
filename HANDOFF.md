@@ -216,6 +216,13 @@ A grown-up picks the child's age at first launch; it sets one of four levels (`L
      - richer snack and discovery art.
      
      The owner is to supply references for their original vision first.
+   - **Tools found on 2026-09-29, none tried yet:**
+     - Rive's official MCP connector lets Claude Code edit a Rive file (animations, state machines) while the editor is open. It was released 2026-06-12; earlier reports called Rive's in-editor agent unreliable.
+     - Recraft's official MCP generates consistent-style vector/SVG art. Paid credits.
+     - LottieFiles' Lottie Creator MCP plus dotLottie state machines, as a text-based fallback.
+     - Chatterbox, an open-source TTS with voice cloning and emotion intensity, as a batch job on RunPod.
+     
+     First test for each: a breathing, blinking Puffy in Rive, a few snacks in one Recraft style, and 20 narrator lines. Check first that paying for these works from the owner's country.
    - **Game engine:** none for now. Rive, Godot or Unity only if 3D, physics or heavy particle effects are needed, or if the lag cannot be fixed.
    - **Voice:** VoxCPM2, a voice-cloning TTS with a tone per line, as used for Lulo in `Desktop/EmQ/Scriptures/EmQ/voice-server/` (RunPod serverless; frozen since 2026-08-27, not re-verified). Plan: add it as a third `--engine` in `tools/render-voice.mjs` and render the narrator once as a batch. Clone only voices whose owners agree.
    - **Team:** the owner's wife and friends as educators; web sources for chemistry checks, with sources read, not trusted blindly; Claude as mobile developer.
