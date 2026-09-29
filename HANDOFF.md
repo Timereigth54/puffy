@@ -98,6 +98,14 @@ Tests: 23 unit tests and 40 e2e runs (10 scenarios × WebKit iPad, Chromium iPad
 
 1. Owner: test this build on the Samsung; listen to the new voice; try each age.
 2. Watch toddlers play for 10 minutes each (the owner's sister's children), noting taps that miss, laughs and hesitations.
-3. Harder content at higher levels: packs 2–5, 3–4 tummy slots, heat and spark. Not started.
+3. Harder content at higher levels: not started. Planned "Pack 2" for levels 2–3 only (levels 0–1 keep the starter six):
+   - **New snacks (6):** nitrogen, iron, copper, gold, magnesium, sulfur, for 12 in total.
+   - **New discoveries (11):** N₂, NH₃ ammonia, N₂O laughing gas, Fe₂O₃ rust, steel (a mixture, not a compound), FeS₂ fool's gold, CuO copper oxide, CuCl₂ (blue-green fireworks), rose gold (mixture), MgO, MgCl₂ bath flakes.
+   - **New spicy pairs:** cyanogen (C+N), sodium azide (Na+N), NCl₃, FeCl₃, AuCl₃, MgH₂, H₂S, SO₂, CS₂, SCl₂, Na₂S.
+   - **A new "noble metal" outcome** for gold with O, H, N, C or S: "Gold almost never mixes, so it stays shiny."
+   - **Every other new pair** gets "Puffy doesn't know that one yet", listed explicitly so a test forces every one of the 78 pairs to be classified on purpose.
+   - **Also needed:** new art (6 snacks, 11 results), a 12-slot layout, a 20-plate book, and the voice re-render.
+
+   Later packs: 3–4 tummy slots, heat and spark.
 4. Amazon Kids+ profiles block unlisted websites; see DECISIONS.md.
 5. App Store build: needs a Mac or cloud Mac and an Apple Developer account. Not started.
