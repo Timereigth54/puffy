@@ -159,6 +159,33 @@ A grown-up picks the child's age at first launch; it sets one of four levels (`L
 
 **Found and fixed while testing:** with "New snacks: All at once", Puffy staged a fake arrival of a snack already in the tub and ignored taps for about 3 seconds, once a day. The rust e2e test now starts from a finished starter book to catch this.
 
+**Found by the owner on an iPhone (2026-09-29), fixed:**
+- **The bug:** the first-launch name field could not be typed into.
+- **Cause 1:** the age panel sits inside the bathroom scene, which ignores taps so they fall through to Puffy. Buttons were exempted from that rule; the text field was not.
+- **Cause 2:** iOS also refuses typing where `user-select: none` is inherited.
+- **The fix:** both are fixed in `world.css`.
+- **The test:** the first-launch e2e test now taps the field and types a name. It failed in WebKit before the fix.
+- **Not yet confirmed:** on the owner's iPhone itself.
+
+**Reported by the owner on iPad and iPhone (2026-09-29): lag, and words behind the snacks.**
+
+*Words:*
+- **The problem:** the result captions for older children ("Carbon tetrachloride CCl₄", "Won't mix!", "Gold stays shiny!") had no layer order. The snacks painted over them, right where the top row of snacks now floats.
+- **Caption fix:** captions now sit above the snacks. On narrow screens they wrap and shrink.
+- **Silly-idea words:** they got a white card behind them.
+- **Checked:** by screenshots at iPad landscape and iPhone portrait sizes, with 12 snacks.
+
+*Lag:*
+- **How it was measured:** Chromium at 1180×820, CPU slowed 6×, frames per second over 5 s on the play screen.
+- **The main cause:** the light ripple on the bathwater. It animated `background-position`, which repaints the whole water area every frame. It now slides a pre-painted layer with `transform`.
+- **Second fix:** the evening overlay was a full-screen multiply blend drawn even at zero opacity. It is now only drawn once evening starts.
+- **Idle, before:** about 18–20 fps.
+- **Idle, after:** 55–60 fps with 6 snacks, 48–58 with 12. Light mode measures about the same.
+- **During a discovery turn, after:** 36–39 fps. There is no "before" number for turns.
+- **Other effects tried:** snack drop-shadows, Puffy's filters, wall bubbles and the window light blend were each within run-to-run noise (±8 fps), so they were left alone.
+- **What these numbers are not:** a desktop slowed 6× is not an iPad. They compare versions; they do not predict a device.
+- **Not checked:** the owner's iPad and iPhone after the fix. The throwaway measuring script was not kept; the method is above.
+
 **Not checked. Read before trusting the above:**
 - **Only the owner's Samsung tablet has run Puffy**, and that was an earlier build with the Piper voice. This build (Kokoro voice, levels, tap-to-feed) has run only in desktop browser engines at tablet sizes.
 - **Nobody has listened to the Kokoro clips in the game.** Three samples were sent to the owner. An automated check on 2026-09-29 showed all 389 decode, none is silent, and speaking rate is 6–20 characters/second (median 13).

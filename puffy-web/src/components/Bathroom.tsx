@@ -38,7 +38,8 @@ export default function Bathroom({ children, tub, evening = 0, bubbles, classNam
         <div className="tub__veil" aria-hidden="true" />
         <div className="tub__rim" aria-hidden="true" />
       </div>
-      <div className="bathroom__evening" style={{ opacity: evening * 0.55 }} aria-hidden="true" />
+      {/* Only drawn once evening starts: a full-screen multiply blend costs frames even when invisible. */}
+      {evening > 0 && <div className="bathroom__evening" style={{ opacity: evening * 0.55 }} aria-hidden="true" />}
     </div>
   )
 }
