@@ -18,7 +18,7 @@ React 19 + TypeScript + Vite, shipped as an installable offline web app (PWA). C
 
 ## Product Purpose
 
-A toddler-first chemistry playground. The child drags element "snacks" into a pink cloud pet named Puffy. Puffy chews and spits out a real compound (water, salt, carbon dioxide) or, for a combination it does not know, imagines something silly and invites another try. Success for the first test: a 2–3-year-old completes a combo within 60 seconds of a single demo, laughs at the silly-idea sequence, and asks to play again. No child cries or gets stuck.
+A toddler-first chemistry playground that grows with the child: snacks arrive one at a time, and Puffy's asks teach each element's name, then its letters, then its number, so the elements are familiar by the time the child can read. Harder chemistry (pack 2: nitrogen, iron, magnesium, sulfur, copper, gold) opens from age 4. The child drags element "snacks" into a pink cloud pet named Puffy. Puffy chews and spits out a real compound (water, salt, carbon dioxide) or, for a combination it does not know, imagines something silly and invites another try. Success for the first test: a 2–3-year-old completes a combo within 60 seconds of a single demo, laughs at the silly-idea sequence, and asks to play again. No child cries or gets stuck.
 
 ## Positioning
 
@@ -33,7 +33,7 @@ Real chemistry that stays honest at every age — Puffy never says a real compou
 ## Capabilities and Constraints
 
 - Fully offline after first load. No network calls during play, no analytics, no ads, no accounts, no third-party SDKs.
-- Voice-first: Mode 0 has no text anywhere in the child's view.
+- Voice-first: ages 1–3 see no words in the child's view. Once a child is learning an element's letters or number, that single symbol or number appears on the snack; it is the thing being learned, not reading matter (DECISIONS.md "Learning ladder").
 - No timers, scores, fail states, or buzzers in the child's view.
 - Sad state never lasts longer than 0.8 s before Puffy recovers.
 - Parent zone is behind a math gate.

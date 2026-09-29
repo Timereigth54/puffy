@@ -137,3 +137,121 @@ Words on screen follow the level; there is no separate setting. A grown-up can c
 - *Also added:* the grown-ups page shows whether the tablet is playing the recorded clips or its own voice, with a "Test the voice" button.
 
 **Grown-ups entry.** The owner could not find the settings ("upgrade menu"). The tiny gear is now a labelled "Grown-ups" button on the home and bedtime screens.
+
+## 2026-09-29 — Learning ladder: name, then letters, then number (owner request)
+
+The owner asked for progressive growth, so that a child truly knows the elements by the time they can read letters and numbers.
+
+**The bridge:** an element's symbol is made of letters and its atomic number is a number. A child who learns "O is oxygen" and "hydrogen is number one" before reading can already read the elements when reading arrives.
+
+**Chosen:** each element is learned in three skills, in order. The code is `game/learning.ts`.
+- **Name:** Puffy says "oxygen" and the child finds it.
+- **Letters:** Puffy shows O and the child finds it.
+- **Number:** Puffy shows 8, with eight dots up to ten, and the child finds it.
+
+**How each skill is learned:**
+- **Taught first.** The answer is visible, so the child can match it. For names, the bubble shows the snack itself. For letters and numbers, the snacks carry theirs.
+- **Then checked.** The answer is hidden. The name is heard only, and the snacks hide their letters or numbers while Puffy asks.
+- **Order:** a letter is taught only after the name is known, and a number only after the letters.
+
+**Supporting mechanics:**
+- **Naming on touch.** Every touch names the snack ("Oxygen!", then "O! Oxygen!", then "Oxygen! Number eight!"), the way a grown-up names things for a toddler. This replaced the random "Ooh!" grab lines.
+- **The ask.** Puffy asks for one snack on every other turn. The first snack fed answers it.
+- **Wrong answers.** A wrong snack is still eaten, named ("Carbon! Yum!"), and the wanted one glows while the narrator shows it. There is no fail state and no score.
+
+**"Known" = 5 right of the last 6 checks, on at least 2 different days.**
+- *Rejected:* 3 of the last 4. Simulated with a random guesser on a three-snack tray, it passed 10% of the time.
+- *Now:* 5 of 6 passes a guesser about 3% of the time (1% on four snacks). A child who is right 90% of the time needs about six checks.
+- *The two-day rule* is there so the number measures remembering, not one lucky afternoon.
+- *Two check misses in a row* send the skill back to teaching. A known skill is never lowered.
+
+**What each age learns:**
+- **Age 1:** names only.
+- **Ages 2–3:** letters and numbers too, except two cases:
+  - Latin symbols (Na, Fe, Cu, Au) wait until age 4, because they do not match the English name's first sound. That would teach the wrong phonics just as letter sounds are learned.
+  - Numbers above ten wait until age 4, beyond toddler counting.
+- **Narrator off:** names cannot be checked. The name step is skipped, and the grown-ups page says "Needs sound".
+
+**Not known:** whether any child learns from this. The rules are unit-tested; no child has played them.
+
+## 2026-09-29 — Snacks arrive one at a time
+
+**Chosen:**
+- **Starting snacks:** toddlers (ages 1–3) start with three snacks: hydrogen, oxygen and carbon, three new words. Older children start with the starter six.
+- **When a new snack arrives:** only when two things are true:
+  - everything the current snacks can make has been found,
+  - every current snack's name has been taught (three right answers with the picture shown).
+- **Pace:** at most one arrival a day.
+- **Order:** H, O, C, He, Cl, Na, then pack 2: N, Fe, Mg, S, Cu, Au. A test checks that every arrival brings at least one new discovery.
+- **Starting point for the first three:** they need no new discovery, but they are all friendly. Hydrogen, oxygen and carbon make six discoveries and nothing spicy.
+
+**Parent override:** Grown-ups → "New snacks: All at once" puts every snack for the level in the tub. It exists for testing and for bored children.
+
+**Migration:** a save from before this change is treated as follows:
+- If it has played (onboarded, or anything discovered), it keeps the starter six.
+- A new player starts at three.
+- To see arrivals on the owner's tablet, reset progress in Grown-ups.
+
+**Rejected:** all snacks from the start (a toddler meets six new words at once), and arrival by time played (it rewards sitting, not learning).
+
+## 2026-09-29 — Pack 2: harder chemistry for ages 4 and up
+
+The owner's reminder in this session: the job includes harder chemistry for older children. This is the pack planned in HANDOFF.
+
+**Six new snacks, levels 2–3 only:**
+- **The snacks:** nitrogen (cloud shape), iron (hexagon), magnesium (triangle), sulfur (diamond), copper (heart) and gold (ingot). Levels 0–1 keep the starter six, even with "All at once".
+- **Shape changes from the plan:** a lightning bolt for magnesium and a crescent for sulfur were planned. Both were too narrow to hold a face, so each became a rounded triangle and a rounded diamond.
+
+**Eleven discoveries, plates 10–20:**
+- **Gases and compounds:** N₂, NH₃ ammonia, N₂O laughing gas, Fe₂O₃ rust, FeS₂ fool's gold, MgO, MgCl₂ bath flakes, CuO copper oxide, CuCl₂ (blue-green fireworks).
+- **Mixtures:** steel and rose gold are marked `mixture`, not compound. Their "formula" is shown as "Fe + C" and "Au + Cu", and their facts say "a mixture, not a compound". A test enforces both.
+
+**Eleven spicy pairs:** cyanogen, sodium azide, NCl₃, FeCl₃, AuCl₃, MgH₂, H₂S, SO₂, CS₂, SCl₂, Na₂S.
+
+**Gold stays shiny:** a new outcome for gold with H, O, N, C or S. The level 2 line is "Gold almost never mixes, so it stays shiny!"; level 3 adds "noble metal".
+
+**Nineteen "Puffy doesn't know that one yet" pairs** (superseded the same day: see "Every pair gets a real answer" below), each listed by name in `NOT_YET`:
+- **How the test uses it:** the test fails if any pair gives that answer without being on the list, or if a starter pair ever gives it.
+- **Why not "not real":** several of these pairs do make real substances (iron nitride, copper sulfide, magnesium sulfide…). They are left for a later pack rather than called "not real".
+
+**Helium with each new snack:** still the silly idea. Tags on the new snacks reuse existing drawn ideas, plus two new drawings: a flying crown for gold and a banana balloon for sulfur.
+
+**Book:** twenty plates from age 4, nine below. It became twenty-four, six across, with the entry below.
+
+**Layout:** snack spots are now computed from the snack count (`game/layout.ts`):
+- up to six: one arc,
+- seven to twelve: two rows (three rows of four in portrait), with smaller snacks, at least 84 px.
+
+**Not checked:**
+- the chemistry facts against a chemist,
+- the new art at real tablet size by the owner,
+- twelve snacks' frame rate on a Fire 7.
+
+## 2026-09-29 — Every pair gets a real answer (owner request)
+
+The owner asked for "the part where all the elements can be combined". Two readings were offered, and they chose: every pair gives a real answer, still two snacks at a time. The 3–4 snack tummy was the other option and is not started.
+
+The 19 "doesn't know that one yet" pairs from pack 2 were replaced as follows.
+
+**4 discoveries, plates 21–24:**
+- iron nitride Fe₄N (the hard skin on nitrided steel tools),
+- magnesium nitride Mg₃N₂ (magnesium burns even in nitrogen),
+- copper sulfide CuS (covellite, a deep-blue mineral),
+- blue gold (gold with iron, a mixture).
+
+**3 spicy pairs:**
+- sulfur nitride S₄N₄ (explodes when bumped),
+- magnesium carbide (gives off a burning gas in water),
+- magnesium sulfide (gives off poisonous gas in water).
+
+**12 true "no"s**, a new `fact` outcome with a caption and one sentence per level:
+- **Won't mix:** metals that separate even when melted (Fe+Mg, Fe+Na, Cu+Na, Mg+Na), and iron and copper, which separate as they cool.
+- **Won't join:** Cu+C, Fe+H, Cu+H, N+Cu. Each reason is a real fact. For example, copper is melted in carbon pots, and hydrogen makes steel brittle.
+- **Metal mix:** Au+Mg and Cu+Mg melt into ordinary alloys. Au+Na makes a compound made only in labs.
+
+**What the test checks now:** none of the 78 pairs answers "doesn't know that one yet". The `unknown` outcome stays only as a fallback for future content.
+
+**Rejected:** calling the metal pairs "spicy". They are not harsh, and "too hot" would teach something false. Making every pair a sticker was also rejected, because an alloy of two metals nobody uses is not a discovery worth a plate.
+
+**Not checked:**
+- the new facts against a chemist, in particular the Cu+Na and Fe+Cu mixing claims and "blue-grey shine" for blue gold.
