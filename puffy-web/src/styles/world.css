@@ -941,6 +941,13 @@
   line-height: 1.15;
   color: var(--ink);
   text-wrap: balance;
+  /* a soap card behind the words: they often land on top of the snacks */
+  width: max-content;
+  max-width: min(84vw, 150%);
+  padding: 4px 12px 5px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 2px 3px 8px rgba(166, 60, 120, 0.2);
 }
 .thought.is-popped .thought__bubble,
 .thought.is-popped .thought__stem {
@@ -956,10 +963,19 @@
   left: 50%;
   top: calc(max(3vh, 12px) + min(48vh, 58vw * 0.87) + 1vh);
   transform: translateX(-50%);
-  white-space: nowrap;
+  /* above the snacks, which float right here once there are more than six;
+     long names ("Carbon tetrachloride") wrap instead of running off a phone */
+  z-index: 14;
+  width: max-content;
+  max-width: 94vw;
+  font-size: clamp(22px, min(5.5vh, 7.5vw), 52px);
+  text-align: center;
+  text-wrap: balance;
   animation: slap 0.5s var(--ease-squish) both;
   display: flex;
-  gap: 0.4em;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.4em;
   align-items: baseline;
 }
 
