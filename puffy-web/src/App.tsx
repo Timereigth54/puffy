@@ -11,6 +11,8 @@ import SleepScreen from './screens/SleepScreen'
 import { combosFor, levelForAge } from './data/content'
 import { setVoiceEnabled, unlockAudio } from './game/audio'
 import { dayKey, learn, type Ask } from './game/learning'
+import { afterMeasuring, loadSpeed, looksWeak, measureFps, saveSpeed, smoothOn, type DeviceSpeed } from './game/smooth'
+import { startUpdates } from './game/update'
 import { deleteLegacyNameRecording, freshProgress, loadProgress, loadSettings, saveProgress, saveSettings } from './game/store'
 import type { Combo, Progress, Settings } from './game/types'
 
@@ -19,12 +21,12 @@ type Overlay = 'gate' | 'parent' | null
 
 const CHILD_SCREENS: Screen[] = ['home', 'play', 'book']
 
-// Kids' tablets (Amazon Fire, Galaxy Tab A) are far weaker than iPads.
-// On 2 GB or less, or 2 cores or fewer, drop the costly paint effects.
-const LITE = (() => {
-  const nav = navigator as Navigator & { deviceMemory?: number }
-  return (nav.deviceMemory !== undefined && nav.deviceMemory <= 2) || (navigator.hardwareConcurrency ?? 8) <= 2 || location.search.includes('lite')
-})()
+// Kids' tablets (Amazon Fire, Galaxy Tab A) are far weaker than iPads. Smooth
+// mode drops the costly paint effects: guessed from memory and cores, and
+// switched on when a measured play runs slow (game/smooth.ts).
+const WEAK = looksWeak()
+// Measured once per page load, early in the first play.
+let speedMeasured = false
 
 // Counted once per page load (React StrictMode runs initializers twice in dev).
 let sessionCounted = false
@@ -41,6 +43,7 @@ export default function App() {
   const [settings, setSettings] = useState<Settings>(loadSettings)
   const [progress, setProgress] = useState<Progress>(bootProgress)
   const [screen, setScreen] = useState<Screen>('splash')
+  const [speed, setSpeed] = useState<DeviceSpeed | null>(loadSpeed)
   const [overlay, setOverlay] = useState<Overlay>(null)
   const [sessionSeconds, setSessionSeconds] = useState(0)
   const unsavedSeconds = useRef(0)
@@ -74,6 +77,34 @@ export default function App() {
   }, [])
 
   useEffect(() => setVoiceEnabled(settings.voiceOn), [settings.voiceOn])
+
+  useEffect(() => startUpdates(), [])
+
+  const lite = smoothOn(settings.smooth, WEAK, speed)
+
+  // Two seconds into the first play of this page load, count frames for four seconds.
+  useEffect(() => {
+    if (screen !== 'play' || speedMeasured) return
+    speedMeasured = true
+    const t = window.setTimeout(() => {
+      void measureFps(4000).then((fps) => {
+        if (fps === null) {
+          speedMeasured = false
+          return
+        }
+        const next = afterMeasuring(loadSpeed(), Math.round(fps), lite, new Date().toISOString())
+        saveSpeed(next)
+        setSpeed(next)
+      })
+    }, 2000)
+    return () => window.clearTimeout(t)
+  }, [screen, lite])
+
+  const clearSpeed = () => {
+    saveSpeed(null)
+    setSpeed(null)
+    speedMeasured = false
+  }
 
   // Session clock: only while a child screen is visible and no grown-up panel is open.
   useEffect(() => {
@@ -141,7 +172,7 @@ export default function App() {
   const allFound = combosFor(settings.level).every((c) => progress.discovered.includes(c.id))
 
   return (
-    <div className={`app ${LITE ? 'is-lite' : ''}`}>
+    <div className={`app ${lite ? 'is-lite' : ''}`}>
       {shown === 'splash' && (
         <Bathroom className="splash">
           <div className="home-stage">
@@ -197,6 +228,10 @@ export default function App() {
           settings={settings}
           progress={progress}
           onSettings={changeSettings}
+          speed={speed}
+          smoothNow={lite}
+          weakGuess={WEAK}
+          onClearSpeed={clearSpeed}
           onName={saveName}
           onReset={reset}
           onClose={closeParent}

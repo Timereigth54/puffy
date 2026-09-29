@@ -2,16 +2,17 @@ import { expect, test, type Page } from '@playwright/test'
 
 // Voice is turned off in every test so beats run on their silent timings;
 // headless browsers have no speech voices and would wait on fallbacks.
-async function seed(page: Page, opts: { onboarded?: boolean; settings?: Record<string, unknown>; progress?: Record<string, unknown> } = {}) {
+async function seed(page: Page, opts: { onboarded?: boolean; settings?: Record<string, unknown>; progress?: Record<string, unknown>; device?: Record<string, unknown> } = {}) {
   await page.addInitScript(
-    ({ onboarded, settings, extra }) => {
+    ({ onboarded, settings, extra, device }) => {
       if (sessionStorage.getItem('seeded')) return
       sessionStorage.setItem('seeded', '1')
       localStorage.clear()
       localStorage.setItem('puffy.settings', JSON.stringify({ voiceOn: false, childAge: onboarded ? 3 : null, ...settings }))
       if (onboarded) localStorage.setItem('puffy.progress', JSON.stringify({ onboarded: true, childName: 'Ada', ...extra }))
+      if (device) localStorage.setItem('puffy.device', JSON.stringify(device))
     },
-    { onboarded: opts.onboarded ?? true, settings: opts.settings ?? {}, extra: opts.progress ?? {} },
+    { onboarded: opts.onboarded ?? true, settings: opts.settings ?? {}, extra: opts.progress ?? {}, device: opts.device ?? null },
   )
   await page.goto('/')
 }
@@ -248,4 +249,30 @@ test('the book holds twenty-four plates from age 4, nine below', async ({ page }
   await page.reload()
   await page.getByRole('button', { name: 'Discovery book' }).click()
   await expect(page.locator('.plate')).toHaveCount(9)
+})
+
+// ─── Smooth mode and updates (grown-ups page) ───────────────────────────────
+async function openGrownUps(page: Page) {
+  await page.getByRole('button', { name: 'Grown-ups' }).click()
+  const [a, b] = (await page.locator('.gate__q').textContent())!.match(/(\d+) \+ (\d+)/)!.slice(1).map(Number)
+  for (const digit of String(a + b)) await page.getByRole('button', { name: digit, exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Grown-ups' })).toBeVisible()
+}
+
+test('grown-ups can see the version and how smoothly this device plays', async ({ page }) => {
+  await seed(page)
+  await openGrownUps(page)
+  await expect(page.getByTestId('version')).toContainText(/Version \w+ \(\d{4}-\d{2}-\d{2}\)/)
+  await expect(page.getByTestId('speed-readout')).toContainText('Not measured yet')
+  await page.getByRole('radiogroup', { name: 'Smooth mode' }).getByRole('radio', { name: 'On', exact: true }).click()
+  await expect(page.locator('.app')).toHaveClass(/is-lite/)
+})
+
+test('a play measured as choppy switches smooth mode on by itself, and a grown-up can undo it', async ({ page }) => {
+  await seed(page, { device: { fps: 31, withSmooth: false, at: '2026-09-29T20:00:00.000Z', slowRuns: 2, autoSmooth: true } })
+  await expect(page.locator('.app')).toHaveClass(/is-lite/)
+  await openGrownUps(page)
+  await expect(page.getByTestId('speed-readout')).toContainText('31 frames per second with full effects (choppy')
+  await page.getByRole('button', { name: 'Try full effects again' }).click()
+  await expect(page.locator('.app')).not.toHaveClass(/is-lite/)
 })

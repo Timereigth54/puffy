@@ -37,9 +37,9 @@ Needs Node 20+ (built with Node 24).
 cd puffy-web
 npm ci
 npm run dev          # http://localhost:3000, also on your Wi-Fi via --host
-npm test             # 55 unit tests (vitest)
+npm test             # 60 unit tests (vitest)
 npx playwright install webkit chromium   # once
-npx playwright test  # 18 scenarios x 4 device sizes
+npx playwright test  # 20 scenarios x 4 device sizes
 node tools/capture-ladder.mjs   # review screenshots of the ladder and pack 2 (needs vite preview on :4173)
 npm run build        # production build in puffy-web/dist
 ```
@@ -143,8 +143,8 @@ A grown-up picks the child's age at first launch; it sets one of four levels (`L
 - pack 2 at ages 4 and up, with a real answer for every one of the 78 pairs.
 
 **Tests (2026-09-29):**
-- **Unit:** 55 unit tests pass.
-- **End to end:** 72 e2e runs pass locally (18 scenarios × WebKit iPad, Chromium iPad, Fire 7 size, Galaxy Tab size).
+- **Unit:** 60 unit tests pass.
+- **End to end:** 80 e2e runs pass locally (20 scenarios × WebKit iPad, Chromium iPad, Fire 7 size, Galaxy Tab size).
 - **What the unit tests cover:** the ladder rules, including a simulated random guesser against the "known" rule.
 - **What the e2e tests cover:**
   - a toddler's first three snacks,
@@ -166,6 +166,24 @@ A grown-up picks the child's age at first launch; it sets one of four levels (`L
 - **The fix:** both are fixed in `world.css`.
 - **The test:** the first-launch e2e test now taps the field and types a name. It failed in WebKit before the fix.
 - **Not yet confirmed:** on the owner's iPhone itself.
+
+**Stuck on an old version, and smooth mode (2026-09-29, evening).**
+
+*Updates (`game/update.ts`):*
+- **The problem:** the owner's Samsung stayed on an old version after deploys. The old setup only switched versions after a full close and reopen, and only if the 13.7 MB download had finished first.
+- **Now:** Puffy checks for a new version on every open and on every return to the foreground. It downloads in the background and switches when Puffy goes to the background, never in front of a child. A grown-up can also tap Grown-ups → "Update now".
+- **Version display:** Grown-ups shows the version (git commit and build date) and the update status.
+- **Tested:** in Chromium, end to end: install, publish a changed build, then both "Update now" and going to the background switched to the new files.
+- **Not tested:** Safari on an iPhone or iPad. The Windows WebKit here does not run service workers.
+- **Caveat:** a device still on a version from before this change needs one last full close and reopen, after the download, to pick it up.
+
+*Smooth mode (`game/smooth.ts`):*
+- **Settings:** Grown-ups → This device → Smooth mode: Automatic, On or Off.
+- **Automatic:** it measures frames per second for 4 s, starting 2 s into the first play of each page load. It switches on after 2 plays in a row below 45 fps with full effects, and also on the old memory/processor guess. It stays on until a grown-up taps "Try full effects again".
+- **Why two plays, not one:** Windows WebKit here reported 5 fps. That comes from the test setup's missing screen, not a real device, but it showed that one bad reading would switch smooth mode on for good.
+- **Readout:** Grown-ups shows the last measured frames per second, and whether smooth mode was on at the time.
+- **Before this:** iPhones never got smooth mode, because they do not report their memory to web pages.
+- **Not checked:** the numbers from the owner's iPhone, iPad and Samsung.
 
 **Reported by the owner on iPad and iPhone (2026-09-29): lag, and words behind the snacks.**
 

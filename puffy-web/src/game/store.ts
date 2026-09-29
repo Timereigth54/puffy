@@ -15,6 +15,7 @@ export const DEFAULT_SETTINGS: Settings = {
   spitSound: 'silly',
   hints: 'always',
   snacks: 'one-by-one',
+  smooth: 'auto',
   timeLimitMinutes: null,
 }
 

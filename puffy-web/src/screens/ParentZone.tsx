@@ -5,12 +5,21 @@ import { CloseIcon, SpeakerIcon } from '../components/Icons'
 import { ELEMENT_MAP, LEVELS, VOICE, combosFor, levelForAge } from '../data/content'
 import { SKILLS, levelSnacks, roster, skillStatus, type SkillStatus } from '../game/learning'
 import { say, voiceCheck } from '../game/audio'
+import { SLOW_FPS, type DeviceSpeed } from '../game/smooth'
+import { applyUpdate, checkForUpdate, onUpdateStatus, type UpdateStatus } from '../game/update'
 import type { Level, Progress, Settings } from '../game/types'
 
 interface Props {
   settings: Settings
   progress: Progress
   onSettings: (s: Settings) => void
+  /** Latest measured frame rate on this device. */
+  speed: DeviceSpeed | null
+  /** Whether smooth mode is on right now. */
+  smoothNow: boolean
+  /** Whether memory or processor count already marked this device as weak. */
+  weakGuess: boolean
+  onClearSpeed: () => void
   onName: (name: string | null) => void
   onReset: () => void
   onClose: () => void
@@ -53,17 +62,36 @@ const STATUS: Record<SkillStatus, string> = {
 }
 const SKILL_LABEL = { name: 'Name', letter: 'Letters', number: 'Number' }
 
+const UPDATE_TEXT: Record<UpdateStatus, string> = {
+  unsupported: 'Updates arrive when Puffy is reopened.',
+  checking: 'Checking for a new version…',
+  current: 'This is the newest version.',
+  downloading: 'Downloading a new version. Keep Puffy open for a minute.',
+  ready: 'A new version is ready. It installs next time Puffy is closed, or now:',
+  offline: 'Could not check: no internet.',
+}
+
+function speedText(speed: DeviceSpeed | null, smoothNow: boolean, weakGuess: boolean, setting: Settings['smooth']): string {
+  const now = smoothNow ? 'Smooth mode is on.' : 'Smooth mode is off.'
+  if (!speed) return `${now} Not measured yet: play for a few seconds and come back.${weakGuess && setting === 'auto' ? ' It is on because this device looks low on memory.' : ''}`
+  const how = speed.withSmooth ? 'with smooth mode' : 'with full effects'
+  const verdict = speed.fps >= SLOW_FPS ? 'smooth' : 'choppy'
+  return `${now} Last play ran at ${speed.fps} frames per second ${how} (${verdict}; ${SLOW_FPS} or more is smooth).`
+}
+
 function formatMinutes(sec: number) {
   const m = Math.round(sec / 60)
   if (m < 60) return `${m} min`
   return `${Math.floor(m / 60)} h ${m % 60} min`
 }
 
-export default function ParentZone({ settings, progress, onSettings, onName, onReset, onClose }: Props) {
+export default function ParentZone({ settings, progress, onSettings, speed, smoothNow, weakGuess, onClearSpeed, onName, onReset, onClose }: Props) {
   const [confirmReset, setConfirmReset] = useState(false)
   const [openedAt] = useState(() => Date.now())
   const [name, setName] = useState(progress.childName ?? '')
   const [voice, setVoice] = useState<string | null>(null)
+  const [update, setUpdate] = useState<UpdateStatus>('unsupported')
+  useEffect(() => onUpdateStatus(setUpdate), [])
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => onSettings({ ...settings, [k]: v })
 
   const weekAgo = openedAt - 7 * 24 * 3600 * 1000
@@ -278,6 +306,48 @@ export default function ParentZone({ settings, progress, onSettings, onName, onR
             onChange={(v) => set('timeLimitMinutes', v)}
             note="The bathroom light warms toward evening, then Puffy falls asleep. There is no countdown."
           />
+        </section>
+
+        <section className="parent__section" aria-labelledby="p-device">
+          <h2 id="p-device" className="parent__h2">
+            This device
+          </h2>
+          <Segmented
+            label="Smooth mode"
+            value={settings.smooth}
+            options={[
+              { value: 'auto', label: 'Automatic' },
+              { value: 'on', label: 'On' },
+              { value: 'off', label: 'Off' },
+            ]}
+            onChange={(v) => set('smooth', v)}
+            note="Fewer effects (soft shadows, blur, ripples) so Puffy moves smoothly on slower devices."
+          />
+          <p className="hint" data-testid="speed-readout">
+            {speedText(speed, smoothNow, weakGuess, settings.smooth)}
+          </p>
+          {speed?.autoSmooth && settings.smooth === 'auto' && (
+            <div className="row">
+              <span className="hint">Smooth mode switched itself on after two slow plays in a row.</span>
+              <button type="button" className="btn btn--quiet" onClick={onClearSpeed}>
+                Try full effects again
+              </button>
+            </div>
+          )}
+          <div className="row">
+            <span className="hint" data-testid="version">
+              Version {__BUILD__.commit} ({__BUILD__.date}). {UPDATE_TEXT[update]}
+            </span>
+            {update === 'ready' ? (
+              <button type="button" className="btn btn--quiet" onClick={applyUpdate}>
+                Update now
+              </button>
+            ) : (
+              <button type="button" className="btn btn--quiet" onClick={() => void checkForUpdate()} disabled={update === 'checking' || update === 'downloading'}>
+                Check for update
+              </button>
+            )}
+          </div>
         </section>
 
         <section className="parent__section" aria-labelledby="p-reset">

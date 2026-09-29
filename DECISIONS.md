@@ -255,3 +255,15 @@ The 19 "doesn't know that one yet" pairs from pack 2 were replaced as follows.
 
 **Not checked:**
 - the new facts against a chemist, in particular the Cu+Na and Fe+Cu mixing claims and "blue-grey shine" for blue gold.
+
+## 2026-09-29 — Updates wait for the background; smooth mode measures itself
+
+**Updates:** a new version installs when Puffy goes to the background, or when a grown-up taps Update now.
+- *Rejected:* reloading the moment a new version is ready. It would restart the game in front of a child mid-turn.
+- *Rejected:* keeping "only after a full close", which left the owner's Samsung on an old version.
+
+**Smooth mode:** switched on by measuring frames per second during play, not only by guessing from memory and processor count. iPhones do not report memory, so the guess never fired on them.
+- *Rule:* two slow plays in a row, below 45 fps.
+- *Rejected:* a single slow play. One bad reading, such as the first play during a 14 MB download, would turn it on for good.
+- *Rejected:* re-measuring in smooth mode to switch it off again. A play in smooth mode says nothing about full effects.
+- *Instead:* a grown-up can clear it with "Try full effects again".

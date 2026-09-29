@@ -150,6 +150,8 @@ export interface Settings {
   hints: 'always' | 'sometimes' | 'never'
   /** New snacks arrive one at a time as the child learns, or all are there from the start. */
   snacks: 'one-by-one' | 'all'
+  /** Smooth mode (fewer effects): switched on automatically on slow devices, or forced on or off. */
+  smooth: 'auto' | 'on' | 'off'
   timeLimitMinutes: number | null
 }
 
