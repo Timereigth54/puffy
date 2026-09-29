@@ -208,5 +208,17 @@ A grown-up picks the child's age at first launch; it sets one of four levels (`L
    - hesitations.
 3. **Tune the ladder from what is seen.** The candidates are `TEACH_HITS`, `CHECK_HITS`/`CHECK_WINDOW`/`CHECK_DAYS` and `ASK_EVERY` in `game/learning.ts`.
 4. **Later packs:** 3–4 tummy slots, heat and spark. The first ten elements in order (adding Li, Be, B, F, Ne) would let numbers 1–10 be learned as a counting row; not started.
-5. Amazon Kids+ profiles block unlisted websites; see DECISIONS.md.
-6. App Store build: needs a Mac or cloud Mac and an Apple Developer account. Not started.
+5. **Parked by the owner on 2026-09-29 ("when we get serious"), agreed but not started:**
+   - **Puffy's look, in code, starting with one moment as a quality spike.** The spike is gulp → chew → delight, compared side by side on the owner's iPad before redoing anything else. The work after that:
+     - a spring-based animation rig (squash and stretch, follow-through, breathing, eyes following the finger, blended expressions),
+     - the blueprint's growth stages (Baby → Sparkle → Bouncy → Scientist → Professor → ChemiCloud),
+     - steam, spark and fizz effects,
+     - richer snack and discovery art.
+     
+     The owner is to supply references for their original vision first.
+   - **Game engine:** none for now. Rive, Godot or Unity only if 3D, physics or heavy particle effects are needed, or if the lag cannot be fixed.
+   - **Voice:** VoxCPM2, a voice-cloning TTS with a tone per line, as used for Lulo in `Desktop/EmQ/Scriptures/EmQ/voice-server/` (RunPod serverless; frozen since 2026-08-27, not re-verified). Plan: add it as a third `--engine` in `tools/render-voice.mjs` and render the narrator once as a batch. Clone only voices whose owners agree.
+   - **Team:** the owner's wife and friends as educators; web sources for chemistry checks, with sources read, not trusted blindly; Claude as mobile developer.
+   - **Stores:** Google Play first (wrapped web app from this Windows PC; $25; 14-day closed test with 12+ testers doubles as the child test). Apple later (needs a Mac or cloud Mac, $99 a year). Check first whether developer accounts and payouts work from the owner's country. Also needed: a privacy policy page, and the free-or-paid decision.
+6. Amazon Kids+ profiles block unlisted websites; see DECISIONS.md.
+7. App Store build: needs a Mac or cloud Mac and an Apple Developer account. Not started.
