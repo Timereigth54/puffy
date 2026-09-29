@@ -45,11 +45,16 @@ test('first launch: wake Puffy, pick an age, land in guided play at that level',
   await expect(page.getByRole('dialog', { name: /how old is your child/i })).toBeVisible({ timeout: 15000 })
   await page.getByRole('radio', { name: '5', exact: true }).click()
   await expect(page.getByText(/Element Friends/)).toBeVisible()
+  // Tap the name field and type, the way a parent does (an iPhone once could not type here).
+  await page.getByRole('textbox').click()
+  await page.keyboard.type('Mia')
+  await expect(page.getByRole('textbox')).toHaveValue('Mia')
   await page.getByRole('button', { name: /Let.s play/ }).click()
   await expect(page.getByRole('button', { name: 'Hydrogen' })).toBeVisible({ timeout: 15000 })
   await expect(page.locator('.snack.is-hinted')).toHaveCount(2)
   const settings = await page.evaluate(() => JSON.parse(localStorage.getItem('puffy.settings') ?? '{}'))
   expect(settings).toMatchObject({ childAge: 5, level: 2 })
+  expect((await progress(page)).childName).toBe('Mia')
   // Element Friends shows element symbols on the snacks
   await expect(page.locator('.float-slot .snack-symbol').first()).toBeVisible()
 })

@@ -63,8 +63,17 @@
   inset: 0;
 }
 .bathroom__stage button,
-.bathroom__stage .puffy-anchor {
+.bathroom__stage .puffy-anchor,
+/* a grown-ups panel inside the scene (the first-launch age question) takes
+   every tap, or its name field cannot be focused */
+.bathroom__stage .cabinet {
   pointer-events: auto;
+}
+/* iOS will not type into a field that inherits user-select: none from .app */
+.app input,
+.app textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .bathroom__evening {
